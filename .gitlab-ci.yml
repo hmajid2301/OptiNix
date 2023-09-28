@@ -1,0 +1,47 @@
+include:
+  - template: Security/SAST.gitlab-ci.yml
+  - template: Code-Quality.gitlab-ci.yml
+
+image: nixos/nix
+
+.task:
+  stage: test
+  only:
+    - merge_request
+  before_script:
+    - nix-env -iA cachix -f https://cachix.org/api/v1/install
+    - cachix use devenv
+    - nix-env -if https://github.com/cachix/devenv/tarball/v0.5
+    - devenv shell
+
+stages:
+  - test
+
+format:
+  extends:
+    - .task
+  script:
+    - devenv shell task format
+
+lint:
+  extends:
+    - .task
+  script:
+    - devenv shell task lint
+
+coverage:
+  extends:
+    - .task
+  only:
+    - main
+    - merge_request
+  script:
+    - devenv shell task coverage
+  coverage: /^coverage:\s(\d+(?:\.\d+)?%)/
+  artifacts:
+    reports:
+      junit: report.xml
+      coverage_report:
+        coverage_format: cobertura
+        path: coverage.xml
+

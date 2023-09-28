@@ -1,0 +1,47 @@
+version: "3"
+
+tasks:
+  build:
+    desc: Builds the app into a binary.
+    cmds:
+      - go build main.go
+
+  lint:
+    desc: Runs the linter.
+    cmds:
+      - golangci-lint run {{.CLI_ARGS}}
+
+  format:
+    desc: Runs the formatter.
+    cmds:
+      - goimports -local gitlab.com/hmajid2301/gomodoro-cli -w .
+
+  install:precommit:
+    desc: Installs git pre-commit hooks.
+    internal: true
+    cmds:
+      - pre-commit install
+
+  install:
+    desc: Install all deps for this project
+    cmds:
+      - go mod download
+
+  tests:unit:
+    desc: Runs all the unit tests.
+    cmds:
+      - go test ./...
+
+  tests:integration:
+    desc: Runs all the integration tests tests.
+    cmds:
+      - go test -tags=integration -v ./internal/...
+
+  coverage:
+    desc: Run the integration tests and gets the code coverage
+    cmds:
+      - go install github.com/boumenot/gocover-cobertura@latest
+      - go test -coverprofile=coverage.txt -tags=integration -v ./internal/... | tee output.txt
+      - cat output.txt | go-junit-report -set-exit-code > report.xml
+      - gocover-cobertura < coverage.txt > coverage.xml
+
