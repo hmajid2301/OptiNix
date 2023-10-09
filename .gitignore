@@ -1,11 +1,2 @@
-
-# Devenv
-.devenv*
-devenv.local.nix
-
-# direnv
+/gomod2nix-template
 .direnv
-
-# pre-commit
-.pre-commit-config.yaml
-

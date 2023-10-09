@@ -9,10 +9,8 @@ image: nixos/nix
   only:
     - merge_request
   before_script:
-    - nix-env -iA cachix -f https://cachix.org/api/v1/install
-    - cachix use devenv
-    - nix-env -if https://github.com/cachix/devenv/tarball/v0.5
-    - devenv shell
+    - mkdir -p ~/.config/nix
+    - echo "experimental-features = nix-command flakes" > ~/.config/nix/nix.conf
 
 stages:
   - test
@@ -21,13 +19,13 @@ format:
   extends:
     - .task
   script:
-    - devenv shell task format
+    - nix develop -c task format
 
 lint:
   extends:
     - .task
   script:
-    - devenv shell task lint
+    - nix develop -c task lint
 
 coverage:
   extends:
@@ -36,7 +34,7 @@ coverage:
     - main
     - merge_request
   script:
-    - devenv shell task coverage
+    - nix develop -c task coverage
   coverage: /^coverage:\s(\d+(?:\.\d+)?%)/
   artifacts:
     reports:

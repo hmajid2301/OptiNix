@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en" class="without-js">
+  <head>
+    <title>NixOS 23.05 manual | Nix &amp; NixOS </title>
+    <meta name="description" content="Nix is a tool that takes a unique approach to package management and system configuration. Learn how to make reproducible, declarative and reliable systems. " />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0" />
+    <link rel="stylesheet" href="../../../styles/index.css" type="text/css" />
+    <link rel="shortcut icon" type="image/png" href="/favicon.png" />
+    <meta property="og:image" content="/logo/nixos-lores.png" />
+    <meta name="google-site-verification" content="ir-07nYvo3u3x_VmkTO1wCfYJ8uC-SrVBGR7hZgqPSE" />
+    <script>
+      var html = document.documentElement;
+      html.className = html.className.replace("without-js", "with-js");
+    </script>
+    <script type="text/javascript" src="../../../js/jquery.min.js"></script>
+    <link rel="canonical" url="https://nixos.org/manual/nixos/stable/options.html" />
+  </head>
+  <body data-nixos-channels='[{"channel":"unstable","version":"23.11"},{"channel":"stable","version":"23.05"}]'>
+    <header>
+      <div>
+        <h1>
+          <a href="../../../">NixOS</a>
+        </h1>
+        <nav style="display: none;">
+          <ul>
+            <li class="">
+              <a href='/explore'>Explore</a>
+            </li>
+            <li class="">
+              <a href='/download'>Download</a>
+            </li>
+            <li class="">
+              <a href='/learn'>Learn</a>
+            </li>
+            <li class="">
+              <a href="../../../community">Community</a>
+            </li>
+            <li class="">
+              <a href="../../../blog">Blog</a>
+            </li>
+            <li class="">
+              <a href='/donate'>Donate</a>
+            </li>
+            <li class=" activesearch">
+              <a href="https://search.nixos.org/packages">Search</a>
+            </li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <main>
+      <section class="generic-layout docbook-page">
+        <script xmlns="http://www.w3.org/1999/xhtml" src="./highlightjs/highlight.pack.js" type="text/javascript" xml:space="preserve">
+        </script>
+        <script xmlns="http://www.w3.org/1999/xhtml" src="./highlightjs/loader.js" type="text/javascript" xml:space="preserve">
+        </script>
+        <link xmlns="http://www.w3.org/1999/xhtml" rel="stylesheet" type="text/css" href="overrides.css">
+        </link>
+        <link xmlns="http://www.w3.org/1999/xhtml" rel="stylesheet" type="text/css" href="highlightjs/mono-blue.css">
+        </link>
+        <div xmlns="http://www.w3.org/1999/xhtml" class="page-header">
+          <h1>NixOS Manual</h1>
+        </div>
+        <ul xmlns="http://www.w3.org/1999/xhtml" class="pager">
+          <li class="previous">
+            <a accesskey='p' href='/manual/nixos/stable/'> ← NixOS Manual</a>
+          </li>
+          <li class="up">
+            <a accesskey='u' href='/manual/nixos/stable/'> ↑ NixOS Manual</a>
+          </li>
+          <li class="next">
+            <a accesskey='n' href='/manual/nixos/stable/release-notes'>Appendix B. Release Notes →</a>
+          </li>
+        </ul>
+        <div xmlns="http://www.w3.org/1999/xhtml" class="docbook">
+          <div class="titlepage">
+            <div>
+              <div>
+                <div class="page-header">
+                  <h1 id="ch-options" class="title">Appendix A. Configuration Options</h1>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="variablelist">
+            <a id="configuration-variable-list" shape="rect"></a>
+            <dl class="variablelist">
+            </dl>
+          </div>
+        </div>
+        <ul xmlns="http://www.w3.org/1999/xhtml" class="pager">
+          <li class="previous">
+            <a accesskey='p' href='/manual/nixos/stable/'> ← NixOS Manual</a>
+          </li>
+          <li class="up">
+            <a accesskey='u' href='/manual/nixos/stable/'> ↑ NixOS Manual</a>
+          </li>
+          <li class="next">
+            <a accesskey='n' href='/manual/nixos/stable/release-notes'>Appendix B. Release Notes →</a>
+          </li>
+        </ul>
+      </section>
+    </main>
+    <footer>
+      <div>
+        <div class="upper">
+          <section>
+            <h4>The project</h4>
+            <ul>
+              <li>
+                <a href="https://status.nixos.org/">Channel Status</a>
+              </li>
+              <li>
+                <a href="https://search.nixos.org/packages">Packages search</a>
+              </li>
+              <li>
+                <a href="https://search.nixos.org/options">Options search</a>
+              </li>
+              <li>
+                <a href="https://reproducible.nixos.org/">Reproducible Builds Status</a>
+              </li>
+              <li>
+                <a href='/community/teams/security'>Security</a>
+              </li>
+            </ul>
+          </section>
+          <section>
+            <h4>Get in Touch</h4>
+            <ul>
+              <li>
+                <a href="https://discourse.nixos.org/">Forum</a>
+              </li>
+              <li>
+                <a href="https://matrix.to/#/#community:nixos.org">Matrix Chat</a>
+              </li>
+              <li>
+                <a href='/community/commercial-support'>Commercial support</a>
+              </li>
+            </ul>
+          </section>
+          <section>
+            <h4>Contribute</h4>
+            <ul>
+              <li>
+                <a href="https://nix.dev/contributing/how-to-contribute">Contributing Guide</a>
+              </li>
+              <li>
+                <a href='/donate'>Donate</a>
+              </li>
+            </ul>
+          </section>
+          <section>
+            <h4>Stay up to date</h4>
+            <ul>
+              <li>
+                <a href='/blog/'>Blog</a>
+              </li>
+              <li>
+                <a href="https://weekly.nixos.org/">Newsletter</a>
+              </li>
+            </ul>
+          </section>
+        </div>
+        <hr />
+        <div class="lower">
+          <section class="footer-copyright">
+            <h4>NixOS</h4>
+            <div>
+              <span> Copyright © 2023 NixOS contributors </span>
+              <a href="https://github.com/NixOS/nixos-homepage/blob/master/LICENSES/CC-BY-SA-4.0.txt">
+                <abbr title="Creative Commons Attribution Share Alike 4.0 International"> CC-BY-SA-4.0 </abbr>
+              </a>
+            </div>
+          </section>
+          <section class="footer-social">
+            <h4>Connect with us</h4>
+            <ul>
+              <li class="social-icon -mastodon">
+                <a href="https://chaos.social/@nixos_org">Mastodon</a>
+              </li>
+              <li class="social-icon -twitter">
+                <a href="https://twitter.com/nixos_org">Twitter</a>
+              </li>
+              <li class="social-icon -youtube">
+                <a href="https://www.youtube.com/channel/UC3vIimi9q4AT8EgxYp_dWIw">Youtube</a>
+              </li>
+              <li class="social-icon -github">
+                <a href="https://github.com/NixOS">GitHub</a>
+              </li>
+            </ul>
+            <a style="display: none" rel="me" href="https://chaos.social/@nixos_org">Mastodon</a>
+          </section>
+        </div>
+      </div>
+    </footer>
+    <script src="../../../js/nixos-site.js"></script>
+    <script src="../../../js/anchor.min.js"></script>
+    <script>
+      anchors.add('main h1, main h2, main h3');
+    </script>
+    <script src="/js/manual-version-switch.js"></script>
+  </body>
+</html>
