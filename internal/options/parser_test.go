@@ -27,7 +27,9 @@ func TestParse(t *testing.T) {
 					"[AppStream metadata specification](https://www.freedesktop.org/software/appstream/docs/index.html).",
 				Type:    "boolean",
 				Default: "true",
-				Source:  "https://github.com/NixOS/nixpkgs/blob/release-23.11/nixos/modules/config/appstream.nix",
+				Sources: []string{
+					"https://github.com/NixOS/nixpkgs/blob/release-23.11/nixos/modules/config/appstream.nix",
+				},
 			},
 			{
 				Name: "boot.enableContainers",
@@ -35,7 +37,44 @@ func TestParse(t *testing.T) {
 					"(at no cost if containers are not actually used).",
 				Type:    "boolean",
 				Default: "true",
-				Source:  "https://github.com/NixOS/nixpkgs/blob/release-23.11/nixos/modules/virtualisation/nixos-containers.nix",
+				Sources: []string{
+					"https://github.com/NixOS/nixpkgs/blob/release-23.11/nixos/modules/virtualisation/nixos-containers.nix",
+				},
+			},
+		}
+
+		assert.Equal(t, expectedOpts, opts)
+	})
+
+	t.Run("Should parse Home Manager options", func(t *testing.T) {
+		data, err := os.ReadFile("../../testdata/home_manager_options.html")
+		assert.NoError(t, err)
+		reader := bytes.NewReader(data)
+
+		node, err := html.Parse(reader)
+		assert.NoError(t, err)
+		opts := options.Parse(node)
+
+		expectedOpts := []options.Option{
+			{
+				Name:        "accounts.calendar.accounts",
+				Description: "List of calendars.",
+				Type:        "attribute set of (submodule)",
+				Default:     "{ }",
+				Sources: []string{
+					"https://github.com/nix-community/home-manager/blob/master/modules/programs/qcal.nix",
+					"https://github.com/nix-community/home-manager/blob/master/modules/accounts/calendar.nix",
+				},
+			},
+			{
+				Name:        "accounts.calendar.accounts.<name>.khal.enable",
+				Description: "Whether to enable khal access.",
+				Type:        "boolean",
+				Default:     "false",
+				Example:     "true",
+				Sources: []string{
+					"https://github.com/nix-community/home-manager/blob/master/modules/accounts/calendar.nix",
+				},
 			},
 		}
 

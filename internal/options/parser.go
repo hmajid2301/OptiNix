@@ -7,12 +7,16 @@ import (
 	"golang.org/x/net/html"
 )
 
+// TODO: deal with code blocks in examples/descriptions
+// i.e. `accounts.calendar.accounts.<name>.remote.passwordCommand`,
+// from https://nix-community.github.io/home-manager/options.html.
 type Option struct {
 	Name        string
 	Description string
 	Type        string
 	Default     string
-	Source      string
+	Example     string
+	Sources     []string
 }
 
 var ignore = map[string]struct{}{"_module.args": {}}
@@ -20,35 +24,37 @@ var ignore = map[string]struct{}{"_module.args": {}}
 func Parse(node *html.Node) []Option {
 	options := []Option{}
 	doc := goquery.NewDocumentFromNode(node)
-	doc.Find("dt").Each(func(_ int, s *goquery.Selection) {
-		option := getOption(s)
-		if option == (Option{}) {
-			return
-		}
+	doc.Find("dt").Each(
+		func(_ int, dt *goquery.Selection) {
+			option := getOption(dt)
+			if option.Name == "" {
+				return
+			}
+			options = append(options, option)
+		},
+	)
 
-		options = append(options, option)
-	})
 	return options
 }
 
-func getOption(tableHeader *goquery.Selection) Option {
+func getOption(dt *goquery.Selection) Option {
 	option := Option{}
-	optionName := strings.TrimSpace(tableHeader.Text())
+	optionName := strings.TrimSpace(dt.Text())
 	if _, ok := ignore[optionName]; ok {
 		return option
 	}
 	option.Name = optionName
 
-	tableElements := tableHeader.NextFiltered("dd")
-	optionFields := tableElements.Find("p")
-	optionFields.Each(func(_ int, d *goquery.Selection) {
-		option.getOptionField(d)
-	})
+	dt.NextFiltered("dd").Find("p").Each(
+		func(_ int, p *goquery.Selection) {
+			option.setOptionField(p)
+		},
+	)
 	return option
 }
 
-func (o *Option) getOptionField(optionParagraph *goquery.Selection) {
-	optionData := getOptionData(optionParagraph)
+func (o *Option) setOptionField(p *goquery.Selection) {
+	optionData := getContent(p)
 
 	// INFO: field title and data are one string, need to split by colon (:) to figure out the title.
 	// e.g. ""
@@ -58,9 +64,13 @@ func (o *Option) getOptionField(optionParagraph *goquery.Selection) {
 	case optionTitle == "Type":
 		optionContents := strings.TrimSpace(optionFields[1])
 		o.Type = optionContents
+	case optionTitle == "Example":
+		optionContents := strings.TrimSpace(optionFields[1])
+		o.Example = optionContents
 	case optionTitle == "Declared by":
-		sourceAnchorLink := optionParagraph.SiblingsFiltered("table").First().Find("a.filename")
-		o.Source = sourceAnchorLink.AttrOr("href", "")
+		p.SiblingsFiltered("table").First().Find("a.filename").Each(func(_ int, anchors *goquery.Selection) {
+			o.Sources = append(o.Sources, anchors.AttrOr("href", ""))
+		})
 	case optionTitle == "Default":
 		optionContents := strings.TrimSpace(optionFields[1])
 		o.Default = optionContents
@@ -70,16 +80,16 @@ func (o *Option) getOptionField(optionParagraph *goquery.Selection) {
 	}
 }
 
-func getOptionData(optionParagraph *goquery.Selection) string {
-	var optionData string
-	optionParagraph.Contents().Each(func(_ int, optionChild *goquery.Selection) {
-		if optionChild.Is("a") {
-			link := optionChild.AttrOr("href", "")
-			optionData += "[" + optionChild.Text() + "](" + link + ")"
+func getContent(p *goquery.Selection) string {
+	var optionContent string
+	p.Contents().Each(func(_ int, optionData *goquery.Selection) {
+		if optionData.Is("a") {
+			link := optionData.AttrOr("href", "")
+			optionContent += "[" + optionData.Text() + "](" + link + ")"
 			return
 		}
 
-		optionData += optionChild.Text()
+		optionContent += optionData.Text()
 	})
-	return optionData
+	return optionContent
 }
