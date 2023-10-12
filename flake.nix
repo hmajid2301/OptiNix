@@ -6,8 +6,9 @@
   inputs.gomod2nix.url = "github:nix-community/gomod2nix";
   inputs.gomod2nix.inputs.nixpkgs.follows = "nixpkgs";
   inputs.gomod2nix.inputs.flake-utils.follows = "flake-utils";
+  inputs.pre-commit-hooks.url = "github:cachix/pre-commit-hooks.nix";
 
-  outputs = { self, nixpkgs, flake-utils, gomod2nix }:
+  outputs = inputs @ { self, nixpkgs, flake-utils, gomod2nix, pre-commit-hooks, ... }:
     (flake-utils.lib.eachDefaultSystem
       (system:
         let
@@ -23,6 +24,7 @@
           };
           devShells.default = callPackage ./shell.nix {
             inherit (gomod2nix.legacyPackages.${system}) mkGoEnv gomod2nix;
+            inherit pre-commit-hooks;
           };
         })
     );
