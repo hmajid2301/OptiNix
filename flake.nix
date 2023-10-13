@@ -1,5 +1,5 @@
 {
-  description = "A basic gomod2nix flake";
+  description = "Development environment for OptiNix";
 
   inputs.nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
   inputs.flake-utils.url = "github:numtide/flake-utils";
@@ -8,7 +8,7 @@
   inputs.gomod2nix.inputs.flake-utils.follows = "flake-utils";
   inputs.pre-commit-hooks.url = "github:cachix/pre-commit-hooks.nix";
 
-  outputs = inputs @ { self, nixpkgs, flake-utils, gomod2nix, pre-commit-hooks, ... }:
+  outputs = { self, nixpkgs, flake-utils, gomod2nix, pre-commit-hooks, ... }:
     (flake-utils.lib.eachDefaultSystem
       (system:
         let
