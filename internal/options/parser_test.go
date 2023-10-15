@@ -6,7 +6,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
-	"gitlab.com/hmajid2301/opnix/internal/options"
+	"gitlab.com/hmajid2301/optinix/internal/options"
 	"golang.org/x/net/html"
 )
 
@@ -43,6 +43,19 @@ func TestParse(t *testing.T) {
 			},
 		}
 
+		assert.Equal(t, expectedOpts, opts)
+	})
+
+	t.Run("Should parse empty NixOS options", func(t *testing.T) {
+		data, err := os.ReadFile("../../testdata/nixos_options_empty.html")
+		assert.NoError(t, err)
+		reader := bytes.NewReader(data)
+
+		node, err := html.Parse(reader)
+		assert.NoError(t, err)
+		opts := options.Parse(node)
+
+		expectedOpts := []options.Option{}
 		assert.Equal(t, expectedOpts, opts)
 	})
 

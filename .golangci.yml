@@ -37,6 +37,10 @@ linters:
     - unused
     - whitespace
 
+linters-settings:
+  goimports:
+    local-prefixes: gitlab.com/hmajid201/optinix
+
 issues:
   exclude-rules:
     - path: _test.go
