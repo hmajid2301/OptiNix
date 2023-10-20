@@ -4,7 +4,9 @@ import (
 	"context"
 	"fmt"
 	"net/http"
+	"time"
 
+	"github.com/hashicorp/go-retryablehttp"
 	"golang.org/x/net/html"
 )
 
@@ -15,24 +17,39 @@ const (
 	HomeManagerSource Source = "home-manager"
 )
 
-var sources = map[Source]string{
-	NixOSSource:       "https://nixos.org/manual/nixos/unstable/options",
-	HomeManagerSource: "https://nix-community.github.io/home-manager/options.html",
+var (
+	timeout = time.Second * 5
+	sources = map[Source]string{
+		NixOSSource:       "https://nixos.org/manual/nixos/unstable/options",
+		HomeManagerSource: "https://nix-community.github.io/home-manager/options.html",
+	}
+)
+
+type Fetcher struct {
+	Client *http.Client
 }
 
-func Fetch(ctx context.Context, source Source) (*html.Node, error) {
+func NewFetcher(maxRetries int) Fetcher {
+	client := retryablehttp.NewClient()
+	client.RetryMax = maxRetries
+	std := client.StandardClient()
+	return Fetcher{Client: std}
+}
+
+func (f Fetcher) Fetch(ctx context.Context, source Source) (*html.Node, error) {
 	url, ok := sources[source]
 	if !ok {
 		return nil, fmt.Errorf("invalid source name %s", source)
 	}
 
-	request, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
+	timeoutCtx, cancel := context.WithTimeout(ctx, timeout)
+	defer cancel()
+	request, err := http.NewRequestWithContext(timeoutCtx, http.MethodGet, url, nil)
 	if err != nil {
 		return nil, err
 	}
 
-	client := &http.Client{}
-	response, err := client.Do(request)
+	response, err := f.Client.Do(request)
 	if err != nil {
 		return nil, err
 	}

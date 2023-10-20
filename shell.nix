@@ -70,6 +70,5 @@ pkgs.mkShell {
     pkgs.go-junit-report
     pkgs.go-task
     pkgs.delve
-
   ];
 }

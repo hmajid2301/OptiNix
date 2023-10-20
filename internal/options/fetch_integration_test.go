@@ -14,13 +14,13 @@ import (
 
 func TestIntegrationFetch(t *testing.T) {
 	t.Run("Should fetch NixOS HTML", func(t *testing.T) {
-		ctx := context.Background()
-		doc, err := options.Fetch(ctx, options.NixOSSource)
+		fetcher := options.NewFetcher(3)
+		html, err := fetcher.Fetch(context.Background(), options.NixOSSource)
 		assert.NoError(t, err)
 
 		dtCount := 0
-		doc_ := goquery.NewDocumentFromNode(doc)
-		doc_.Find("dt").Each(
+		doc := goquery.NewDocumentFromNode(html)
+		doc.Find("dt").Each(
 			func(_ int, _ *goquery.Selection) {
 				dtCount += 1
 			},

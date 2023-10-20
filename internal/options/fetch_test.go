@@ -21,7 +21,11 @@ func TestFetch(t *testing.T) {
 			File("../../testdata/nixos_options.html")
 
 		ctx := context.Background()
-		doc, err := options.Fetch(ctx, options.NixOSSource)
+
+		fetcher := options.NewFetcher(0)
+		gock.InterceptClient(fetcher.Client)
+
+		doc, err := fetcher.Fetch(ctx, options.NixOSSource)
 		assert.NoError(t, err)
 
 		assert.NotNil(t, doc)
@@ -37,7 +41,9 @@ func TestFetch(t *testing.T) {
 			File("../../testdata/home_manager_options.html")
 
 		ctx := context.Background()
-		doc, err := options.Fetch(ctx, options.HomeManagerSource)
+		fetcher := options.NewFetcher(0)
+		gock.InterceptClient(fetcher.Client)
+		doc, err := fetcher.Fetch(ctx, options.HomeManagerSource)
 		assert.NoError(t, err)
 
 		assert.NotNil(t, doc)
@@ -52,7 +58,9 @@ func TestFetch(t *testing.T) {
 			Reply(http.StatusInternalServerError)
 
 		ctx := context.Background()
-		_, err := options.Fetch(ctx, options.HomeManagerSource)
+		fetcher := options.NewFetcher(0)
+		gock.InterceptClient(fetcher.Client)
+		_, err := fetcher.Fetch(ctx, options.HomeManagerSource)
 		assert.Error(t, err)
 	})
 }
