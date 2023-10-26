@@ -16,17 +16,6 @@ tasks:
     cmds:
       - goimports -local gitlab.com/hmajid2301/gomodoro-cli -w .
 
-  install:precommit:
-    desc: Installs git pre-commit hooks.
-    internal: true
-    cmds:
-      - pre-commit install
-
-  install:
-    desc: Install all deps for this project
-    cmds:
-      - go mod download
-
   tests:unit:
     desc: Runs all the unit tests.
     cmds:
@@ -35,7 +24,7 @@ tasks:
   tests:integration:
     desc: Runs all the integration tests tests.
     cmds:
-      - go test -tags=integration -v ./internal/...
+      - go test -tags=integration -v ./...
 
   coverage:
     desc: Run the integration tests and gets the code coverage
@@ -43,5 +32,5 @@ tasks:
       - go install github.com/boumenot/gocover-cobertura@latest
       - go test -coverprofile=coverage.txt -tags=integration -v ./internal/... | tee output.txt
       - cat output.txt | go-junit-report -set-exit-code > report.xml
-        #- gocover-cobertura < coverage.txt > coverage.xml
+      - gocover-cobertura < coverage.txt > coverage.xml
 
