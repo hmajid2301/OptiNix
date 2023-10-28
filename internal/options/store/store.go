@@ -8,7 +8,7 @@ import (
 
 type Option struct {
 	gorm.Model
-	Name        string `gorm:"index"`
+	Name        string `gorm:"uniqueIndex"`
 	Description string
 	Type        string
 	Default     string

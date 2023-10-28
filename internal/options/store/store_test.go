@@ -1,3 +1,6 @@
+//go:build !integration
+// +build !integration
+
 package store_test
 
 import (
@@ -60,6 +63,36 @@ func TestAddOption(t *testing.T) {
 		s := store.New(gormDB)
 		err = s.AddOptions(context.Background(), []*store.Option{&option})
 		assert.NoError(t, err)
+
+		if err := mock.ExpectationsWereMet(); err != nil {
+			t.Errorf("there were unfulfilled expectations: %s", err)
+		}
+	})
+
+	t.Run("Should fail add an option with same name to store", func(t *testing.T) {
+		option := store.Option{
+			Name:        "home.enable",
+			Description: "Whether to enable home",
+			Type:        "boolean",
+			Default:     "false",
+			Sources: []store.Source{
+				{
+					URL: "https://example.com",
+				},
+			},
+		}
+		db, mock, err := sqlmock.New()
+		assert.NoError(t, err)
+		defer db.Close()
+
+		gormDB, err := gorm.Open(postgres.New(postgres.Config{
+			Conn: db,
+		}), &gorm.Config{})
+		assert.NoError(t, err)
+
+		s := store.New(gormDB)
+		err = s.AddOptions(context.Background(), []*store.Option{&option, &option})
+		assert.Error(t, err)
 
 		if err := mock.ExpectationsWereMet(); err != nil {
 			t.Errorf("there were unfulfilled expectations: %s", err)
