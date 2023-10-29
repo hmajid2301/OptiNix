@@ -59,19 +59,19 @@ func (o *Option) setOptionField(p *goquery.Selection) {
 	// INFO: field title and data are one string, need to split by colon (:) to figure out the title.
 	// e.g. ""
 	optionFields := strings.Split(optionData, ":")
-
-	switch optionTitle := strings.TrimSpace(optionFields[0]); {
-	case optionTitle == "Type":
+	optionTitle := strings.TrimSpace(optionFields[0])
+	switch optionTitle {
+	case "Type":
 		optionContents := strings.TrimSpace(optionFields[1])
 		o.Type = optionContents
-	case optionTitle == "Example":
+	case "Example":
 		optionContents := strings.TrimSpace(optionFields[1])
 		o.Example = optionContents
-	case optionTitle == "Declared by":
+	case "Declared by":
 		p.SiblingsFiltered("table").First().Find("a.filename").Each(func(_ int, anchors *goquery.Selection) {
 			o.Sources = append(o.Sources, anchors.AttrOr("href", ""))
 		})
-	case optionTitle == "Default":
+	case "Default":
 		optionContents := strings.TrimSpace(optionFields[1])
 		o.Default = optionContents
 	default:
