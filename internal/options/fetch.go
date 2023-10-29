@@ -10,19 +10,8 @@ import (
 	"golang.org/x/net/html"
 )
 
-type Source string
-
-const (
-	NixOSSource       Source = "nixos"
-	HomeManagerSource Source = "home-manager"
-)
-
 var (
 	timeout = time.Second * 5
-	sources = map[Source]string{
-		NixOSSource:       "https://nixos.org/manual/nixos/unstable/options",
-		HomeManagerSource: "https://nix-community.github.io/home-manager/options.html",
-	}
 )
 
 type Fetcher struct {
@@ -36,12 +25,7 @@ func NewFetcher(maxRetries int) Fetcher {
 	return Fetcher{Client: std}
 }
 
-func (f Fetcher) Fetch(ctx context.Context, source Source) (*html.Node, error) {
-	url, ok := sources[source]
-	if !ok {
-		return nil, fmt.Errorf("invalid source name %s", source)
-	}
-
+func (f Fetcher) Fetch(ctx context.Context, url string) (*html.Node, error) {
 	timeoutCtx, cancel := context.WithTimeout(ctx, timeout)
 	defer cancel()
 	request, err := http.NewRequestWithContext(timeoutCtx, http.MethodGet, url, nil)
@@ -55,7 +39,7 @@ func (f Fetcher) Fetch(ctx context.Context, source Source) (*html.Node, error) {
 	}
 
 	if response.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("request to get options failed with status code %d", response.StatusCode)
+		return nil, fmt.Errorf("request failed with status code %d", response.StatusCode)
 	}
 
 	defer response.Body.Close()

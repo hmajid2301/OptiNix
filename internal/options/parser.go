@@ -72,6 +72,11 @@ func (o *Option) setOptionField(p *goquery.Selection) {
 			o.Sources = append(o.Sources, anchors.AttrOr("href", ""))
 		})
 	case "Default":
+		expectedLenght := 2
+		if len(optionFields) < expectedLenght {
+			optionFields = append(optionFields, "")
+		}
+
 		optionContents := strings.TrimSpace(optionFields[1])
 		o.Default = optionContents
 	default:

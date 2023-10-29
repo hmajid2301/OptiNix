@@ -28,7 +28,7 @@ func TestFetch(t *testing.T) {
 		fetcher := options.NewFetcher(0)
 		gock.InterceptClient(fetcher.Client)
 
-		doc, err := fetcher.Fetch(ctx, options.NixOSSource)
+		doc, err := fetcher.Fetch(ctx, "https://nixos.org/manual/nixos/unstable/options")
 		assert.NoError(t, err)
 
 		assert.NotNil(t, doc)
@@ -46,7 +46,7 @@ func TestFetch(t *testing.T) {
 		ctx := context.Background()
 		fetcher := options.NewFetcher(0)
 		gock.InterceptClient(fetcher.Client)
-		doc, err := fetcher.Fetch(ctx, options.HomeManagerSource)
+		doc, err := fetcher.Fetch(ctx, "https://nix-community.github.io/home-manager/options.html")
 		assert.NoError(t, err)
 
 		assert.NotNil(t, doc)
@@ -63,7 +63,7 @@ func TestFetch(t *testing.T) {
 		ctx := context.Background()
 		fetcher := options.NewFetcher(0)
 		gock.InterceptClient(fetcher.Client)
-		_, err := fetcher.Fetch(ctx, options.HomeManagerSource)
+		_, err := fetcher.Fetch(ctx, "https://nix-community.github.io/home-manager/options.html")
 		assert.Error(t, err)
 	})
 }

@@ -9,8 +9,9 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
-	"gitlab.com/hmajid2301/optinix/internal/options"
 	"golang.org/x/net/html"
+
+	"gitlab.com/hmajid2301/optinix/internal/options"
 )
 
 func TestParse(t *testing.T) {

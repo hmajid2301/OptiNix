@@ -9,8 +9,9 @@ import (
 
 	"github.com/glebarez/sqlite"
 	"github.com/stretchr/testify/assert"
-	"gitlab.com/hmajid2301/optinix/internal/options/store"
 	"gorm.io/gorm"
+
+	"gitlab.com/hmajid2301/optinix/internal/options/store"
 )
 
 func TestIntegrationAddOptionsToDB(t *testing.T) {
@@ -18,8 +19,8 @@ func TestIntegrationAddOptionsToDB(t *testing.T) {
 		db, err := gorm.Open(sqlite.Open("file::memory:?cache=shared"), &gorm.Config{})
 		assert.NoError(t, err)
 
-		db.AutoMigrate(&store.Option{}, &store.Source{})
-		s := store.New(db)
+		s, err := store.New(db)
+		assert.NoError(t, err)
 
 		options := []*store.Option{
 			{

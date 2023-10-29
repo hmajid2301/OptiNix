@@ -32,5 +32,5 @@ tasks:
       - go install github.com/boumenot/gocover-cobertura@latest
       - go test -coverprofile=coverage.txt -tags=all -v ./... | tee output.txt
       - cat output.txt | go-junit-report -set-exit-code > report.xml
-      - gocover-cobertura < coverage.txt > coverage.xml
+      #- gocover-cobertura < coverage.txt > coverage.xml
 
