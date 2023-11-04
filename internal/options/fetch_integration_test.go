@@ -10,7 +10,7 @@ import (
 	"github.com/PuerkitoBio/goquery"
 	"github.com/stretchr/testify/assert"
 
-	"gitlab.com/hmajid2301/optinix/internal/options"
+	"gitlab.com/majiy00/go/clis/optinix/internal/options"
 )
 
 // TODO: mock out using docker container to capture request?

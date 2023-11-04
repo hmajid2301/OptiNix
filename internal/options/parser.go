@@ -57,9 +57,10 @@ func (o *Option) setOptionField(p *goquery.Selection) {
 	optionData := getContent(p)
 
 	// INFO: field title and data are one string, need to split by colon (:) to figure out the title.
-	// e.g. ""
+	// e.g. "Default: true"
 	optionFields := strings.Split(optionData, ":")
 	optionTitle := strings.TrimSpace(optionFields[0])
+
 	switch optionTitle {
 	case "Type":
 		optionContents := strings.TrimSpace(optionFields[1])

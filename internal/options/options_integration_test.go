@@ -11,8 +11,8 @@ import (
 	"github.com/stretchr/testify/assert"
 	"gorm.io/gorm"
 
-	"gitlab.com/hmajid2301/optinix/internal/options"
-	"gitlab.com/hmajid2301/optinix/internal/options/store"
+	"gitlab.com/majiy00/go/clis/optinix/internal/options"
+	"gitlab.com/majiy00/go/clis/optinix/internal/options/store"
 )
 
 func TestIntegrationOptions(t *testing.T) {

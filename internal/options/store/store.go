@@ -27,6 +27,8 @@ type Store struct {
 	db *gorm.DB
 }
 
+var SearchLimit = 10
+
 // TODO: move migrate to somewhere else
 func New(db *gorm.DB) (Store, error) {
 	store := Store{}
@@ -44,4 +46,11 @@ func (s Store) AddOptions(ctx context.Context, options []*Option) error {
 	result := s.db.WithContext(ctx).Create(options)
 	s.db.WithContext(ctx).Save(options)
 	return result.Error
+}
+
+func (s Store) FindOptions(ctx context.Context, name string) ([]Option, error) {
+	options := []Option{}
+	// TODO: make sure struct field is used here ? What if it changes
+	result := s.db.WithContext(ctx).Limit(SearchLimit).Where("name LIKE ?", "%"+name+"%").Find(&options)
+	return options, result.Error
 }

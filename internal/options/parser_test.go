@@ -11,7 +11,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"golang.org/x/net/html"
 
-	"gitlab.com/hmajid2301/optinix/internal/options"
+	"gitlab.com/majiy00/go/clis/optinix/internal/options"
 )
 
 func TestParse(t *testing.T) {

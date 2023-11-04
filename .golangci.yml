@@ -39,7 +39,7 @@ linters:
 
 linters-settings:
   goimports:
-    local-prefixes: gitlab.com/hmajid201/optinix
+    local-prefixes: gitlab.com/majiy00/go/clis/optinix
 
 issues:
   exclude-rules:

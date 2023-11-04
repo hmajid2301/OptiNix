@@ -5,7 +5,7 @@ import (
 
 	"gorm.io/gorm"
 
-	"gitlab.com/hmajid2301/optinix/internal/options/store"
+	"gitlab.com/majiy00/go/clis/optinix/internal/options/store"
 )
 
 type Source string
@@ -15,11 +15,13 @@ const (
 	HomeManagerSource Source = "home-manager"
 )
 
-var defaultHTTPRetries = 3
-var sources = map[Source]string{
-	NixOSSource:       "https://nixos.org/manual/nixos/unstable/options",
-	HomeManagerSource: "https://nix-community.github.io/home-manager/options.html",
-}
+var (
+	defaultHTTPRetries = 3
+	sources            = map[Source]string{
+		NixOSSource:       "https://nixos.org/manual/nixos/unstable/options",
+		HomeManagerSource: "https://nix-community.github.io/home-manager/options.html",
+	}
+)
 
 func SaveOptions(ctx context.Context, db *gorm.DB) error {
 	fetcher := NewFetcher(defaultHTTPRetries)
@@ -57,7 +59,7 @@ func SaveOptions(ctx context.Context, db *gorm.DB) error {
 }
 
 func getStoreOptions(options []Option) []*store.Option {
-	storeOptions := []*store.Option{}
+	matchingOptions := []*store.Option{}
 	for _, option := range options {
 		storeSources := []store.Source{}
 		for _, source := range option.Sources {
@@ -76,7 +78,7 @@ func getStoreOptions(options []Option) []*store.Option {
 			Sources:     storeSources,
 		}
 
-		storeOptions = append(storeOptions, &storeOption)
+		matchingOptions = append(matchingOptions, &storeOption)
 	}
-	return storeOptions
+	return matchingOptions
 }
