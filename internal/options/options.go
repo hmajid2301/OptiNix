@@ -3,8 +3,6 @@ package options
 import (
 	"context"
 
-	"gorm.io/gorm"
-
 	"gitlab.com/majiy00/go/clis/optinix/internal/options/store"
 )
 
@@ -23,7 +21,15 @@ var (
 	}
 )
 
-func SaveOptions(ctx context.Context, db *gorm.DB) error {
+type Opt struct {
+	store store.Store
+}
+
+func New(s store.Store) Opt {
+	return Opt{store: s}
+}
+
+func (o Opt) SaveOptions(ctx context.Context) error {
 	fetcher := NewFetcher(defaultHTTPRetries)
 	for source := range sources {
 		url := sources[source]
@@ -31,12 +37,7 @@ func SaveOptions(ctx context.Context, db *gorm.DB) error {
 		if err != nil {
 			return err
 		}
-
 		options := Parse(html)
-		s, err := store.New(db)
-		if err != nil {
-			return err
-		}
 
 		storeOptions := getStoreOptions(options)
 		batchSize := 100
@@ -48,7 +49,7 @@ func SaveOptions(ctx context.Context, db *gorm.DB) error {
 			}
 
 			opts := storeOptions[start:end]
-			err = s.AddOptions(ctx, opts)
+			err = o.store.AddOptions(ctx, opts)
 			if err != nil {
 				return err
 			}
@@ -81,4 +82,37 @@ func getStoreOptions(options []Option) []*store.Option {
 		matchingOptions = append(matchingOptions, &storeOption)
 	}
 	return matchingOptions
+}
+
+func (o Opt) GetOptions(ctx context.Context, name string) ([]Option, error) {
+	storeOpts, err := o.store.FindOptions(ctx, name)
+	if err != nil {
+		return nil, err
+	}
+
+	opts := getOptions(storeOpts)
+	return opts, nil
+}
+
+func getOptions(storeOptions []store.Option) []Option {
+	options := []Option{}
+	for _, storeOpt := range storeOptions {
+		sources := []string{}
+		for _, source := range storeOpt.Sources {
+			sources = append(sources, source.URL)
+		}
+
+		option := Option{
+			Name:        storeOpt.Name,
+			Description: storeOpt.Description,
+			Type:        storeOpt.Type,
+			Default:     storeOpt.Default,
+			Example:     storeOpt.Example,
+			Sources:     sources,
+		}
+
+		options = append(options, option)
+	}
+
+	return options
 }

@@ -15,7 +15,7 @@ type Option struct {
 	Type        string
 	Default     string
 	Example     string
-	Sources     []Source `gorm:"foreignKey:ID"`
+	Sources     []Source `gorm:"many2many:option_sources"`
 }
 
 type Source struct {

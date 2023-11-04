@@ -14,7 +14,7 @@ tasks:
   format:
     desc: Runs the formatter.
     cmds:
-      - goimports -local gitlab.com/hmajid2301/gomodoro-cli -w .
+      - goimports -local gitlab.com/majiy00/go/clis/optinix -w .
 
   tests:unit:
     desc: Runs all the unit tests.

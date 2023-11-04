@@ -100,6 +100,6 @@ func TestIntegrationFindOptions(t *testing.T) {
 		for _, option := range options {
 			assert.Contains(t, option.Name, "home.enable")
 		}
-		assert.Equal(t, len(options), 1)
+		assert.Equal(t, len(options), 2)
 	})
 }
