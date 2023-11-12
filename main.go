@@ -1,9 +1,7 @@
 package main
 
-import (
-	"fmt"
-)
+import "gitlab.com/majiy00/go/clis/optinix/cmd"
 
 func main() {
-	fmt.Println("Hello flake")
+	cmd.Execute()
 }
