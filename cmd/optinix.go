@@ -4,7 +4,9 @@ import (
 	"context"
 	"fmt"
 	"io/fs"
+	"log"
 	"os"
+	"os/signal"
 	"path/filepath"
 
 	"github.com/glebarez/sqlite"
@@ -23,23 +25,16 @@ var rootCmd = &cobra.Command{
 	RunE: FindOptions,
 }
 
+func Execute() {
+	if err := rootCmd.Execute(); err != nil {
+		fmt.Fprintf(os.Stderr, "Whoops. There was an error while executing your CLI '%s'", err)
+		os.Exit(1)
+	}
+}
+
 func FindOptions(cmd *cobra.Command, args []string) error {
-	homeDir, err := os.UserHomeDir()
-	if err != nil {
-		return err
-	}
-
-	configPath := filepath.Join(homeDir, ".config", "optinix")
-	if _, err := os.Stat(configPath); os.IsNotExist(err) {
-		permissions := 0755
-		err = os.Mkdir(configPath, fs.FileMode(permissions))
-		if err != nil {
-			return err
-		}
-	}
-
-	dbPath := filepath.Join(configPath, "options.db")
-	db, err := gorm.Open(sqlite.Open(dbPath), &gorm.Config{})
+	ctx := gracefulShutdown()
+	db, err := getDB()
 	if err != nil {
 		return err
 	}
@@ -55,14 +50,14 @@ func FindOptions(cmd *cobra.Command, args []string) error {
 	db.Count(&count)
 
 	if count == 0 {
-		err = opt.SaveOptions(context.Background())
+		err = opt.SaveOptions(ctx)
 		if err != nil {
 			return err
 		}
 	}
 
 	optionName := args[0]
-	matchingOpts, err := opt.GetOptions(context.Background(), optionName)
+	matchingOpts, err := opt.GetOptions(ctx, optionName)
 	if err != nil {
 		return err
 	}
@@ -82,9 +77,37 @@ func FindOptions(cmd *cobra.Command, args []string) error {
 	return nil
 }
 
-func Execute() {
-	if err := rootCmd.Execute(); err != nil {
-		fmt.Fprintf(os.Stderr, "Whoops. There was an error while executing your CLI '%s'", err)
-		os.Exit(1)
+func gracefulShutdown() context.Context {
+	c := make(chan os.Signal, 1)
+	signal.Notify(c, os.Interrupt)
+
+	ctx, cancel := context.WithCancel(context.Background())
+
+	go func() {
+		oscall := <-c
+		log.Printf("system call:%+v", oscall)
+		cancel()
+	}()
+
+	return ctx
+}
+
+func getDB() (*gorm.DB, error) {
+	homeDir, err := os.UserHomeDir()
+	if err != nil {
+		return nil, err
 	}
+
+	configPath := filepath.Join(homeDir, ".config", "optinix")
+	if _, err := os.Stat(configPath); os.IsNotExist(err) {
+		permissions := 0755
+		err = os.Mkdir(configPath, fs.FileMode(permissions))
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	dbPath := filepath.Join(configPath, "options.db")
+	db, err := gorm.Open(sqlite.Open(dbPath), &gorm.Config{})
+	return db, err
 }

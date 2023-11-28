@@ -2,14 +2,13 @@ package store
 
 import (
 	"context"
+	"time"
 
 	"gorm.io/gorm"
 )
 
 type Option struct {
 	gorm.Model
-	// TODO: do we need a unqiue contraint ? or do we just search and return both options
-	// Name        string `gorm:"uniqueIndex"`
 	Name        string `gorm:"index"`
 	Description string
 	Type        string
@@ -53,4 +52,10 @@ func (s Store) FindOptions(ctx context.Context, name string) ([]Option, error) {
 	// TODO: make sure struct field is used here ? What if it changes
 	result := s.db.WithContext(ctx).Limit(SearchLimit).Where("name LIKE ?", "%"+name+"%").Find(&options)
 	return options, result.Error
+}
+
+func (s Store) GetLastAddedTime(ctx context.Context) (time.Time, error) {
+	options := Option{}
+	result := s.db.WithContext(ctx).Last(&options)
+	return options.CreatedAt, result.Error
 }

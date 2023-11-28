@@ -2,6 +2,7 @@ package options
 
 import (
 	"context"
+	"time"
 
 	"gitlab.com/majiy00/go/clis/optinix/internal/options/store"
 )
@@ -30,6 +31,15 @@ func New(s store.Store) Opt {
 }
 
 func (o Opt) SaveOptions(ctx context.Context) error {
+	shouldFetch, err := o.shouldFetch(ctx)
+	if err != nil {
+		return err
+	}
+
+	if !shouldFetch {
+		return nil
+	}
+
 	fetcher := NewFetcher(defaultHTTPRetries)
 	for source := range sources {
 		url := sources[source]
@@ -115,4 +125,18 @@ func getOptions(storeOptions []store.Option) []Option {
 	}
 
 	return options
+}
+
+func (o Opt) shouldFetch(ctx context.Context) (bool, error) {
+	lastUpdatedDB := time.Now()
+	time, err := o.store.GetLastAddedTime(ctx)
+	if err != nil {
+		return false, err
+	}
+
+	nextWeek := lastUpdatedDB.AddDate(0, 1, 0)
+	if nextWeek.Before(time) {
+		return false, nil
+	}
+	return true, nil
 }
