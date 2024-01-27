@@ -19,7 +19,7 @@ tasks:
   tests:unit:
     desc: Runs all the unit tests.
     cmds:
-      - go test ./...
+      - go test -tags=unit -v ./...
 
   tests:integration:
     desc: Runs all the integration tests tests.
