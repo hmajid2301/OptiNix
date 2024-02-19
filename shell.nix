@@ -20,6 +20,7 @@
     src = ./.;
     hooks = {
       golangci-lint.enable = true;
+      gotest.enable = true;
     };
   };
 in
@@ -30,7 +31,7 @@ in
       goEnv
       gomod2nix
       pkgs.golangci-lint
-      pkgs.go_1_21
+      pkgs.go_1_22
       pkgs.gotools
       pkgs.go-junit-report
       pkgs.go-task
