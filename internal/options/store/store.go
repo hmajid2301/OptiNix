@@ -2,60 +2,109 @@ package store
 
 import (
 	"context"
+	"database/sql"
+	"strings"
 	"time"
 
-	"gorm.io/gorm"
+	sqlc "gitlab.com/majiy00/go/clis/optinix/internal/options/store/db"
 )
 
-type Option struct {
-	gorm.Model
-	Name        string `gorm:"index"`
-	Description string
-	Type        string
-	Default     string
-	Example     string
-	Sources     []Source `gorm:"many2many:option_sources"`
-}
-
-type Source struct {
-	gorm.Model
-	URL string
-}
-
 type Store struct {
-	db *gorm.DB
+	db      *sql.DB
+	queries *sqlc.Queries
+}
+
+type OptionWithSources struct {
+	Name         string
+	Description  string
+	Type         string
+	DefaultValue string
+	Example      string
+	Sources      []string
 }
 
 var SearchLimit = 10
 
-// TODO: move migrate to somewhere else
-func New(db *gorm.DB) (Store, error) {
-	store := Store{}
-
-	err := db.AutoMigrate(&Option{}, &Source{})
-	if err != nil {
-		return store, err
+func New(db *sql.DB) (Store, error) {
+	queries := sqlc.New(db)
+	store := Store{
+		db:      db,
+		queries: queries,
 	}
 
-	store.db = db
 	return store, nil
 }
 
-func (s Store) AddOptions(ctx context.Context, options []*Option) error {
-	result := s.db.WithContext(ctx).Create(options)
-	s.db.WithContext(ctx).Save(options)
-	return result.Error
+func (s Store) AddOptions(ctx context.Context, options []OptionWithSources) (err error) {
+	tx, err := s.db.Begin()
+	if err != nil {
+		return err
+	}
+
+	defer func() {
+		err = tx.Rollback()
+	}()
+
+	for _, option := range options {
+		addOption := sqlc.AddOptionParams{
+			Name:         option.Name,
+			Description:  option.Description,
+			Type:         option.Type,
+			DefaultValue: option.DefaultValue,
+			Example:      option.Example,
+		}
+
+		newOption, err := s.queries.WithTx(tx).AddOption(ctx, addOption)
+		if err != nil {
+			return err
+		}
+
+		for _, source := range option.Sources {
+			newSource, err := s.queries.WithTx(tx).AddSource(ctx, source)
+			if err != nil {
+				return err
+			}
+
+			addSourceOption := sqlc.AddSourceOptionParams{
+				SourceID: newSource.ID,
+				OptionID: newOption.ID,
+			}
+			_, err = s.queries.WithTx(tx).AddSourceOption(ctx, addSourceOption)
+			if err != nil {
+				return err
+			}
+		}
+	}
+	return tx.Commit()
 }
 
-func (s Store) FindOptions(ctx context.Context, name string) ([]Option, error) {
-	options := []Option{}
-	// TODO: make sure struct field is used here ? What if it changes
-	result := s.db.WithContext(ctx).Limit(SearchLimit).Where("name LIKE ?", "%"+name+"%").Find(&options)
-	return options, result.Error
+func (s Store) FindOptions(ctx context.Context, name string) ([]OptionWithSources, error) {
+	options := []OptionWithSources{}
+	opts, err := s.queries.FindOptions(ctx, name)
+	if err != nil {
+		return options, err
+	}
+
+	for _, opt := range opts {
+		sources := strings.Split(opt.SourceList, ",")
+		option := OptionWithSources{
+			Name:         opt.Name,
+			Description:  opt.Description,
+			Type:         opt.Type,
+			DefaultValue: opt.DefaultValue,
+			Example:      opt.Example,
+			Sources:      sources,
+		}
+		options = append(options, option)
+	}
+	return options, nil
 }
 
 func (s Store) GetLastAddedTime(ctx context.Context) (time.Time, error) {
-	options := Option{}
-	result := s.db.WithContext(ctx).Last(&options)
-	return options.CreatedAt, result.Error
+	result, err := s.queries.GetLastUpdated(ctx)
+	if err != nil {
+		return time.Time{}, err
+	}
+
+	return result.Time, nil
 }

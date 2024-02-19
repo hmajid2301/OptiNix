@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"context"
+	"database/sql"
 	"fmt"
 	"io/fs"
 	"log"
@@ -9,9 +10,9 @@ import (
 	"os/signal"
 	"path/filepath"
 
-	"github.com/glebarez/sqlite"
 	"github.com/spf13/cobra"
-	"gorm.io/gorm"
+	// used to connect to sqlite
+	_ "modernc.org/sqlite"
 
 	"gitlab.com/majiy00/go/clis/optinix/internal/options"
 	"gitlab.com/majiy00/go/clis/optinix/internal/options/store"
@@ -46,14 +47,9 @@ func FindOptions(cmd *cobra.Command, args []string) error {
 
 	opt := options.New(s)
 
-	var count int64
-	db.Count(&count)
-
-	if count == 0 {
-		err = opt.SaveOptions(ctx)
-		if err != nil {
-			return err
-		}
+	err = opt.SaveOptions(ctx)
+	if err != nil {
+		return err
 	}
 
 	optionName := args[0]
@@ -66,7 +62,7 @@ func FindOptions(cmd *cobra.Command, args []string) error {
 		cmd.Println(o.Name)
 		cmd.Println(o.Type)
 		cmd.Println(o.Description)
-		cmd.Println(o.Default)
+		cmd.Println(o.DefaultValue)
 		cmd.Println(o.Example)
 
 		for _, s := range o.Sources {
@@ -92,7 +88,7 @@ func gracefulShutdown() context.Context {
 	return ctx
 }
 
-func getDB() (*gorm.DB, error) {
+func getDB() (*sql.DB, error) {
 	homeDir, err := os.UserHomeDir()
 	if err != nil {
 		return nil, err
@@ -108,6 +104,5 @@ func getDB() (*gorm.DB, error) {
 	}
 
 	dbPath := filepath.Join(configPath, "options.db")
-	db, err := gorm.Open(sqlite.Open(dbPath), &gorm.Config{})
-	return db, err
+	return sql.Open("sqlite3", dbPath)
 }

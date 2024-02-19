@@ -69,62 +69,25 @@ func (o Opt) SaveOptions(ctx context.Context) error {
 	return nil
 }
 
-func getStoreOptions(options []Option) []*store.Option {
-	matchingOptions := []*store.Option{}
+func getStoreOptions(options []Option) []store.OptionWithSources {
+	matchingOptions := []store.OptionWithSources{}
 	for _, option := range options {
-		storeSources := []store.Source{}
-		for _, source := range option.Sources {
-			storeSource := store.Source{
-				URL: source,
-			}
-			storeSources = append(storeSources, storeSource)
+		storeOption := store.OptionWithSources{
+			Name:         option.Name,
+			Description:  option.Description,
+			Type:         option.Type,
+			DefaultValue: option.Default,
+			Example:      option.Example,
+			Sources:      option.Sources,
 		}
 
-		storeOption := store.Option{
-			Name:        option.Name,
-			Description: option.Description,
-			Type:        option.Type,
-			Default:     option.Default,
-			Example:     option.Example,
-			Sources:     storeSources,
-		}
-
-		matchingOptions = append(matchingOptions, &storeOption)
+		matchingOptions = append(matchingOptions, storeOption)
 	}
 	return matchingOptions
 }
 
-func (o Opt) GetOptions(ctx context.Context, name string) ([]Option, error) {
-	storeOpts, err := o.store.FindOptions(ctx, name)
-	if err != nil {
-		return nil, err
-	}
-
-	opts := getOptions(storeOpts)
-	return opts, nil
-}
-
-func getOptions(storeOptions []store.Option) []Option {
-	options := []Option{}
-	for _, storeOpt := range storeOptions {
-		sources := []string{}
-		for _, source := range storeOpt.Sources {
-			sources = append(sources, source.URL)
-		}
-
-		option := Option{
-			Name:        storeOpt.Name,
-			Description: storeOpt.Description,
-			Type:        storeOpt.Type,
-			Default:     storeOpt.Default,
-			Example:     storeOpt.Example,
-			Sources:     sources,
-		}
-
-		options = append(options, option)
-	}
-
-	return options
+func (o Opt) GetOptions(ctx context.Context, name string) ([]store.OptionWithSources, error) {
+	return o.store.FindOptions(ctx, name)
 }
 
 func (o Opt) shouldFetch(ctx context.Context) (bool, error) {

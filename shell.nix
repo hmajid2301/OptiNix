@@ -1,5 +1,4 @@
 {
-  lib,
   pkgs ? (
     let
       inherit (builtins) fetchTree fromJSON readFile;
@@ -37,5 +36,7 @@ in
       pkgs.go-task
       pkgs.delve
       pkgs.goreleaser
+      pkgs.sqlc
+      pkgs.goose
     ];
   }
