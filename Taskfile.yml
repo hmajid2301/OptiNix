@@ -19,18 +19,18 @@ tasks:
   tests:unit:
     desc: Runs all the unit tests.
     cmds:
-      - go test -tags=unit -v ./...
+      - go test -v -short ./...
 
   tests:integration:
     desc: Runs all the integration tests tests.
     cmds:
-      - go test -tags=integration -v ./...
+      - go test -run Integration -v ./...
 
   coverage:
     desc: Run the integration tests and gets the code coverage
     cmds:
       - go install github.com/boumenot/gocover-cobertura@latest
-      - go test -coverprofile=coverage.txt -tags=all -v ./... | tee output.txt
+      - go test -coverprofile=coverage.txt -v ./... | tee output.txt
       - cat output.txt | go-junit-report -set-exit-code > report.xml
       #- gocover-cobertura < coverage.txt > coverage.xml
 

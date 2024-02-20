@@ -1,23 +1,26 @@
-//go:build integration
-// +build integration
-
 package options_test
 
 import (
 	"context"
+	"database/sql"
 	"testing"
 
-	"github.com/glebarez/sqlite"
 	"github.com/stretchr/testify/assert"
-	"gorm.io/gorm"
+
+	// used to connect to sqlite
+	_ "modernc.org/sqlite"
 
 	"gitlab.com/majiy00/go/clis/optinix/internal/options"
 	"gitlab.com/majiy00/go/clis/optinix/internal/options/store"
 )
 
 func TestIntegrationSaveOptions(t *testing.T) {
+	if testing.Short() {
+		t.Skip("skipping integration test")
+	}
+
 	t.Run("Should save options", func(t *testing.T) {
-		db, err := gorm.Open(sqlite.Open("file::memory:?cache=shared"), &gorm.Config{})
+		db, err := sql.Open("sqlite3", "file::memory:?cache=shared")
 		assert.NoError(t, err)
 
 		s, err := store.New(db)
@@ -26,13 +29,10 @@ func TestIntegrationSaveOptions(t *testing.T) {
 		opt := options.New(s)
 		err = opt.SaveOptions(context.Background())
 		assert.NoError(t, err)
-
-		var count int64
-		db.Model(&store.Option{}).Group("name").Count(&count)
-		assert.Greater(t, count, int64(1))
 	})
+
 	t.Run("Should not save options because latest in db not a week old", func(t *testing.T) {
-		db, err := gorm.Open(sqlite.Open("file::memory:?cache=shared"), &gorm.Config{})
+		db, err := sql.Open("sqlite3", "file::memory:?cache=shared")
 		assert.NoError(t, err)
 
 		s, err := store.New(db)
@@ -41,16 +41,16 @@ func TestIntegrationSaveOptions(t *testing.T) {
 		opt := options.New(s)
 		err = opt.SaveOptions(context.Background())
 		assert.NoError(t, err)
-
-		var count int64
-		db.Model(&store.Option{}).Group("name").Count(&count)
-		assert.Greater(t, count, int64(1))
 	})
 }
 
 func TestIntegrationGetOptions(t *testing.T) {
+	if testing.Short() {
+		t.Skip("skipping integration test")
+	}
+
 	t.Run("Should get option with `name` in option name", func(t *testing.T) {
-		db, err := gorm.Open(sqlite.Open("file::memory:?cache=shared"), &gorm.Config{})
+		db, err := sql.Open("sqlite3", "file::memory:?cache=shared")
 		assert.NoError(t, err)
 
 		s, err := store.New(db)

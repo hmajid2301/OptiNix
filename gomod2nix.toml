@@ -13,12 +13,6 @@ schema = 3
   [mod."github.com/dustin/go-humanize"]
     version = "v1.0.1"
     hash = "sha256-yuvxYYngpfVkUg9yAmG99IUVmADTQA0tMbBXe0Fq0Mc="
-  [mod."github.com/glebarez/go-sqlite"]
-    version = "v1.22.0"
-    hash = "sha256-AIkoSmpQY9ZaeQxls8hCFPOob9MVe0RyDREqk2DsXgg="
-  [mod."github.com/glebarez/sqlite"]
-    version = "v1.9.0"
-    hash = "sha256-otFXm1Rdi7ho0cW1vTKsLF3TOQBuVZawgE+UM+GfBZs="
   [mod."github.com/google/uuid"]
     version = "v1.5.0"
     hash = "sha256-DasOte4xANR1VND5XEHKGhpGiyYq74TJmNrgWeIRX4U="
@@ -40,12 +34,6 @@ schema = 3
   [mod."github.com/inconshreveable/mousetrap"]
     version = "v1.1.0"
     hash = "sha256-XWlYH0c8IcxAwQTnIi6WYqq44nOKUylSWxWO/vi+8pE="
-  [mod."github.com/jinzhu/inflection"]
-    version = "v1.0.0"
-    hash = "sha256-3h3pHib5MaCXKyKLIMyQnSptDJ16kPjCOQPoEBoQsZg="
-  [mod."github.com/jinzhu/now"]
-    version = "v1.1.5"
-    hash = "sha256-NNLqoFx9FczBBDpD0O0aSHnC/YDZ9E/xQ340o7u63IM="
   [mod."github.com/kr/pretty"]
     version = "v0.3.0"
     hash = "sha256-5KfVas96NAU7pmN2ZOwQFFpUeagiJTqYKBLxq5aM5W4="
@@ -85,9 +73,6 @@ schema = 3
   [mod."gopkg.in/yaml.v3"]
     version = "v3.0.1"
     hash = "sha256-FqL9TKYJ0XkNwJFnq9j0VvJ5ZUU1RvH/52h/f5bkYAU="
-  [mod."gorm.io/gorm"]
-    version = "v1.25.5"
-    hash = "sha256-z2La4pnVVFKD5sfha18QEZeCwDWPmwql/1h0Va0wIvQ="
   [mod."modernc.org/gc/v3"]
     version = "v3.0.0-20240107210532-573471604cb6"
     hash = "sha256-UO6/mPf3y3Iz5wnDAIRWHiCRQ+ElTECVbXXaekUkxA8="

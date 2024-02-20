@@ -1,6 +1,3 @@
-//go:build integration
-// +build integration
-
 package cmd_test
 
 import (
@@ -14,6 +11,10 @@ import (
 )
 
 func TestRootCmd(t *testing.T) {
+	if testing.Short() {
+		t.Skip("skipping integration test")
+	}
+
 	root := &cobra.Command{RunE: cmd.FindOptions}
 
 	out, err := execute(t, root, "alacritty")

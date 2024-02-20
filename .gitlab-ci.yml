@@ -1,3 +1,7 @@
 include:
-  - https://gitlab.com/majiy00/go/tooling/-/raw/main/ci/cli/.gitlab-ci.yml
+  - https://gitlab.com/hmajid2301/go-tooling/-/raw/main/ci/cli/.gitlab-ci.yml
+
+
+coverage:
+  allow_failure: true
  

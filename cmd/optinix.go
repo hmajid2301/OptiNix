@@ -104,5 +104,5 @@ func getDB() (*sql.DB, error) {
 	}
 
 	dbPath := filepath.Join(configPath, "options.db")
-	return sql.Open("sqlite3", dbPath)
+	return sql.Open("sqlite", dbPath)
 }
