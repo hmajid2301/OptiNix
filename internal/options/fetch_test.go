@@ -11,7 +11,7 @@ import (
 	"github.com/h2non/gock"
 	"github.com/stretchr/testify/assert"
 
-	"gitlab.com/majiy00/go/clis/optinix/internal/options"
+	"gitlab.com/hmajid2301/optinix/internal/options"
 )
 
 func TestFetch(t *testing.T) {

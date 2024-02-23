@@ -6,7 +6,7 @@ import (
 	"strings"
 	"time"
 
-	sqlc "gitlab.com/majiy00/go/clis/optinix/internal/options/store/db"
+	sqlc "gitlab.com/hmajid2301/optinix/internal/options/store/db"
 )
 
 type Store struct {

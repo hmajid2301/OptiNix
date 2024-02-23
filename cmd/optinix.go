@@ -14,8 +14,8 @@ import (
 	// used to connect to sqlite
 	_ "modernc.org/sqlite"
 
-	"gitlab.com/majiy00/go/clis/optinix/internal/options"
-	"gitlab.com/majiy00/go/clis/optinix/internal/options/store"
+	"gitlab.com/hmajid2301/optinix/internal/options"
+	"gitlab.com/hmajid2301/optinix/internal/options/store"
 )
 
 var rootCmd = &cobra.Command{

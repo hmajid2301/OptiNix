@@ -11,10 +11,16 @@ tasks:
     cmds:
       - golangci-lint run {{.CLI_ARGS}}
 
+  docker:
+    desc: Create Docker image from Nix
+    cmds:
+      - nix build .#dockerImage
+      - ./result | docker load
+        
   format:
     desc: Runs the formatter.
     cmds:
-      - goimports -local gitlab.com/majiy00/go/clis/optinix -w .
+      - goimports -local gitlab.com/hmajid2301/optinix -w .
 
   tests:unit:
     desc: Runs all the unit tests.

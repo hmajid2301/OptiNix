@@ -1,7 +1,66 @@
 include:
-  - https://gitlab.com/hmajid2301/go-tooling/-/raw/main/ci/cli/.gitlab-ci.yml
+  - template: Security/SAST.gitlab-ci.yml
+  - template: Code-Quality.gitlab-ci.yml
 
+image: nixos/nix
+
+cache:
+  paths:
+    - /nix/store
+      
+.task:
+  stage: test
+  only:
+    - merge_request
+  before_script:
+    - mkdir -p ~/.config/nix
+    - echo "experimental-features = nix-command flakes" > ~/.config/nix/nix.conf
+    - nix develop
+
+stages:
+  - test
+  - release
+
+lint:
+  extends:
+    - .task
+  script:
+    - nix develop -c task lint
+
+tests:unit:
+  extends:
+    - .task
+  script:
+    - nix develop -c task tests:unit
 
 coverage:
+  extends:
+    - .task
+  only:
+    - main
+    - merge_request
+  script:
+    - nix develop -c task coverage
+  coverage: /^coverage:\s(\d+(?:\.\d+)?%)/
   allow_failure: true
- 
+  artifacts:
+    reports:
+      junit: report.xml
+      coverage_report:
+        coverage_format: cobertura
+        path: coverage.xml
+
+release:
+  stage: release
+  image:
+    name: goreleaser/goreleaser
+    entrypoint: ['']
+  only:
+    - tags
+  variables:
+    # Disable shallow cloning so that goreleaser can diff between tags to
+    # generate a changelog.
+    GIT_DEPTH: 0
+  script:
+    - goreleaser release --clean
+

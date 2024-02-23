@@ -3,7 +3,7 @@ package main
 import (
 	_ "embed"
 
-	"gitlab.com/majiy00/go/clis/optinix/cmd"
+	"gitlab.com/hmajid2301/optinix/cmd"
 )
 
 func main() {

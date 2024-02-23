@@ -4,7 +4,7 @@ import (
 	"context"
 	"time"
 
-	"gitlab.com/majiy00/go/clis/optinix/internal/options/store"
+	"gitlab.com/hmajid2301/optinix/internal/options/store"
 )
 
 type Source string

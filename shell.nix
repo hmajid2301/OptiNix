@@ -15,7 +15,6 @@
   pre-commit-hooks,
   ...
 }: let
-  goEnv = mkGoEnv {pwd = ./.;};
   pre-commit-check = pre-commit-hooks.lib.${pkgs.system}.run {
     src = ./.;
     hooks = {
@@ -27,17 +26,16 @@ in
   pkgs.mkShell {
     inherit (pre-commit-check) shellHook;
     hardeningDisable = ["all"];
-    packages = [
-      goEnv
+    packages = with pkgs; [
+      (mkGoEnv {pwd = ./.;})
       gomod2nix
-      pkgs.golangci-lint
-      pkgs.go_1_22
-      pkgs.gotools
-      pkgs.go-junit-report
-      pkgs.go-task
-      pkgs.delve
-      pkgs.goreleaser
-      pkgs.sqlc
-      pkgs.goose
+      golangci-lint
+      gotools
+      go-junit-report
+      go-task
+      goreleaser
+      sqlc
+      goose
+      arion
     ];
   }

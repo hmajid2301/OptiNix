@@ -1,4 +1,4 @@
-module gitlab.com/majiy00/go/clis/optinix
+module gitlab.com/hmajid2301/optinix
 
 go 1.21
 
