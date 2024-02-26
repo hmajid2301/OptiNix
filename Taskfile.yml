@@ -28,15 +28,20 @@ tasks:
       - go test -v -short ./...
 
   tests:integration:
-    desc: Runs all the integration tests tests.
+    desc: Runs all the integration tests.
     cmds:
       - go test -run Integration -v ./...
 
+  tests:
+    desc: Runs all the tests.
+    cmds:
+      - go test -run ./...
+        
   coverage:
     desc: Run the integration tests and gets the code coverage
     cmds:
       - go install github.com/boumenot/gocover-cobertura@latest
       - go test -coverprofile=coverage.txt -v ./... | tee output.txt
       - cat output.txt | go-junit-report -set-exit-code > report.xml
-      #- gocover-cobertura < coverage.txt > coverage.xml
+      - gocover-cobertura < coverage.txt > coverage.xml
 

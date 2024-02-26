@@ -1,25 +1,24 @@
 include:
-  - template: Security/SAST.gitlab-ci.yml
-  - template: Code-Quality.gitlab-ci.yml
+  - 'https://gitlab.com/Cynerd/gitlab-ci-nix/-/raw/master/template.yml'
 
-image: nixos/nix
-
-cache:
-  paths:
-    - /nix/store
-      
 .task:
   stage: test
+  extends: .nix
   only:
     - merge_request
-  before_script:
-    - mkdir -p ~/.config/nix
-    - echo "experimental-features = nix-command flakes" > ~/.config/nix/nix.conf
-    - nix develop
 
 stages:
+  - pre
   - test
   - release
+
+install:deps:
+  stage: pre
+  extends: .nix
+  only:
+    - merge_request
+  script:
+    - nix develop
 
 lint:
   extends:
@@ -63,4 +62,3 @@ release:
     GIT_DEPTH: 0
   script:
     - goreleaser release --clean
-

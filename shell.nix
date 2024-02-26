@@ -32,6 +32,7 @@ in
       golangci-lint
       gotools
       go-junit-report
+      gocover-cobertura
       go-task
       goreleaser
       sqlc
