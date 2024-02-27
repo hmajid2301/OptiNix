@@ -42,14 +42,16 @@ func (s Store) AddOptions(ctx context.Context, options []OptionWithSources) (err
 	}
 
 	defer func() {
-		err = tx.Rollback()
+		if err != nil {
+			err = tx.Rollback()
+		}
 	}()
 
 	for _, option := range options {
 		addOption := sqlc.AddOptionParams{
-			Name:         option.Name,
+			OptionName:   option.Name,
 			Description:  option.Description,
-			Type:         option.Type,
+			OptionType:   option.Type,
 			DefaultValue: option.DefaultValue,
 			Example:      option.Example,
 		}
@@ -88,9 +90,9 @@ func (s Store) FindOptions(ctx context.Context, name string) ([]OptionWithSource
 	for _, opt := range opts {
 		sources := strings.Split(opt.SourceList, ",")
 		option := OptionWithSources{
-			Name:         opt.Name,
+			Name:         opt.OptionName,
 			Description:  opt.Description,
-			Type:         opt.Type,
+			Type:         opt.OptionType,
 			DefaultValue: opt.DefaultValue,
 			Example:      opt.Example,
 			Sources:      sources,

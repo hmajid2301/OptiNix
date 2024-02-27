@@ -12,9 +12,9 @@ type Option struct {
 	ID           int64
 	CreatedAt    sql.NullTime
 	UpdatedAt    sql.NullTime
-	Name         string
+	OptionName   string
 	Description  string
-	Type         string
+	OptionType   string
 	DefaultValue string
 	Example      string
 }

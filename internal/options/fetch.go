@@ -11,7 +11,7 @@ import (
 )
 
 var (
-	timeout = time.Second * 5
+	timeout = time.Second * 10
 )
 
 type Fetcher struct {

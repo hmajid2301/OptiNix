@@ -36,7 +36,6 @@ in
       go-task
       goreleaser
       sqlc
-      goose
       arion
     ];
   }

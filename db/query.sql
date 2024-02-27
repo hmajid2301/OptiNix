@@ -1,9 +1,9 @@
 -- name: FindOptions :many
 SELECT
     options.id,
-    options.name,
+    options.option_name,
     options.description,
-    options.type,
+    options.option_type,
     options.default_value,
     options.example,
     GROUP_CONCAT(sources.url) AS source_list
@@ -14,14 +14,14 @@ LEFT JOIN
 LEFT JOIN
     sources ON source_options.source_id = sources.id
 WHERE
-	name LIKE ?
+	option_name LIKE ?
 GROUP BY
     options.id
 LIMIT
 	10;
 
 -- name: AddOption :one
-INSERT INTO options (name, description, type, default_value, example) VALUES (?, ?, ?, ?, ?) RETURNING *;
+INSERT INTO options (option_name, description, option_type, default_value, example) VALUES (?, ?, ?, ?, ?) RETURNING *;
 
 -- name: AddSource :one
 INSERT INTO sources (url) VALUES (?) RETURNING *;

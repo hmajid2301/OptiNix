@@ -11,22 +11,22 @@ import (
 )
 
 const addOption = `-- name: AddOption :one
-INSERT INTO options (name, description, type, default_value, example) VALUES (?, ?, ?, ?, ?) RETURNING id, created_at, updated_at, name, description, type, default_value, example
+INSERT INTO options (option_name, description, option_type, default_value, example) VALUES (?, ?, ?, ?, ?) RETURNING id, created_at, updated_at, option_name, description, option_type, default_value, example
 `
 
 type AddOptionParams struct {
-	Name         string
+	OptionName   string
 	Description  string
-	Type         string
+	OptionType   string
 	DefaultValue string
 	Example      string
 }
 
 func (q *Queries) AddOption(ctx context.Context, arg AddOptionParams) (Option, error) {
 	row := q.db.QueryRowContext(ctx, addOption,
-		arg.Name,
+		arg.OptionName,
 		arg.Description,
-		arg.Type,
+		arg.OptionType,
 		arg.DefaultValue,
 		arg.Example,
 	)
@@ -35,9 +35,9 @@ func (q *Queries) AddOption(ctx context.Context, arg AddOptionParams) (Option, e
 		&i.ID,
 		&i.CreatedAt,
 		&i.UpdatedAt,
-		&i.Name,
+		&i.OptionName,
 		&i.Description,
-		&i.Type,
+		&i.OptionType,
 		&i.DefaultValue,
 		&i.Example,
 	)
@@ -84,38 +84,30 @@ func (q *Queries) AddSourceOption(ctx context.Context, arg AddSourceOptionParams
 const findOptions = `-- name: FindOptions :many
 SELECT
     options.id,
-    options.name,
+    options.option_name,
     options.description,
-    options.type,
+    options.option_type,
     options.default_value,
     options.example,
-    GROUP_CONCAT(sources.url) AS source_list
+    options.id AS source_list
 FROM
     options
-LEFT JOIN
-    source_options ON options.id = source_options.option_id
-LEFT JOIN
-    sources ON source_options.source_id = sources.id
-WHERE
-	name LIKE ?
-GROUP BY
-    options.id
 LIMIT
 	10
 `
 
 type FindOptionsRow struct {
 	ID           int64
-	Name         string
+	OptionName   string
 	Description  string
-	Type         string
+	OptionType   string
 	DefaultValue string
 	Example      string
 	SourceList   string
 }
 
-func (q *Queries) FindOptions(ctx context.Context, name string) ([]FindOptionsRow, error) {
-	rows, err := q.db.QueryContext(ctx, findOptions, name)
+func (q *Queries) FindOptions(ctx context.Context, optionName string) ([]FindOptionsRow, error) {
+	rows, err := q.db.QueryContext(ctx, findOptions, optionName)
 	if err != nil {
 		return nil, err
 	}
@@ -125,9 +117,9 @@ func (q *Queries) FindOptions(ctx context.Context, name string) ([]FindOptionsRo
 		var i FindOptionsRow
 		if err := rows.Scan(
 			&i.ID,
-			&i.Name,
+			&i.OptionName,
 			&i.Description,
-			&i.Type,
+			&i.OptionType,
 			&i.DefaultValue,
 			&i.Example,
 			&i.SourceList,

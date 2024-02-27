@@ -10,9 +10,10 @@ import (
 	"os/signal"
 	"path/filepath"
 
-	"github.com/spf13/cobra"
 	// used to connect to sqlite
 	_ "modernc.org/sqlite"
+
+	"github.com/spf13/cobra"
 
 	"gitlab.com/hmajid2301/optinix/internal/options"
 	"gitlab.com/hmajid2301/optinix/internal/options/store"
@@ -35,7 +36,7 @@ func Execute() {
 
 func FindOptions(cmd *cobra.Command, args []string) error {
 	ctx := gracefulShutdown()
-	db, err := getDB()
+	db, err := GetDB()
 	if err != nil {
 		return err
 	}
@@ -88,7 +89,7 @@ func gracefulShutdown() context.Context {
 	return ctx
 }
 
-func getDB() (*sql.DB, error) {
+func GetDB() (*sql.DB, error) {
 	homeDir, err := os.UserHomeDir()
 	if err != nil {
 		return nil, err

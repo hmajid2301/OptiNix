@@ -2,6 +2,7 @@ package options
 
 import (
 	"context"
+	"database/sql"
 	"time"
 
 	"gitlab.com/hmajid2301/optinix/internal/options/store"
@@ -18,7 +19,7 @@ var (
 	defaultHTTPRetries = 3
 	sources            = map[Source]string{
 		NixOSSource:       "https://nixos.org/manual/nixos/unstable/options",
-		HomeManagerSource: "https://nix-community.github.io/home-manager/options.html",
+		HomeManagerSource: "https://nix-community.github.io/home-manager/options.xhtml",
 	}
 )
 
@@ -90,10 +91,15 @@ func (o Opt) GetOptions(ctx context.Context, name string) ([]store.OptionWithSou
 	return o.store.FindOptions(ctx, name)
 }
 
+// TODO: move this out from save options bit, what if user wants to a force a refresh using CLI
 func (o Opt) shouldFetch(ctx context.Context) (bool, error) {
 	lastUpdatedDB := time.Now()
 	time, err := o.store.GetLastAddedTime(ctx)
 	if err != nil {
+		// Likely first time the CLI has ran, as DB is empty
+		if err == sql.ErrNoRows {
+			return true, nil
+		}
 		return false, err
 	}
 

@@ -1,5 +1,3 @@
--- +goose Up
--- +goose StatementBegin
 CREATE TABLE IF NOT EXISTS sources (
     id INTEGER PRIMARY KEY,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -11,9 +9,9 @@ CREATE TABLE IF NOT EXISTS options (
     id INTEGER PRIMARY KEY,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    name TEXT NOT NULL,
+    option_name TEXT NOT NULL,
     description TEXT NOT NULL,
-    type TEXT NOT NULL,
+    option_type TEXT NOT NULL,
     default_value TEXT NOT NULL,
     example TEXT NOT NULL
 );
@@ -28,15 +26,4 @@ CREATE TABLE IF NOT EXISTS source_options (
     FOREIGN KEY (option_id) REFERENCES options (id)
 );
 
-CREATE INDEX IF NOT EXISTS options_name ON options (name);
--- +goose StatementEnd
--- +goose Down
--- +goose StatementBegin
-DROP INDEX options_name;
-
-DROP TABLE source_options;
-
-DROP TABLE sources;
-DROP TABLE options;
-
--- +goose StatementEnd
+CREATE INDEX IF NOT EXISTS options_name_idx ON options (option_name);
