@@ -10,4 +10,8 @@ layout {
         command "fish"
         args "-c" "direnv exec . task tests"
     }
+    pane {
+        command "docker-compose"
+        args "up" "--build -d"
+    }
 }

@@ -17,10 +17,10 @@ const (
 
 var (
 	defaultHTTPRetries = 3
-	sources            = map[Source]string{
-		NixOSSource:       "https://nixos.org/manual/nixos/unstable/options",
-		HomeManagerSource: "https://nix-community.github.io/home-manager/options.xhtml",
-	}
+	// sources            = map[Source]string{
+	// 	NixOSSource:       "https://nixos.org/manual/nixos/unstable/options",
+	// 	HomeManagerSource: "https://nix-community.github.io/home-manager/options.xhtml",
+	// }
 )
 
 type Opt struct {
@@ -31,7 +31,7 @@ func New(s store.Store) Opt {
 	return Opt{store: s}
 }
 
-func (o Opt) SaveOptions(ctx context.Context) error {
+func (o Opt) SaveOptions(ctx context.Context, sources map[Source]string) error {
 	shouldFetch, err := o.shouldFetch(ctx)
 	if err != nil {
 		return err

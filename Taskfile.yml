@@ -17,6 +17,12 @@ tasks:
       - nix build .#dockerImage
       - ./result | docker load
         
+  up:
+    desc: Spins up containers using arion, typically used for testing.
+    cmds:
+      # - arion up -d
+      - docker-compose up -d
+
   format:
     desc: Runs the formatter.
     cmds:
@@ -39,8 +45,8 @@ tasks:
         
   coverage:
     desc: Run the integration tests and gets the code coverage
+    deps: [up]
     cmds:
-      - go install github.com/boumenot/gocover-cobertura@latest
       - go test -coverprofile=coverage.txt -v ./... | tee output.txt
       - cat output.txt | go-junit-report -set-exit-code > report.xml
       - gocover-cobertura < coverage.txt > coverage.xml

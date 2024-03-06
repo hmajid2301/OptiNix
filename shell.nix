@@ -36,6 +36,6 @@ in
       go-task
       goreleaser
       sqlc
-      arion
+      docker-compose
     ];
   }

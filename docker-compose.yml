@@ -1,0 +1,8 @@
+version: '3'
+services:
+  http_server:
+    image: "outofcoffee/imposter"
+    ports:
+      - 8080:8080
+    volumes:
+      - $PWD/testdata:/opt/imposter/config

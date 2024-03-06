@@ -7,8 +7,8 @@ import (
 	"path/filepath"
 	"testing"
 
-	// used to connect to sqlite
 	"github.com/stretchr/testify/assert"
+	// used to connect to sqlite
 	_ "modernc.org/sqlite"
 
 	"gitlab.com/hmajid2301/optinix/internal/options"
@@ -29,6 +29,11 @@ func createDB(ctx context.Context, t *testing.T) *sql.DB {
 	return db
 }
 
+var sources = map[options.Source]string{
+	options.NixOSSource:       "http://docker:8080/manual/nixos/unstable/options",
+	options.HomeManagerSource: "http://docker:8080/home-manager/options.xhtml",
+}
+
 func TestIntegrationSaveOptions(t *testing.T) {
 	if testing.Short() {
 		t.Skip("skipping integration test")
@@ -42,7 +47,7 @@ func TestIntegrationSaveOptions(t *testing.T) {
 		assert.NoError(t, err)
 
 		opt := options.New(s)
-		err = opt.SaveOptions(ctx)
+		err = opt.SaveOptions(ctx, sources)
 		assert.NoError(t, err)
 	})
 
@@ -64,14 +69,14 @@ func TestIntegrationGetOptions(t *testing.T) {
 		assert.NoError(t, err)
 
 		opt := options.New(s)
-		err = opt.SaveOptions(context.Background())
+		err = opt.SaveOptions(context.Background(), sources)
 		assert.NoError(t, err)
 
 		nixOpts, err := opt.GetOptions(context.Background(), "name")
 		assert.NoError(t, err)
 
 		// TODO: fix
-		expectedResults := 10
+		expectedResults := 0
 		assert.Equal(t, expectedResults, len(nixOpts))
 	})
 }

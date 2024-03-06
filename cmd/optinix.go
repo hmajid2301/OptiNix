@@ -48,7 +48,12 @@ func FindOptions(cmd *cobra.Command, args []string) error {
 
 	opt := options.New(s)
 
-	err = opt.SaveOptions(ctx)
+	// TODO: make config
+	sources := map[options.Source]string{
+		options.NixOSSource:       "http://docker:8080/manual/nixos/unstable/options",
+		options.HomeManagerSource: "http://docker:8080/home-manager/options.xhtml",
+	}
+	err = opt.SaveOptions(ctx, sources)
 	if err != nil {
 		return err
 	}
@@ -90,12 +95,9 @@ func gracefulShutdown() context.Context {
 }
 
 func GetDB() (*sql.DB, error) {
-	homeDir, err := os.UserHomeDir()
-	if err != nil {
-		return nil, err
-	}
-
-	configPath := filepath.Join(homeDir, ".config", "optinix")
+	// TODO: what if it not set
+	state := os.Getenv("XDG_STATE_HOME")
+	configPath := filepath.Join(state, "optinix")
 	if _, err := os.Stat(configPath); os.IsNotExist(err) {
 		permissions := 0755
 		err = os.Mkdir(configPath, fs.FileMode(permissions))
