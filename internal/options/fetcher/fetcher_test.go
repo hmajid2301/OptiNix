@@ -1,7 +1,4 @@
-//go:build unit
-// +build unit
-
-package options_test
+package fetcher_test
 
 import (
 	"context"
@@ -11,7 +8,7 @@ import (
 	"github.com/h2non/gock"
 	"github.com/stretchr/testify/assert"
 
-	"gitlab.com/hmajid2301/optinix/internal/options"
+	"gitlab.com/hmajid2301/optinix/internal/options/fetcher"
 )
 
 func TestFetch(t *testing.T) {
@@ -21,14 +18,14 @@ func TestFetch(t *testing.T) {
 		gock.New("https://nixos.org").
 			Get("/manual/nixos/unstable/options").
 			Reply(http.StatusOK).
-			File("../../testdata/nixos_options.html")
+			File("../../../testdata/nixos_options.html")
 
 		ctx := context.Background()
 
-		fetcher := options.NewFetcher(0)
-		gock.InterceptClient(fetcher.Client)
+		fetch := fetcher.NewFetcher(0)
+		gock.InterceptClient(fetch.Client)
 
-		doc, err := fetcher.Fetch(ctx, "https://nixos.org/manual/nixos/unstable/options")
+		doc, err := fetch.Fetch(ctx, "https://nixos.org/manual/nixos/unstable/options")
 		assert.NoError(t, err)
 
 		assert.NotNil(t, doc)
@@ -41,12 +38,12 @@ func TestFetch(t *testing.T) {
 		gock.New("https://nix-community.github.io").
 			Get("/home-manager/options.html").
 			Reply(http.StatusOK).
-			File("../../testdata/home_manager_options.html")
+			File("../../../testdata/home_manager_options.html")
 
 		ctx := context.Background()
-		fetcher := options.NewFetcher(0)
-		gock.InterceptClient(fetcher.Client)
-		doc, err := fetcher.Fetch(ctx, "https://nix-community.github.io/home-manager/options.html")
+		fetch := fetcher.NewFetcher(0)
+		gock.InterceptClient(fetch.Client)
+		doc, err := fetch.Fetch(ctx, "https://nix-community.github.io/home-manager/options.html")
 		assert.NoError(t, err)
 
 		assert.NotNil(t, doc)
@@ -61,9 +58,9 @@ func TestFetch(t *testing.T) {
 			Reply(http.StatusInternalServerError)
 
 		ctx := context.Background()
-		fetcher := options.NewFetcher(0)
-		gock.InterceptClient(fetcher.Client)
-		_, err := fetcher.Fetch(ctx, "https://nix-community.github.io/home-manager/options.html")
+		fetch := fetcher.NewFetcher(0)
+		gock.InterceptClient(fetch.Client)
+		_, err := fetch.Fetch(ctx, "https://nix-community.github.io/home-manager/options.html")
 		assert.Error(t, err)
 	})
 }

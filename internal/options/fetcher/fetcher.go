@@ -1,4 +1,4 @@
-package options
+package fetcher
 
 import (
 	"context"

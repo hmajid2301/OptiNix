@@ -49,7 +49,6 @@ coverage:
   script:
     - nix develop -c task coverage
   coverage: /^coverage:\s(\d+(?:\.\d+)?%)/
-  allow_failure: true
   artifacts:
     reports:
       junit: report.xml

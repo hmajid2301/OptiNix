@@ -64,6 +64,7 @@ func FindOptions(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
+	// TODO: format this nicely
 	for _, o := range matchingOpts {
 		cmd.Println(o.Name)
 		cmd.Println(o.Type)
@@ -107,5 +108,11 @@ func GetDB() (*sql.DB, error) {
 	}
 
 	dbPath := filepath.Join(configPath, "options.db")
-	return sql.Open("sqlite", dbPath)
+	db, err := sql.Open("sqlite", dbPath)
+	if err != nil {
+		return nil, err
+	}
+
+	_, err = db.Exec("PRAGMA journal_mode=WAL")
+	return db, err
 }

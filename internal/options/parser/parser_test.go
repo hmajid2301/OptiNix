@@ -1,7 +1,4 @@
-//go:build unit
-// +build unit
-
-package options_test
+package parser_test
 
 import (
 	"bytes"
@@ -11,20 +8,20 @@ import (
 	"github.com/stretchr/testify/assert"
 	"golang.org/x/net/html"
 
-	"gitlab.com/hmajid2301/optinix/internal/options"
+	"gitlab.com/hmajid2301/optinix/internal/options/parser"
 )
 
 func TestParse(t *testing.T) {
 	t.Run("Should parse NixOS options", func(t *testing.T) {
-		data, err := os.ReadFile("../../testdata/nixos_options.html")
+		data, err := os.ReadFile("../../../testdata/nixos_options.html")
 		assert.NoError(t, err)
 		reader := bytes.NewReader(data)
 
 		node, err := html.Parse(reader)
 		assert.NoError(t, err)
-		opts := options.Parse(node)
+		opts := parser.Parse(node)
 
-		expectedOpts := []options.Option{
+		expectedOpts := []parser.Option{
 			{
 				Name: "appstream.enable",
 				Description: "Whether to install files to support the " +
@@ -51,28 +48,28 @@ func TestParse(t *testing.T) {
 	})
 
 	t.Run("Should parse empty NixOS options", func(t *testing.T) {
-		data, err := os.ReadFile("../../testdata/nixos_options_empty.html")
+		data, err := os.ReadFile("../../../testdata/nixos_options_empty.html")
 		assert.NoError(t, err)
 		reader := bytes.NewReader(data)
 
 		node, err := html.Parse(reader)
 		assert.NoError(t, err)
-		opts := options.Parse(node)
+		opts := parser.Parse(node)
 
-		expectedOpts := []options.Option{}
+		expectedOpts := []parser.Option{}
 		assert.Equal(t, expectedOpts, opts)
 	})
 
 	t.Run("Should parse Home Manager options", func(t *testing.T) {
-		data, err := os.ReadFile("../../testdata/home_manager_options.html")
+		data, err := os.ReadFile("../../../testdata/home_manager_options.html")
 		assert.NoError(t, err)
 		reader := bytes.NewReader(data)
 
 		node, err := html.Parse(reader)
 		assert.NoError(t, err)
-		opts := options.Parse(node)
+		opts := parser.Parse(node)
 
-		expectedOpts := []options.Option{
+		expectedOpts := []parser.Option{
 			{
 				Name:        "accounts.calendar.accounts",
 				Description: "List of calendars.",

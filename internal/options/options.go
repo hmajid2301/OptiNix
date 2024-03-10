@@ -5,6 +5,8 @@ import (
 	"database/sql"
 	"time"
 
+	"gitlab.com/hmajid2301/optinix/internal/options/fetcher"
+	"gitlab.com/hmajid2301/optinix/internal/options/parser"
 	"gitlab.com/hmajid2301/optinix/internal/options/store"
 )
 
@@ -15,16 +17,9 @@ const (
 	HomeManagerSource Source = "home-manager"
 )
 
-var (
-	defaultHTTPRetries = 3
-	// sources            = map[Source]string{
-	// 	NixOSSource:       "https://nixos.org/manual/nixos/unstable/options",
-	// 	HomeManagerSource: "https://nix-community.github.io/home-manager/options.xhtml",
-	// }
-)
-
 type Opt struct {
-	store store.Store
+	store       store.Store
+	httpRetries int
 }
 
 func New(s store.Store) Opt {
@@ -41,14 +36,14 @@ func (o Opt) SaveOptions(ctx context.Context, sources map[Source]string) error {
 		return nil
 	}
 
-	fetcher := NewFetcher(defaultHTTPRetries)
+	fetch := fetcher.NewFetcher(o.httpRetries)
 	for source := range sources {
 		url := sources[source]
-		html, err := fetcher.Fetch(ctx, url)
+		html, err := fetch.Fetch(ctx, url)
 		if err != nil {
 			return err
 		}
-		options := Parse(html)
+		options := parser.Parse(html)
 
 		storeOptions := getStoreOptions(options)
 		batchSize := 100
@@ -70,7 +65,7 @@ func (o Opt) SaveOptions(ctx context.Context, sources map[Source]string) error {
 	return nil
 }
 
-func getStoreOptions(options []Option) []store.OptionWithSources {
+func getStoreOptions(options []parser.Option) []store.OptionWithSources {
 	matchingOptions := []store.OptionWithSources{}
 	for _, option := range options {
 		storeOption := store.OptionWithSources{

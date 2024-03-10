@@ -1,4 +1,4 @@
-package options_test
+package fetcher_test
 
 import (
 	"context"
@@ -7,7 +7,7 @@ import (
 	"github.com/PuerkitoBio/goquery"
 	"github.com/stretchr/testify/assert"
 
-	"gitlab.com/hmajid2301/optinix/internal/options"
+	"gitlab.com/hmajid2301/optinix/internal/options/fetcher"
 )
 
 // TODO: mock out using docker container to capture request?
@@ -18,8 +18,8 @@ func TestIntegrationFetch(t *testing.T) {
 	}
 
 	t.Run("Should fetch NixOS HTML", func(t *testing.T) {
-		fetcher := options.NewFetcher(3)
-		html, err := fetcher.Fetch(context.Background(), "https://nixos.org/manual/nixos/unstable/options")
+		fetch := fetcher.NewFetcher(3)
+		html, err := fetch.Fetch(context.Background(), "https://nixos.org/manual/nixos/unstable/options")
 		assert.NoError(t, err)
 
 		dtCount := 0

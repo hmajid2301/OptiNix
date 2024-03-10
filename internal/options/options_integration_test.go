@@ -15,30 +15,25 @@ import (
 	"gitlab.com/hmajid2301/optinix/internal/options/store"
 )
 
-func createDB(ctx context.Context, t *testing.T) *sql.DB {
-	db, err := sql.Open("sqlite", "file::memory:?cache=shared")
-	assert.NoError(t, err)
-	dir, err := os.Getwd()
-	assert.NoError(t, err)
-	schemaFile := filepath.Join(dir, "../", "../", "db/schema.sql")
-	content, err := os.ReadFile(schemaFile)
-	assert.NoError(t, err)
-	ddl := string(content)
-	_, err = db.ExecContext(ctx, ddl)
-	assert.NoError(t, err)
-	return db
+var sources = map[options.Source]string{
+	options.NixOSSource:       getHost("/manual/nixos/unstable/options"),
+	options.HomeManagerSource: getHost("/home-manager/options.xhtml"),
 }
 
-var sources = map[options.Source]string{
-	options.NixOSSource:       "http://docker:8080/manual/nixos/unstable/options",
-	options.HomeManagerSource: "http://docker:8080/home-manager/options.xhtml",
+func getHost(path string) string {
+	fullPath := "http://localhost:8080" + path
+	// TODO: make this more generic
+	if os.Getenv("CI") == "true" {
+		fullPath = "http://docker:8080" + path
+	}
+
+	return fullPath
 }
 
 func TestIntegrationSaveOptions(t *testing.T) {
 	if testing.Short() {
 		t.Skip("skipping integration test")
 	}
-
 	t.Run("Should save options", func(t *testing.T) {
 		ctx := context.Background()
 		db := createDB(ctx, t)
@@ -79,4 +74,18 @@ func TestIntegrationGetOptions(t *testing.T) {
 		expectedResults := 0
 		assert.Equal(t, expectedResults, len(nixOpts))
 	})
+}
+
+func createDB(ctx context.Context, t *testing.T) *sql.DB {
+	db, err := sql.Open("sqlite", "file::memory:?cache=shared")
+	assert.NoError(t, err)
+	dir, err := os.Getwd()
+	assert.NoError(t, err)
+	schemaFile := filepath.Join(dir, "../", "../", "db/schema.sql")
+	content, err := os.ReadFile(schemaFile)
+	assert.NoError(t, err)
+	ddl := string(content)
+	_, err = db.ExecContext(ctx, ddl)
+	assert.NoError(t, err)
+	return db
 }
