@@ -19,6 +19,12 @@ type Option struct {
 	Example      string
 }
 
+type OptionsFt struct {
+	OptionID    string
+	OptionName  string
+	Description string
+}
+
 type Source struct {
 	ID        int64
 	CreatedAt sql.NullTime

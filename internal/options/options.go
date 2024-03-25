@@ -18,7 +18,8 @@ const (
 )
 
 type Opt struct {
-	store       store.Store
+	store store.Store
+	// TODO: should this be in save option func
 	httpRetries int
 }
 

@@ -83,17 +83,27 @@ func (q *Queries) AddSourceOption(ctx context.Context, arg AddSourceOptionParams
 
 const findOptions = `-- name: FindOptions :many
 SELECT
-    options.id,
-    options.option_name,
-    options.description,
-    options.option_type,
-    options.default_value,
-    options.example,
-    options.id AS source_list
+    o.id,
+    o.option_name,
+    o.description,
+    o.option_type,
+    o.default_value,
+    o.example,
+    GROUP_CONCAT(s.url) AS source_list
 FROM
-    options
+    options o
+LEFT JOIN
+    source_options so ON o.id = so.option_id
+LEFT JOIN
+    sources s ON so.source_id = s.id
+WHERE
+    o.id IN (
+        SELECT option_id FROM options_fts WHERE options_fts.option_name MATCH ?
+    )
+GROUP BY
+    o.id
 LIMIT
-	10
+    10
 `
 
 type FindOptionsRow struct {
@@ -142,7 +152,7 @@ SELECT
     options.updated_at
 FROM
     options
-ORDER BY 
+ORDER BY
     options.updated_at DESC
 LIMIT
 	1

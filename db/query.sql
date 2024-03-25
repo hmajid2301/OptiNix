@@ -1,24 +1,26 @@
 -- name: FindOptions :many
 SELECT
-    options.id,
-    options.option_name,
-    options.description,
-    options.option_type,
-    options.default_value,
-    options.example,
-    GROUP_CONCAT(sources.url) AS source_list
+    o.id,
+    o.option_name,
+    o.description,
+    o.option_type,
+    o.default_value,
+    o.example,
+    GROUP_CONCAT(s.url) AS source_list
 FROM
-    options
+    options o
 LEFT JOIN
-    source_options ON options.id = source_options.option_id
+    source_options so ON o.id = so.option_id
 LEFT JOIN
-    sources ON source_options.source_id = sources.id
+    sources s ON so.source_id = s.id
 WHERE
-	option_name LIKE ?
+    o.id IN (
+        SELECT option_id FROM options_fts WHERE options_fts.option_name MATCH ?
+    )
 GROUP BY
-    options.id
+    o.id
 LIMIT
-	10;
+    10;
 
 -- name: AddOption :one
 INSERT INTO options (option_name, description, option_type, default_value, example) VALUES (?, ?, ?, ?, ?) RETURNING *;
@@ -34,7 +36,7 @@ SELECT
     options.updated_at
 FROM
     options
-ORDER BY 
+ORDER BY
     options.updated_at DESC
 LIMIT
 	1;
