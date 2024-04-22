@@ -15,6 +15,9 @@ import (
 )
 
 func TestRootCmd(t *testing.T) {
+	os.Setenv("NIXOS_URL", "http://docker:8080/manual/nixos/unstable/options")
+	os.Setenv("HOME_MANAGER_URL", "http://docker:8080/manual/home-manager/options.xhtml")
+
 	if testing.Short() {
 		t.Skip("skipping integration test")
 	}

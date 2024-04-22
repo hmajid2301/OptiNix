@@ -7,8 +7,8 @@ import (
 )
 
 type Sources struct {
-	NixOSURL       string `mapstructure:"nixos_url"`
-	HomeManagerURL string `mapstructure:"home_manager_url"`
+	NixOSURL       string `mapstructure:"NIXOS_URL"`
+	HomeManagerURL string `mapstructure:"HOME_MANAGER_URL"`
 }
 
 type Config struct {
@@ -26,6 +26,9 @@ func LoadConfig() (*Config, error) {
 	defaultTimeout := 30
 	viper.SetDefault("retries", defaultRetries)
 	viper.SetDefault("timeout", defaultTimeout)
+	viper.SetConfigName("optinix)")
+	viper.SetConfigType("env")
+	viper.AutomaticEnv()
 
 	if err := viper.ReadInConfig(); err != nil {
 		if _, ok := err.(viper.ConfigFileNotFoundError); !ok {

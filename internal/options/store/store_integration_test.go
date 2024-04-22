@@ -2,15 +2,11 @@ package store_test
 
 import (
 	"context"
-	"database/sql"
-	"os"
-	"path/filepath"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
-	// used to connect to sqlite
-	_ "modernc.org/sqlite"
 
+	"gitlab.com/hmajid2301/optinix/internal/options/dbtest"
 	"gitlab.com/hmajid2301/optinix/internal/options/store"
 )
 
@@ -21,7 +17,7 @@ func TestIntegrationAddOptions(t *testing.T) {
 
 	t.Run("Should add options to DB successfully", func(t *testing.T) {
 		ctx := context.Background()
-		db := createDB(ctx, t)
+		db := dbtest.CreateDB(ctx, t)
 
 		s, err := store.New(db)
 		assert.NoError(t, err)
@@ -55,7 +51,7 @@ func TestIntegrationAddOptions(t *testing.T) {
 
 	t.Run("Should get options from DB successfully", func(t *testing.T) {
 		ctx := context.Background()
-		db := createDB(ctx, t)
+		db := dbtest.CreateDB(ctx, t)
 
 		s, err := store.New(db)
 		assert.NoError(t, err)
@@ -91,20 +87,6 @@ func TestIntegrationAddOptions(t *testing.T) {
 
 		options, err := s.FindOptions(ctx, "option")
 		assert.NoError(t, err)
-		assert.Len(t, options, 2)
+		assert.Len(t, options, 2, "Two entries with the name `option` should've been found")
 	})
-}
-
-func createDB(ctx context.Context, t *testing.T) *sql.DB {
-	db, err := sql.Open("sqlite", "file::memory:?cache=shared")
-	assert.NoError(t, err)
-	dir, err := os.Getwd()
-	assert.NoError(t, err)
-	schemaFile := filepath.Join(dir, "../", "../", "../", "db/schema.sql")
-	content, err := os.ReadFile(schemaFile)
-	assert.NoError(t, err)
-	ddl := string(content)
-	_, err = db.ExecContext(ctx, ddl)
-	assert.NoError(t, err)
-	return db
 }

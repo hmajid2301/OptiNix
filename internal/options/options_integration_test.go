@@ -2,16 +2,13 @@ package options_test
 
 import (
 	"context"
-	"database/sql"
 	"os"
-	"path/filepath"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
-	// used to connect to sqlite
-	_ "modernc.org/sqlite"
 
 	"gitlab.com/hmajid2301/optinix/internal/options"
+	"gitlab.com/hmajid2301/optinix/internal/options/dbtest"
 	"gitlab.com/hmajid2301/optinix/internal/options/store"
 )
 
@@ -22,7 +19,6 @@ var sources = map[options.Source]string{
 
 func getHost(path string) string {
 	fullPath := "http://localhost:8080" + path
-	// TODO: make this more generic
 	if os.Getenv("CI") == "true" {
 		fullPath = "http://docker:8080" + path
 	}
@@ -36,7 +32,7 @@ func TestIntegrationSaveOptions(t *testing.T) {
 	}
 	t.Run("Should save options", func(t *testing.T) {
 		ctx := context.Background()
-		db := createDB(ctx, t)
+		db := dbtest.CreateDB(ctx, t)
 
 		s, err := store.New(db)
 		assert.NoError(t, err)
@@ -58,7 +54,7 @@ func TestIntegrationGetOptions(t *testing.T) {
 
 	t.Run("Should get option with `appstream` in option name", func(t *testing.T) {
 		ctx := context.Background()
-		db := createDB(ctx, t)
+		db := dbtest.CreateDB(ctx, t)
 
 		s, err := store.New(db)
 		assert.NoError(t, err)
@@ -73,18 +69,4 @@ func TestIntegrationGetOptions(t *testing.T) {
 		expectedResults := 2
 		assert.Len(t, nixOpts, expectedResults)
 	})
-}
-
-func createDB(ctx context.Context, t *testing.T) *sql.DB {
-	db, err := sql.Open("sqlite", "file::memory:?cache=shared")
-	assert.NoError(t, err)
-	dir, err := os.Getwd()
-	assert.NoError(t, err)
-	schemaFile := filepath.Join(dir, "../", "../", "db/schema.sql")
-	content, err := os.ReadFile(schemaFile)
-	assert.NoError(t, err)
-	ddl := string(content)
-	_, err = db.ExecContext(ctx, ddl)
-	assert.NoError(t, err)
-	return db
 }

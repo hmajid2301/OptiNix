@@ -16,6 +16,7 @@ import (
 	"github.com/spf13/cobra"
 
 	"gitlab.com/hmajid2301/optinix/internal/options"
+	"gitlab.com/hmajid2301/optinix/internal/options/config"
 	"gitlab.com/hmajid2301/optinix/internal/options/store"
 )
 
@@ -48,10 +49,14 @@ func FindOptions(cmd *cobra.Command, args []string) error {
 
 	opt := options.New(s)
 
-	// TODO: make config
+	conf, err := config.LoadConfig()
+	if err != nil {
+		return err
+	}
+
 	sources := map[options.Source]string{
-		options.NixOSSource:       "http://docker:8080/manual/nixos/unstable/options",
-		options.HomeManagerSource: "http://docker:8080/home-manager/options.xhtml",
+		options.NixOSSource:       conf.Sources.NixOSURL,
+		options.HomeManagerSource: conf.Sources.HomeManagerURL,
 	}
 	err = opt.SaveOptions(ctx, sources)
 	if err != nil {
