@@ -56,7 +56,7 @@ func TestIntegrationGetOptions(t *testing.T) {
 		t.Skip("skipping integration test")
 	}
 
-	t.Run("Should get option with `name` in option name", func(t *testing.T) {
+	t.Run("Should get option with `appstream` in option name", func(t *testing.T) {
 		ctx := context.Background()
 		db := createDB(ctx, t)
 
@@ -64,15 +64,14 @@ func TestIntegrationGetOptions(t *testing.T) {
 		assert.NoError(t, err)
 
 		opt := options.New(s)
-		err = opt.SaveOptions(context.Background(), sources)
+		err = opt.SaveOptions(ctx, sources)
 		assert.NoError(t, err)
 
-		nixOpts, err := opt.GetOptions(context.Background(), "name")
+		nixOpts, err := opt.GetOptions(ctx, "appstream")
 		assert.NoError(t, err)
 
-		// TODO: fix
-		expectedResults := 0
-		assert.Equal(t, expectedResults, len(nixOpts))
+		expectedResults := 2
+		assert.Len(t, nixOpts, expectedResults)
 	})
 }
 

@@ -1,7 +1,5 @@
 run:
   timeout: 5m
-  skip-dirs:
-    - direnv
 
 linters:
   enable:
@@ -42,6 +40,9 @@ linters-settings:
     local-prefixes: gitlab.com/majiy00/go/clis/optinix
 
 issues:
+  exclude-dirs:
+    - direnv
+
   exclude-rules:
     - path: _test.go
       linters:

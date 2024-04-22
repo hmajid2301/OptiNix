@@ -48,7 +48,9 @@ func (o Opt) SaveOptions(ctx context.Context, sources map[Source]string) error {
 
 		storeOptions := getStoreOptions(options)
 		batchSize := 100
-		for i := 0; i < len(storeOptions)/batchSize; i++ {
+		maxBatches := (len(storeOptions) / batchSize) + 1
+
+		for i := 0; i < maxBatches; i++ {
 			start := i * batchSize
 			end := (i + 1) * batchSize
 			if end > len(storeOptions) {
