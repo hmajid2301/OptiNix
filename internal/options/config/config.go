@@ -2,31 +2,42 @@ package config
 
 import (
 	"fmt"
+	"os"
+	"path/filepath"
 
 	"github.com/spf13/viper"
 )
 
 type Sources struct {
-	NixOSURL       string `mapstructure:"NIXOS_URL"`
-	HomeManagerURL string `mapstructure:"HOME_MANAGER_URL"`
+	NixOSURL       string `mapstructure:"nixos_url"`
+	HomeManagerURL string `mapstructure:"home_manager_url"`
 }
 
 type Config struct {
-	Sources Sources `mapstructure:"sources"`
-	Retries int     `mapstructure:"retries"`
-	Timeout int     `mapstructure:"timeout"`
+	DBFolder string  `mapstructure:"db_folder"`
+	Sources  Sources `mapstructure:"sources"`
+	Retries  int     `mapstructure:"retries"`
+	Timeout  int     `mapstructure:"timeout"`
 }
 
 func LoadConfig() (*Config, error) {
 	config := &Config{}
 
-	viper.SetDefault("sources.nixos_url", "https://nixos.org/manual/nixos/unstable/options")
-	viper.SetDefault("sources.home_manager_url", "https://nix-community.github.io/home-manager/options.xhtml")
-	defaultRetries := 3
-	defaultTimeout := 30
-	viper.SetDefault("retries", defaultRetries)
-	viper.SetDefault("timeout", defaultTimeout)
-	viper.SetConfigName("optinix)")
+	setDefaults()
+	err := viper.BindEnv("sources.nixos_url", "NIXOS_URL")
+	if err != nil {
+		return config, err
+	}
+
+	err = viper.BindEnv("sources.home_manager_url", "HOME_MANAGER_URL")
+	if err != nil {
+		return config, err
+	}
+
+	err = viper.BindEnv("db_folder", "DB_FOLDER)")
+	if err != nil {
+		return config, err
+	}
 	viper.SetConfigType("env")
 	viper.AutomaticEnv()
 
@@ -36,10 +47,26 @@ func LoadConfig() (*Config, error) {
 		}
 	}
 
-	err := viper.Unmarshal(config)
+	err = viper.Unmarshal(config)
 	if err != nil {
 		return config, fmt.Errorf("unable to decode into config struct, %v", err)
 	}
 
 	return config, nil
+}
+
+func setDefaults() {
+	// TODO: what if it not set
+	state := os.Getenv("XDG_STATE_HOME")
+	configPath := filepath.Join(state, "optinix")
+	viper.SetDefault("db_path", configPath)
+
+	viper.SetDefault("sources.nixos_url", "https://nixos.org/manual/nixos/unstable/options")
+	viper.SetDefault("sources.nixos_url", "https://nixos.org/manual/nixos/unstable/options")
+	viper.SetDefault("sources.home_manager_url", "https://nix-community.github.io/home-manager/options.xhtml")
+
+	defaultRetries := 3
+	defaultTimeout := 30
+	viper.SetDefault("retries", defaultRetries)
+	viper.SetDefault("timeout", defaultTimeout)
 }

@@ -3,46 +3,53 @@ package cmd_test
 import (
 	"bytes"
 	"context"
-	"fmt"
 	"os"
+	"path"
 	"path/filepath"
+	"runtime"
 	"testing"
 
 	"github.com/spf13/cobra"
 	"github.com/stretchr/testify/assert"
 
 	"gitlab.com/hmajid2301/optinix/cmd"
+	"gitlab.com/hmajid2301/optinix/internal/options/optionstest"
 )
 
-func TestRootCmd(t *testing.T) {
-	os.Setenv("NIXOS_URL", "http://docker:8080/manual/nixos/unstable/options")
-	os.Setenv("HOME_MANAGER_URL", "http://docker:8080/manual/home-manager/options.xhtml")
-
+func TestIntegrationCmd(t *testing.T) {
 	if testing.Short() {
 		t.Skip("skipping integration test")
 	}
 
-	ctx := context.Background()
-	db, err := cmd.GetDB()
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "Whoops. There was an error while executing your CLI '%s'", err)
-		return
-	}
+	os.Setenv("NIXOS_URL", optionstest.GetHost("/manual/nixos/unstable/options"))
+	os.Setenv("HOME_MANAGER_URL", optionstest.GetHost("/home-manager/options.xhtml"))
+	os.Setenv("DB_FOLDER", "../testdata")
 
-	dir, err := os.Getwd()
+	db, err := cmd.GetDB("../testdata")
 	assert.NoError(t, err)
 
-	schemaFile := filepath.Join(dir, "../db/schema.sql")
+	_, filename, _, ok := runtime.Caller(0)
+	assert.True(t, ok)
+	dir := path.Join(path.Dir(filename), "..")
+	schemaFile := filepath.Join(dir, "db", "schema.sql")
 	content, err := os.ReadFile(schemaFile)
 	assert.NoError(t, err)
+
+	ctx := context.TODO()
 	ddl := string(content)
 	_, err = db.ExecContext(ctx, ddl)
 	assert.NoError(t, err)
 
 	root := &cobra.Command{RunE: cmd.FindOptions}
-	out, _ := execute(t, root, "")
-	// assert.NoError(t, err)
-	assert.Contains(t, out, "")
+	out, err := execute(t, root, "appstream")
+	assert.NoError(t, err)
+	assert.Contains(t, out, "appstream")
+
+	t.Cleanup(func() {
+		os.Remove("../testdata/optinix.db")
+		os.Remove("../testdata/optinix.db-shm")
+		os.Remove("../testdata/optinix.db-wal")
+	})
 }
 
 func execute(t *testing.T, c *cobra.Command, args ...string) (string, error) {

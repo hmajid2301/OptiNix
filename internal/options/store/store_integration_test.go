@@ -2,25 +2,44 @@ package store_test
 
 import (
 	"context"
+	"database/sql"
 	"testing"
 
-	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/suite"
 
-	"gitlab.com/hmajid2301/optinix/internal/options/dbtest"
+	"gitlab.com/hmajid2301/optinix/internal/options/optionstest"
 	"gitlab.com/hmajid2301/optinix/internal/options/store"
 )
 
-func TestIntegrationAddOptions(t *testing.T) {
+type TestStoreSuite struct {
+	suite.Suite
+	db *sql.DB
+}
+
+func TestIntegrationStore(t *testing.T) {
+	ctx := context.Background()
+	db := optionstest.CreateDB(ctx, t)
+
 	if testing.Short() {
 		t.Skip("skipping integration test")
 	}
+	suite.Run(t, &TestStoreSuite{db: db})
+}
 
-	t.Run("Should add options to DB successfully", func(t *testing.T) {
+func (s *TestStoreSuite) SetUpSubTest() {
+	ctx := context.Background()
+	s.db = optionstest.CreateDB(ctx, s.T())
+	s.T().Cleanup(func() {
+		s.db.Close()
+	})
+}
+
+func (s *TestStoreSuite) TestIntegrationAddOptions() {
+	s.Run("Should add options to DB successfully", func() {
 		ctx := context.Background()
-		db := dbtest.CreateDB(ctx, t)
 
-		s, err := store.New(db)
-		assert.NoError(t, err)
+		str, err := store.New(s.db)
+		s.NoError(err)
 
 		optionsToAdd := []store.OptionWithSources{
 			{
@@ -40,21 +59,26 @@ func TestIntegrationAddOptions(t *testing.T) {
 				Sources:      []string{"http://example.com"},
 			},
 		}
-		err = s.AddOptions(ctx, optionsToAdd)
-		assert.NoError(t, err)
+		err = str.AddOptions(ctx, optionsToAdd)
+		s.NoError(err)
 
 		var count int
-		err = db.QueryRowContext(ctx, "SELECT COUNT(*) FROM options").Scan(&count)
-		assert.NoError(t, err)
-		assert.Equal(t, 2, count, "Two entries should have been added to table")
+		err = s.db.QueryRowContext(ctx, "SELECT COUNT(*) FROM options").Scan(&count)
+		s.NoError(err)
+		s.Equal(2, count, "Two entries should have been added to table")
+
+		err = s.db.QueryRowContext(ctx, "SELECT COUNT(*) FROM sources").Scan(&count)
+		s.NoError(err)
+		s.Equal(2, count, "Two entries should have been added to table")
 	})
+}
 
-	t.Run("Should get options from DB successfully", func(t *testing.T) {
+func (s *TestStoreSuite) TestIntegrationFindOptions() {
+	s.Run("Should get options from DB successfully", func() {
 		ctx := context.Background()
-		db := dbtest.CreateDB(ctx, t)
 
-		s, err := store.New(db)
-		assert.NoError(t, err)
+		str, err := store.New(s.db)
+		s.NoError(err)
 
 		optionsToAdd := []store.OptionWithSources{
 			{
@@ -82,11 +106,11 @@ func TestIntegrationAddOptions(t *testing.T) {
 				Sources:      []string{"http://example.com"},
 			},
 		}
-		err = s.AddOptions(ctx, optionsToAdd)
-		assert.NoError(t, err)
+		err = str.AddOptions(ctx, optionsToAdd)
+		s.NoError(err)
 
-		options, err := s.FindOptions(ctx, "option")
-		assert.NoError(t, err)
-		assert.Len(t, options, 2, "Two entries with the name `option` should've been found")
+		options, err := str.FindOptions(ctx, "option")
+		s.NoError(err)
+		s.Len(options, 2, "Two entries with the name `option` should've been found")
 	})
 }

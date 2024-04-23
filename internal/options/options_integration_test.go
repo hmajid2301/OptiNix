@@ -2,71 +2,73 @@ package options_test
 
 import (
 	"context"
-	"os"
+	"database/sql"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/suite"
 
 	"gitlab.com/hmajid2301/optinix/internal/options"
-	"gitlab.com/hmajid2301/optinix/internal/options/dbtest"
+	"gitlab.com/hmajid2301/optinix/internal/options/optionstest"
 	"gitlab.com/hmajid2301/optinix/internal/options/store"
 )
 
 var sources = map[options.Source]string{
-	options.NixOSSource:       getHost("/manual/nixos/unstable/options"),
-	options.HomeManagerSource: getHost("/home-manager/options.xhtml"),
+	options.NixOSSource:       optionstest.GetHost("/manual/nixos/unstable/options"),
+	options.HomeManagerSource: optionstest.GetHost("/home-manager/options.xhtml"),
 }
 
-func getHost(path string) string {
-	fullPath := "http://localhost:8080" + path
-	if os.Getenv("CI") == "true" {
-		fullPath = "http://docker:8080" + path
-	}
-
-	return fullPath
+type TestOptionSuite struct {
+	suite.Suite
+	db  *sql.DB
+	opt options.Opt
 }
 
-func TestIntegrationSaveOptions(t *testing.T) {
-	if testing.Short() {
-		t.Skip("skipping integration test")
-	}
-	t.Run("Should save options", func(t *testing.T) {
-		ctx := context.Background()
-		db := dbtest.CreateDB(ctx, t)
-
-		s, err := store.New(db)
-		assert.NoError(t, err)
-
-		opt := options.New(s)
-		err = opt.SaveOptions(ctx, sources)
-		assert.NoError(t, err)
-	})
-
-	t.Run("Should not save options because latest in db not a week old", func(t *testing.T) {
-		assert.True(t, true)
-	})
-}
-
-func TestIntegrationGetOptions(t *testing.T) {
+func TestIntegrationStore(t *testing.T) {
 	if testing.Short() {
 		t.Skip("skipping integration test")
 	}
 
-	t.Run("Should get option with `appstream` in option name", func(t *testing.T) {
+	ctx := context.Background()
+	db := optionstest.CreateDB(ctx, t)
+	str, err := store.New(db)
+	assert.NoError(t, err)
+	opt := options.New(str)
+
+	suite.Run(t, &TestOptionSuite{opt: opt})
+}
+
+func (s *TestOptionSuite) SetUpSubTest() {
+	ctx := context.Background()
+	s.db = optionstest.CreateDB(ctx, s.T())
+	s.T().Cleanup(func() {
+		s.db.Close()
+	})
+}
+
+func (s *TestOptionSuite) TestIntegrationSaveOptions() {
+	s.Run("Should save options", func() {
 		ctx := context.Background()
-		db := dbtest.CreateDB(ctx, t)
+		err := s.opt.SaveOptions(ctx, sources)
+		s.NoError(err)
+	})
 
-		s, err := store.New(db)
-		assert.NoError(t, err)
+	// TODO: Make this an actual
+	s.Run("Should not save options because latest in db not a week old", func() {
+		s.True(true)
+	})
+}
 
-		opt := options.New(s)
-		err = opt.SaveOptions(ctx, sources)
-		assert.NoError(t, err)
+func (s *TestOptionSuite) TestIntegrationGetOptions() {
+	s.Run("Should get option with `appstream` in option name", func() {
+		ctx := context.Background()
+		err := s.opt.SaveOptions(ctx, sources)
+		s.NoError(err)
 
-		nixOpts, err := opt.GetOptions(ctx, "appstream")
-		assert.NoError(t, err)
+		nixOpts, err := s.opt.GetOptions(ctx, "appstream")
+		s.NoError(err)
 
-		expectedResults := 2
-		assert.Len(t, nixOpts, expectedResults)
+		expectedResults := 1
+		s.Len(nixOpts, expectedResults)
 	})
 }

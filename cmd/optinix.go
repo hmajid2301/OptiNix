@@ -35,9 +35,19 @@ func Execute() {
 	}
 }
 
-func FindOptions(cmd *cobra.Command, args []string) error {
+func FindOptions(cmd *cobra.Command, args []string) (err error) {
 	ctx := gracefulShutdown()
-	db, err := GetDB()
+
+	conf, err := config.LoadConfig()
+	if err != nil {
+		return err
+	}
+
+	db, err := GetDB(conf.DBFolder)
+	defer func() {
+		err = db.Close()
+	}()
+
 	if err != nil {
 		return err
 	}
@@ -48,11 +58,6 @@ func FindOptions(cmd *cobra.Command, args []string) error {
 	}
 
 	opt := options.New(s)
-
-	conf, err := config.LoadConfig()
-	if err != nil {
-		return err
-	}
 
 	sources := map[options.Source]string{
 		options.NixOSSource:       conf.Sources.NixOSURL,
@@ -100,19 +105,16 @@ func gracefulShutdown() context.Context {
 	return ctx
 }
 
-func GetDB() (*sql.DB, error) {
-	// TODO: what if it not set
-	state := os.Getenv("XDG_STATE_HOME")
-	configPath := filepath.Join(state, "optinix")
-	if _, err := os.Stat(configPath); os.IsNotExist(err) {
+func GetDB(dbFolder string) (*sql.DB, error) {
+	if _, err := os.Stat(dbFolder); os.IsNotExist(err) {
 		permissions := 0755
-		err = os.Mkdir(configPath, fs.FileMode(permissions))
+		err = os.Mkdir(dbFolder, fs.FileMode(permissions))
 		if err != nil {
 			return nil, err
 		}
 	}
 
-	dbPath := filepath.Join(configPath, "options.db")
+	dbPath := filepath.Join(dbFolder, "options.db")
 	db, err := sql.Open("sqlite", dbPath)
 	if err != nil {
 		return nil, err

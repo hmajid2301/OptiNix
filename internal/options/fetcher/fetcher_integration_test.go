@@ -8,10 +8,9 @@ import (
 	"github.com/stretchr/testify/assert"
 
 	"gitlab.com/hmajid2301/optinix/internal/options/fetcher"
+	"gitlab.com/hmajid2301/optinix/internal/options/optionstest"
 )
 
-// TODO: mock out using docker container to capture request?
-// TODO: Move this logic to E2E
 func TestIntegrationFetch(t *testing.T) {
 	if testing.Short() {
 		t.Skip("skipping integration test")
@@ -19,7 +18,8 @@ func TestIntegrationFetch(t *testing.T) {
 
 	t.Run("Should fetch NixOS HTML", func(t *testing.T) {
 		fetch := fetcher.NewFetcher(3)
-		html, err := fetch.Fetch(context.Background(), "https://nixos.org/manual/nixos/unstable/options")
+		nixosHost := optionstest.GetHost("/manual/nixos/unstable/options")
+		html, err := fetch.Fetch(context.Background(), nixosHost)
 		assert.NoError(t, err)
 
 		dtCount := 0
@@ -30,6 +30,30 @@ func TestIntegrationFetch(t *testing.T) {
 			},
 		)
 
-		assert.Greater(t, dtCount, 0)
+		assert.Equal(t, dtCount, 3)
+	})
+
+	t.Run("Should fetch home-manager HTML", func(t *testing.T) {
+		fetch := fetcher.NewFetcher(3)
+		nixosHost := optionstest.GetHost("/home-manager/options.xhtml")
+		html, err := fetch.Fetch(context.Background(), nixosHost)
+		assert.NoError(t, err)
+
+		dtCount := 0
+		doc := goquery.NewDocumentFromNode(html)
+		doc.Find("dt").Each(
+			func(_ int, _ *goquery.Selection) {
+				dtCount++
+			},
+		)
+
+		assert.Equal(t, dtCount, 3)
+	})
+
+	t.Run("Should not find HMTL page", func(t *testing.T) {
+		fetch := fetcher.NewFetcher(3)
+		nixosHost := optionstest.GetHost("/home-manager/invalid.xhtml")
+		_, err := fetch.Fetch(context.Background(), nixosHost)
+		assert.ErrorContains(t, err, "request failed with status code 404")
 	})
 }
