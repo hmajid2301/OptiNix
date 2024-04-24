@@ -21,9 +21,9 @@ func TestIntegrationCmd(t *testing.T) {
 		t.Skip("skipping integration test")
 	}
 
-	os.Setenv("NIXOS_URL", optionstest.GetHost("/manual/nixos/unstable/options"))
-	os.Setenv("HOME_MANAGER_URL", optionstest.GetHost("/home-manager/options.xhtml"))
-	os.Setenv("DB_FOLDER", "../testdata")
+	os.Setenv("OPTINIX_SOURCES_NIXOS_URL", optionstest.GetHost("/manual/nixos/unstable/options"))
+	os.Setenv("OPTINIX_SOURCES_HOME_MANAGER_URL", optionstest.GetHost("/home-manager/options.xhtml"))
+	os.Setenv("OPTINIX_DB_FOLDER", "../testdata")
 
 	db, err := cmd.GetDB("../testdata")
 	assert.NoError(t, err)

@@ -52,3 +52,4 @@ BEGIN
 END;
 
 CREATE INDEX IF NOT EXISTS options_name_idx ON options (option_name);
+CREATE UNIQUE INDEX IF NOT EXISTS sources_url_idx ON sources (url);

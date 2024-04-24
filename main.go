@@ -22,7 +22,7 @@ func main() {
 
 	db, err := cmd.GetDB(conf.DBFolder)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "Whoops. There was an error while executing your CLI '%s'", err)
+		fmt.Fprintf(os.Stderr, "Whoops.  '%s'", err)
 		return
 	}
 

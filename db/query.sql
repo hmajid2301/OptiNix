@@ -26,7 +26,7 @@ LIMIT
 INSERT INTO options (option_name, description, option_type, default_value, example) VALUES (?, ?, ?, ?, ?) RETURNING *;
 
 -- name: AddSource :one
-INSERT INTO sources (url) VALUES (?) RETURNING *;
+INSERT INTO sources (url) VALUES (?) ON CONFLICT(url) DO UPDATE SET url = excluded.url RETURNING *;
 
 -- name: AddSourceOption :one
 INSERT INTO source_options (source_id, option_id) VALUES (?, ?) RETURNING *;

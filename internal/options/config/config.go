@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/spf13/viper"
 )
@@ -23,31 +24,18 @@ type Config struct {
 func LoadConfig() (*Config, error) {
 	config := &Config{}
 
-	setDefaults()
-	err := viper.BindEnv("sources.nixos_url", "NIXOS_URL")
-	if err != nil {
-		return config, err
-	}
-
-	err = viper.BindEnv("sources.home_manager_url", "HOME_MANAGER_URL")
-	if err != nil {
-		return config, err
-	}
-
-	err = viper.BindEnv("db_folder", "DB_FOLDER)")
-	if err != nil {
-		return config, err
-	}
-	viper.SetConfigType("env")
+	viper.SetEnvPrefix("optinix")
+	viper.SetEnvKeyReplacer(strings.NewReplacer(`.`, `_`))
 	viper.AutomaticEnv()
 
+	setDefaults()
 	if err := viper.ReadInConfig(); err != nil {
 		if _, ok := err.(viper.ConfigFileNotFoundError); !ok {
 			return config, err
 		}
 	}
 
-	err = viper.Unmarshal(config)
+	err := viper.Unmarshal(config)
 	if err != nil {
 		return config, fmt.Errorf("unable to decode into config struct, %v", err)
 	}
@@ -59,7 +47,7 @@ func setDefaults() {
 	// TODO: what if it not set
 	state := os.Getenv("XDG_STATE_HOME")
 	configPath := filepath.Join(state, "optinix")
-	viper.SetDefault("db_path", configPath)
+	viper.SetDefault("db_folder", configPath)
 
 	viper.SetDefault("sources.nixos_url", "https://nixos.org/manual/nixos/unstable/options")
 	viper.SetDefault("sources.nixos_url", "https://nixos.org/manual/nixos/unstable/options")

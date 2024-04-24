@@ -56,7 +56,7 @@ func (s *TestStoreSuite) TestIntegrationAddOptions() {
 				Type:         "str",
 				DefaultValue: "default",
 				Example:      "example",
-				Sources:      []string{"http://example.com"},
+				Sources:      []string{"http://example1.com"},
 			},
 		}
 		err = str.AddOptions(ctx, optionsToAdd)
@@ -95,7 +95,7 @@ func (s *TestStoreSuite) TestIntegrationFindOptions() {
 				Type:         "str",
 				DefaultValue: "default",
 				Example:      "example",
-				Sources:      []string{"http://example.com"},
+				Sources:      []string{"http://example1.com"},
 			},
 			{
 				Name:         "other_name",
@@ -103,7 +103,7 @@ func (s *TestStoreSuite) TestIntegrationFindOptions() {
 				Type:         "str",
 				DefaultValue: "default",
 				Example:      "example",
-				Sources:      []string{"http://example.com"},
+				Sources:      []string{"http://example2.com"},
 			},
 		}
 		err = str.AddOptions(ctx, optionsToAdd)
