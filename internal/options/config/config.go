@@ -3,9 +3,9 @@ package config
 import (
 	"fmt"
 	"os"
-	"path/filepath"
 	"strings"
 
+	gap "github.com/muesli/go-app-paths"
 	"github.com/spf13/viper"
 )
 
@@ -28,14 +28,20 @@ func LoadConfig() (*Config, error) {
 	viper.SetEnvKeyReplacer(strings.NewReplacer(`.`, `_`))
 	viper.AutomaticEnv()
 
-	setDefaults()
+	scope := gap.NewScope(gap.User, "optinix")
+	dirs, err := scope.DataDirs()
+	if err != nil {
+		return config, fmt.Errorf("unable to get data directory: %v", err)
+	}
+
+	setDefaults(dirs)
 	if err := viper.ReadInConfig(); err != nil {
 		if _, ok := err.(viper.ConfigFileNotFoundError); !ok {
 			return config, err
 		}
 	}
 
-	err := viper.Unmarshal(config)
+	err = viper.Unmarshal(config)
 	if err != nil {
 		return config, fmt.Errorf("unable to decode into config struct, %v", err)
 	}
@@ -43,11 +49,13 @@ func LoadConfig() (*Config, error) {
 	return config, nil
 }
 
-func setDefaults() {
-	// TODO: what if it not set
-	state := os.Getenv("XDG_STATE_HOME")
-	configPath := filepath.Join(state, "optinix")
-	viper.SetDefault("db_folder", configPath)
+func setDefaults(dirs []string) {
+	dbFolder, _ := os.UserHomeDir()
+	if len(dirs) > 0 {
+		dbFolder = dirs[0]
+	}
+
+	viper.SetDefault("db_folder", dbFolder)
 
 	viper.SetDefault("sources.nixos_url", "https://nixos.org/manual/nixos/unstable/options")
 	viper.SetDefault("sources.nixos_url", "https://nixos.org/manual/nixos/unstable/options")

@@ -15,6 +15,7 @@
   pre-commit-hooks,
   ...
 }: let
+  goEnv = mkGoEnv {pwd = ./.;};
   pre-commit-check = pre-commit-hooks.lib.${pkgs.system}.run {
     src = ./.;
     hooks = {
@@ -24,10 +25,14 @@
   };
 in
   pkgs.mkShell {
-    inherit (pre-commit-check) shellHook;
+    # inherit (pre-commit-check) shellHook;
+    shellHook = ''
+      echo "HELLO"
+      echo $goEnv
+    '';
     hardeningDisable = ["all"];
     packages = with pkgs; [
-      (mkGoEnv {pwd = ./.;})
+      goEnv
       gomod2nix
       golangci-lint
       gotools
