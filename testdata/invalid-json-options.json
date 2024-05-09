@@ -1,0 +1,8 @@
+{
+    "_module.args": {
+        "declarations": [
+            {
+                "name": "<nixpkgs/lib/modules.nix>",
+                "url": "https://github.com/NixOS/nixpkgs/blob/master/lib/modules.nix"
+            }
+        ],

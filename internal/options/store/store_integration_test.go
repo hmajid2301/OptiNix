@@ -38,7 +38,7 @@ func (s *TestStoreSuite) TestIntegrationAddOptions() {
 	s.Run("Should add options to DB successfully", func() {
 		ctx := context.Background()
 
-		str, err := store.New(s.db)
+		str, err := store.NewStore(s.db)
 		s.NoError(err)
 
 		optionsToAdd := []store.OptionWithSources{
@@ -77,7 +77,7 @@ func (s *TestStoreSuite) TestIntegrationFindOptions() {
 	s.Run("Should get options from DB successfully", func() {
 		ctx := context.Background()
 
-		str, err := store.New(s.db)
+		str, err := store.NewStore(s.db)
 		s.NoError(err)
 
 		optionsToAdd := []store.OptionWithSources{

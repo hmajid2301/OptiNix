@@ -5,29 +5,25 @@ import (
 	"database/sql"
 	"time"
 
-	"gitlab.com/hmajid2301/optinix/internal/options/fetcher"
-	"gitlab.com/hmajid2301/optinix/internal/options/parser"
 	"gitlab.com/hmajid2301/optinix/internal/options/store"
 )
 
 type Source string
 
-const (
-	NixOSSource       Source = "nixos"
-	HomeManagerSource Source = "home-manager"
-)
+type Fetcherer interface {
+	Fetch(ctx context.Context, sources Sources) ([]Option, error)
+}
 
 type Opt struct {
-	store store.Store
-	// TODO: should this be in save option func
-	httpRetries int
+	fetcher Fetcherer
+	store   store.Store
 }
 
-func New(s store.Store) Opt {
-	return Opt{store: s}
+func NewOptions(s store.Store, f Fetcherer) Opt {
+	return Opt{store: s, fetcher: f}
 }
 
-func (o Opt) SaveOptions(ctx context.Context, sources map[Source]string) error {
+func (o Opt) SaveOptions(ctx context.Context, sources Sources) error {
 	shouldFetch, err := o.shouldFetch(ctx)
 	if err != nil {
 		return err
@@ -37,38 +33,33 @@ func (o Opt) SaveOptions(ctx context.Context, sources map[Source]string) error {
 		return nil
 	}
 
-	fetch := fetcher.NewFetcher(o.httpRetries)
-	for source := range sources {
-		url := sources[source]
-		html, err := fetch.Fetch(ctx, url)
+	options, err := o.fetcher.Fetch(ctx, sources)
+	if err != nil {
+		return err
+	}
+
+	storeOptions := getStoreOptions(options)
+	batchSize := 100
+	maxBatches := (len(storeOptions) / batchSize) + 1
+
+	for i := 0; i < maxBatches; i++ {
+		start := i * batchSize
+		end := (i + 1) * batchSize
+		if end > len(storeOptions) {
+			end = len(storeOptions)
+		}
+
+		opts := storeOptions[start:end]
+		err = o.store.AddOptions(ctx, opts)
 		if err != nil {
 			return err
-		}
-		options := parser.Parse(html)
-
-		storeOptions := getStoreOptions(options)
-		batchSize := 100
-		maxBatches := (len(storeOptions) / batchSize) + 1
-
-		for i := 0; i < maxBatches; i++ {
-			start := i * batchSize
-			end := (i + 1) * batchSize
-			if end > len(storeOptions) {
-				end = len(storeOptions)
-			}
-
-			opts := storeOptions[start:end]
-			err = o.store.AddOptions(ctx, opts)
-			if err != nil {
-				return err
-			}
 		}
 	}
 
 	return nil
 }
 
-func getStoreOptions(options []parser.Option) []store.OptionWithSources {
+func getStoreOptions(options []Option) []store.OptionWithSources {
 	matchingOptions := []store.OptionWithSources{}
 	for _, option := range options {
 		storeOption := store.OptionWithSources{
@@ -85,6 +76,7 @@ func getStoreOptions(options []parser.Option) []store.OptionWithSources {
 	return matchingOptions
 }
 
+// TODO: Common options struct here
 func (o Opt) GetOptions(ctx context.Context, name string) ([]store.OptionWithSources, error) {
 	return o.store.FindOptions(ctx, name)
 }

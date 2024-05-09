@@ -10,15 +10,14 @@ import (
 )
 
 type Sources struct {
-	NixOSURL       string `mapstructure:"nixos_url"`
-	HomeManagerURL string `mapstructure:"home_manager_url"`
+	NixOS       string `mapstructure:"nixos_path"`
+	HomeManager string `mapstructure:"home_manager_path"`
+	Darwin      string `mapstructure:"darwin_path"`
 }
 
 type Config struct {
 	DBFolder string  `mapstructure:"db_folder"`
 	Sources  Sources `mapstructure:"sources"`
-	Retries  int     `mapstructure:"retries"`
-	Timeout  int     `mapstructure:"timeout"`
 }
 
 func LoadConfig() (*Config, error) {
@@ -56,13 +55,7 @@ func setDefaults(dirs []string) {
 	}
 
 	viper.SetDefault("db_folder", dbFolder)
-
-	viper.SetDefault("sources.nixos_url", "https://nixos.org/manual/nixos/unstable/options")
-	viper.SetDefault("sources.nixos_url", "https://nixos.org/manual/nixos/unstable/options")
-	viper.SetDefault("sources.home_manager_url", "https://nix-community.github.io/home-manager/options.xhtml")
-
-	defaultRetries := 3
-	defaultTimeout := 30
-	viper.SetDefault("retries", defaultRetries)
-	viper.SetDefault("timeout", defaultTimeout)
+	viper.SetDefault("sources.nixos_path", "./nix/nixos-options.nix")
+	viper.SetDefault("sources.home_manager_path", "./nix/hm-options.nix")
+	viper.SetDefault("sources.darwin_path", "./nix/darwin-options.nix")
 }

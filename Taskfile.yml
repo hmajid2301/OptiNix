@@ -17,13 +17,6 @@ tasks:
       - nix build .#dockerImage
       - ./result | docker load
 
-  up:
-    desc: Spins up containers using arion, typically used for testing.
-    cmds:
-      # - arion up -d
-      - docker-compose up -d
-      # - podman-compose up -d
-
   format:
     desc: Runs the formatter.
     cmds:
@@ -36,7 +29,6 @@ tasks:
 
   tests:integration:
     desc: Runs all the integration tests.
-    deps: [up]
     cmds:
       - go test -run Integration -v ./...
 

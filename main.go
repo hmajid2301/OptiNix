@@ -27,7 +27,6 @@ func main() {
 		return
 	}
 
-	// TODO: move to a better lib
 	db, err := store.GetDB(conf.DBFolder)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Whoops.  '%s'", err)
@@ -38,6 +37,7 @@ func main() {
 		err = db.Close()
 	}()
 
+	// TODO: proper error messages return back to CLI
 	if _, err := db.ExecContext(ctx, ddl); err != nil {
 		fmt.Fprintf(os.Stderr, "Whoops. There was an error while executing your CLI '%s'", err)
 		return

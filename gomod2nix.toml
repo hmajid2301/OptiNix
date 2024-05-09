@@ -1,12 +1,6 @@
 schema = 3
 
 [mod]
-  [mod."github.com/PuerkitoBio/goquery"]
-    version = "v1.8.1"
-    hash = "sha256-z2RaB8PVPEzSJdMUfkfNjT616yXWTjW2gkhNOh989ZU="
-  [mod."github.com/andybalholm/cascadia"]
-    version = "v1.3.1"
-    hash = "sha256-M0u22DXSeXUaYtl1KoW1qWL46niFpycFkraCEQ/luYA="
   [mod."github.com/atotto/clipboard"]
     version = "v0.1.4"
     hash = "sha256-ZZ7U5X0gWOu8zcjZcWbcpzGOGdycwq0TjTFh/eZHjXk="
@@ -37,18 +31,6 @@ schema = 3
   [mod."github.com/google/uuid"]
     version = "v1.5.0"
     hash = "sha256-DasOte4xANR1VND5XEHKGhpGiyYq74TJmNrgWeIRX4U="
-  [mod."github.com/h2non/gock"]
-    version = "v1.2.0"
-    hash = "sha256-G+qJix7K2F3hzAZ4Ozu3pvgig7mRjzoR7sO9hT2sz3A="
-  [mod."github.com/h2non/parth"]
-    version = "v0.0.0-20190131123155-b4df798d6542"
-    hash = "sha256-DKtCIx1BVIW8noAwSS3y/rBhSYlWovFOGnFx8089Q6o="
-  [mod."github.com/hashicorp/go-cleanhttp"]
-    version = "v0.5.2"
-    hash = "sha256-N9GOKYo7tK6XQUFhvhImtL7PZW/mr4C4Manx/yPVvcQ="
-  [mod."github.com/hashicorp/go-retryablehttp"]
-    version = "v0.7.4"
-    hash = "sha256-/Gz+M2TPdVW+9zL+Oh1oC8kLrla2Uvl1S16SMH4qYRw="
   [mod."github.com/hashicorp/golang-lru/v2"]
     version = "v2.0.7"
     hash = "sha256-t1bcXLgrQNOYUVyYEZ0knxcXpsTk4IuJZDjKvyJX75g="
@@ -136,6 +118,9 @@ schema = 3
   [mod."github.com/spf13/viper"]
     version = "v1.18.2"
     hash = "sha256-MXYbK6w1LEaoZ2/L/STF3WU1tbK+7NwGVxUCLKPkwks="
+  [mod."github.com/stretchr/objx"]
+    version = "v0.5.0"
+    hash = "sha256-nY4mvP0f0Ry1IKMKQAYNuioA5h4red4mmQqeGZw6EF0="
   [mod."github.com/stretchr/testify"]
     version = "v1.8.4"
     hash = "sha256-MoOmRzbz9QgiJ+OOBo5h5/LbilhJfRUryvzHJmXAWjo="
@@ -151,9 +136,6 @@ schema = 3
   [mod."golang.org/x/exp"]
     version = "v0.0.0-20231108232855-2478ac86f678"
     hash = "sha256-cqOQQa51ugTqcK5e/C+3n0mPVmutdNfB3XTWoux6KGU="
-  [mod."golang.org/x/net"]
-    version = "v0.19.0"
-    hash = "sha256-3M5rKEvJx4cO/q+06cGjR5sxF5JpnUWY0+fQttrWdT4="
   [mod."golang.org/x/sync"]
     version = "v0.5.0"
     hash = "sha256-EAKeODSsct5HhXPmpWJfulKSCkuUu6kkDttnjyZMNcI="

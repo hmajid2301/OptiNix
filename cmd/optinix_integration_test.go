@@ -12,7 +12,6 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/stretchr/testify/assert"
 
-	"gitlab.com/hmajid2301/optinix/internal/options/optionstest"
 	"gitlab.com/hmajid2301/optinix/internal/options/store"
 )
 
@@ -21,8 +20,9 @@ func TestIntegrationCmd(t *testing.T) {
 		t.Skip("skipping integration test")
 	}
 
-	os.Setenv("OPTINIX_SOURCES_NIXOS_URL", optionstest.GetHost("/manual/nixos/unstable/options"))
-	os.Setenv("OPTINIX_SOURCES_HOME_MANAGER_URL", optionstest.GetHost("/home-manager/options.xhtml"))
+	os.Setenv("OPTINIX_SOURCES_NIXOS_PATH", "./nix/nixos-options.nix")
+	os.Setenv("OPTINIX_SOURCES_HOME_MANAGER_PATH", "./nix/hm-options.nix")
+	os.Setenv("OPTINIX_SOURCES_DARWIN_PATH", "./nix/darwin-options.nix")
 	os.Setenv("OPTINIX_DB_FOLDER", "../testdata")
 
 	db, err := store.GetDB("../testdata")

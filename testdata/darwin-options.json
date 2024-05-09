@@ -1,0 +1,973 @@
+{
+  "_module.args": {
+    "declarations": [
+      {
+        "name": "<nixpkgs/lib/modules.nix>",
+        "url": "https://github.com/NixOS/nixpkgs/blob/ad7efee13e0d216bf29992311536fce1d3eefbef/lib/modules.nix"
+      }
+    ],
+    "description": "Additional arguments passed to each module in addition to ones\nlike `lib`, `config`,\nand `pkgs`, `modulesPath`.\n\nThis option is also available to all submodules. Submodules do not\ninherit args from their parent module, nor do they provide args to\ntheir parent module or sibling submodules. The sole exception to\nthis is the argument `name` which is provided by\nparent modules to a submodule and contains the attribute name\nthe submodule is bound to, or a unique generated name if it is\nnot bound to an attribute.\n\nSome arguments are already passed by default, of which the\nfollowing *cannot* be changed with this option:\n- {var}`lib`: The nixpkgs library.\n- {var}`config`: The results of all options after merging the values from all modules together.\n- {var}`options`: The options declared in all modules.\n- {var}`specialArgs`: The `specialArgs` argument passed to `evalModules`.\n- All attributes of {var}`specialArgs`\n\n  Whereas option values can generally depend on other option values\n  thanks to laziness, this does not apply to `imports`, which\n  must be computed statically before anything else.\n\n  For this reason, callers of the module system can provide `specialArgs`\n  which are available during import resolution.\n\n  For NixOS, `specialArgs` includes\n  {var}`modulesPath`, which allows you to import\n  extra modules from the nixpkgs package tree without having to\n  somehow make the module aware of the location of the\n  `nixpkgs` or NixOS directories.\n  ```\n  { modulesPath, ... }: {\n    imports = [\n      (modulesPath + \"/profiles/minimal.nix\")\n    ];\n  }\n  ```\n\nFor NixOS, the default value for this option includes at least this argument:\n- {var}`pkgs`: The nixpkgs package set according to\n  the {option}`nixpkgs.pkgs` option.\n",
+    "loc": ["_module", "args"],
+    "readOnly": false,
+    "type": "lazy attribute set of raw value"
+  },
+  "documentation.doc.enable": {
+    "declarations": [
+      {
+        "name": "<nix-darwin/modules/documentation>",
+        "url": "https://github.com/LnL7/nix-darwin/blob/master/modules/documentation"
+      }
+    ],
+    "default": { "_type": "literalExpression", "text": "true" },
+    "description": "Whether to install documentation distributed in packages' `/share/doc`.\nUsually plain text and/or HTML.\nThis also includes \"doc\" outputs.\n",
+    "loc": ["documentation", "doc", "enable"],
+    "readOnly": false,
+    "type": "boolean"
+  },
+  "documentation.enable": {
+    "declarations": [
+      {
+        "name": "<nix-darwin/modules/documentation>",
+        "url": "https://github.com/LnL7/nix-darwin/blob/master/modules/documentation"
+      }
+    ],
+    "default": { "_type": "literalExpression", "text": "true" },
+    "description": "Whether to install documentation of packages from\n{option}`environment.systemPackages` into the generated system path.\n\nSee \"Multiple-output packages\" chapter in the nixpkgs manual for more info.\n",
+    "loc": ["documentation", "enable"],
+    "readOnly": false,
+    "type": "boolean"
+  },
+  "documentation.info.enable": {
+    "declarations": [
+      {
+        "name": "<nix-darwin/modules/documentation>",
+        "url": "https://github.com/LnL7/nix-darwin/blob/master/modules/documentation"
+      }
+    ],
+    "default": { "_type": "literalExpression", "text": "true" },
+    "description": "Whether to install info pages and the {command}`info` command.\nThis also includes \"info\" outputs.\n",
+    "loc": ["documentation", "info", "enable"],
+    "readOnly": false,
+    "type": "boolean"
+  },
+  "documentation.man.enable": {
+    "declarations": [
+      {
+        "name": "<nix-darwin/modules/documentation>",
+        "url": "https://github.com/LnL7/nix-darwin/blob/master/modules/documentation"
+      }
+    ],
+    "default": { "_type": "literalExpression", "text": "true" },
+    "description": "Whether to install manual pages and the {command}`man` command.\nThis also includes \"man\" outputs.\n",
+    "loc": ["documentation", "man", "enable"],
+    "readOnly": false,
+    "type": "boolean"
+  },
+  "environment.darwinConfig": {
+    "declarations": [
+      {
+        "name": "<nix-darwin/modules/environment>",
+        "url": "https://github.com/LnL7/nix-darwin/blob/master/modules/environment"
+      }
+    ],
+    "default": {
+      "_type": "literalExpression",
+      "text": "\"$HOME/.nixpkgs/darwin-configuration.nix\""
+    },
+    "description": "The path of the darwin configuration.nix used to configure the system,\nthis updates the default darwin-config entry in NIX_PATH. Since this\nchanges an environment variable it will only apply to new shells.\n\nNOTE: Changing this requires running {command}`darwin-rebuild switch -I darwin-config=/path/to/configuration.nix`\nthe first time to make darwin-rebuild aware of the custom location.\n",
+    "loc": ["environment", "darwinConfig"],
+    "readOnly": false,
+    "type": "path or string"
+  },
+  "environment.etc": {
+    "declarations": [
+      {
+        "name": "<nix-darwin/modules/system/etc.nix>",
+        "url": "https://github.com/LnL7/nix-darwin/blob/master/modules/system/etc.nix"
+      }
+    ],
+    "default": { "_type": "literalExpression", "text": "{ }" },
+    "description": "Set of files that have to be linked in {file}`/etc`.\n",
+    "loc": ["environment", "etc"],
+    "readOnly": false,
+    "type": "attribute set of (submodule)"
+  },
+  "environment.etc.<name>.copy": {
+    "declarations": [
+      {
+        "name": "<nix-darwin/modules/system/etc.nix>",
+        "url": "https://github.com/LnL7/nix-darwin/blob/master/modules/system/etc.nix"
+      }
+    ],
+    "default": { "_type": "literalExpression", "text": "false" },
+    "description": "Whether this file should be copied instead of symlinking.\n",
+    "loc": ["environment", "etc", "<name>", "copy"],
+    "readOnly": false,
+    "type": "boolean"
+  },
+  "environment.etc.<name>.enable": {
+    "declarations": [
+      {
+        "name": "<nix-darwin/modules/system/etc.nix>",
+        "url": "https://github.com/LnL7/nix-darwin/blob/master/modules/system/etc.nix"
+      }
+    ],
+    "default": { "_type": "literalExpression", "text": "true" },
+    "description": "Whether this file should be generated.\nThis option allows specific files to be disabled.\n",
+    "loc": ["environment", "etc", "<name>", "enable"],
+    "readOnly": false,
+    "type": "boolean"
+  },
+  "environment.etc.<name>.source": {
+    "declarations": [
+      {
+        "name": "<nix-darwin/modules/system/etc.nix>",
+        "url": "https://github.com/LnL7/nix-darwin/blob/master/modules/system/etc.nix"
+      }
+    ],
+    "description": "Path of the source file.\n",
+    "loc": ["environment", "etc", "<name>", "source"],
+    "readOnly": false,
+    "type": "path"
+  },
+  "environment.etc.<name>.target": {
+    "declarations": [
+      {
+        "name": "<nix-darwin/modules/system/etc.nix>",
+        "url": "https://github.com/LnL7/nix-darwin/blob/master/modules/system/etc.nix"
+      }
+    ],
+    "default": { "_type": "literalExpression", "text": "\"\u2039name\u203a\"" },
+    "description": "Name of symlink.  Defaults to the attribute name.\n",
+    "loc": ["environment", "etc", "<name>", "target"],
+    "readOnly": false,
+    "type": "string"
+  },
+  "environment.etc.<name>.text": {
+    "declarations": [
+      {
+        "name": "<nix-darwin/modules/system/etc.nix>",
+        "url": "https://github.com/LnL7/nix-darwin/blob/master/modules/system/etc.nix"
+      }
+    ],
+    "default": { "_type": "literalExpression", "text": "\"\"" },
+    "description": "Text of the file.\n",
+    "loc": ["environment", "etc", "<name>", "text"],
+    "readOnly": false,
+    "type": "strings concatenated with \"\\n\""
+  },
+  "environment.extraInit": {
+    "declarations": [
+      {
+        "name": "<nix-darwin/modules/environment>",
+        "url": "https://github.com/LnL7/nix-darwin/blob/master/modules/environment"
+      }
+    ],
+    "default": { "_type": "literalExpression", "text": "\"\"" },
+    "description": "Shell script code called during global environment initialisation\nafter all variables and profileVariables have been set.\nThis code is asumed to be shell-independent, which means you should\nstick to pure sh without sh word split.\n",
+    "loc": ["environment", "extraInit"],
+    "readOnly": false,
+    "type": "strings concatenated with \"\\n\""
+  },
+  "environment.extraOutputsToInstall": {
+    "declarations": [
+      {
+        "name": "<nix-darwin/modules/environment>",
+        "url": "https://github.com/LnL7/nix-darwin/blob/master/modules/environment"
+      }
+    ],
+    "default": { "_type": "literalExpression", "text": "[ ]" },
+    "description": "List of additional package outputs to be symlinked into {file}`/run/current-system/sw`.",
+    "example": {
+      "_type": "literalExpression",
+      "text": "[\n  \"doc\"\n  \"info\"\n  \"devdoc\"\n]"
+    },
+    "loc": ["environment", "extraOutputsToInstall"],
+    "readOnly": false,
+    "type": "list of string"
+  },
+  "environment.interactiveShellInit": {
+    "declarations": [
+      {
+        "name": "<nix-darwin/modules/environment>",
+        "url": "https://github.com/LnL7/nix-darwin/blob/master/modules/environment"
+      }
+    ],
+    "default": { "_type": "literalExpression", "text": "\"\"" },
+    "description": "Shell script code called during interactive shell initialisation.\nThis code is asumed to be shell-independent, which means you should\nstick to pure sh without sh word split.\n",
+    "loc": ["environment", "interactiveShellInit"],
+    "readOnly": false,
+    "type": "strings concatenated with \"\\n\""
+  },
+  "environment.launchAgents": {
+    "declarations": [
+      {
+        "name": "<nix-darwin/modules/system/launchd.nix>",
+        "url": "https://github.com/LnL7/nix-darwin/blob/master/modules/system/launchd.nix"
+      }
+    ],
+    "default": { "_type": "literalExpression", "text": "{ }" },
+    "description": "Set of files that have to be linked in {file}`/Library/LaunchAgents`.\n",
+    "loc": ["environment", "launchAgents"],
+    "readOnly": false,
+    "type": "attribute set of (submodule)"
+  },
+  "environment.launchAgents.<name>.copy": {
+    "declarations": [
+      {
+        "name": "<nix-darwin/modules/system/launchd.nix>",
+        "url": "https://github.com/LnL7/nix-darwin/blob/master/modules/system/launchd.nix"
+      }
+    ],
+    "default": { "_type": "literalExpression", "text": "false" },
+    "description": "Whether this file should be copied instead of symlinking.\n",
+    "loc": ["environment", "launchAgents", "<name>", "copy"],
+    "readOnly": false,
+    "type": "boolean"
+  },
+  "environment.launchAgents.<name>.enable": {
+    "declarations": [
+      {
+        "name": "<nix-darwin/modules/system/launchd.nix>",
+        "url": "https://github.com/LnL7/nix-darwin/blob/master/modules/system/launchd.nix"
+      }
+    ],
+    "default": { "_type": "literalExpression", "text": "true" },
+    "description": "Whether this file should be generated.\nThis option allows specific files to be disabled.\n",
+    "loc": ["environment", "launchAgents", "<name>", "enable"],
+    "readOnly": false,
+    "type": "boolean"
+  },
+  "environment.launchAgents.<name>.source": {
+    "declarations": [
+      {
+        "name": "<nix-darwin/modules/system/launchd.nix>",
+        "url": "https://github.com/LnL7/nix-darwin/blob/master/modules/system/launchd.nix"
+      }
+    ],
+    "description": "Path of the source file.\n",
+    "loc": ["environment", "launchAgents", "<name>", "source"],
+    "readOnly": false,
+    "type": "path"
+  },
+  "environment.launchAgents.<name>.target": {
+    "declarations": [
+      {
+        "name": "<nix-darwin/modules/system/launchd.nix>",
+        "url": "https://github.com/LnL7/nix-darwin/blob/master/modules/system/launchd.nix"
+      }
+    ],
+    "default": { "_type": "literalExpression", "text": "\"\u2039name\u203a\"" },
+    "description": "Name of symlink.  Defaults to the attribute name.\n",
+    "loc": ["environment", "launchAgents", "<name>", "target"],
+    "readOnly": false,
+    "type": "string"
+  },
+  "environment.launchAgents.<name>.text": {
+    "declarations": [
+      {
+        "name": "<nix-darwin/modules/system/launchd.nix>",
+        "url": "https://github.com/LnL7/nix-darwin/blob/master/modules/system/launchd.nix"
+      }
+    ],
+    "default": { "_type": "literalExpression", "text": "\"\"" },
+    "description": "Text of the file.\n",
+    "loc": ["environment", "launchAgents", "<name>", "text"],
+    "readOnly": false,
+    "type": "strings concatenated with \"\\n\""
+  },
+  "environment.launchDaemons": {
+    "declarations": [
+      {
+        "name": "<nix-darwin/modules/system/launchd.nix>",
+        "url": "https://github.com/LnL7/nix-darwin/blob/master/modules/system/launchd.nix"
+      }
+    ],
+    "default": { "_type": "literalExpression", "text": "{ }" },
+    "description": "Set of files that have to be linked in {file}`/Library/LaunchDaemons`.\n",
+    "loc": ["environment", "launchDaemons"],
+    "readOnly": false,
+    "type": "attribute set of (submodule)"
+  },
+  "environment.launchDaemons.<name>.copy": {
+    "declarations": [
+      {
+        "name": "<nix-darwin/modules/system/launchd.nix>",
+        "url": "https://github.com/LnL7/nix-darwin/blob/master/modules/system/launchd.nix"
+      }
+    ],
+    "default": { "_type": "literalExpression", "text": "false" },
+    "description": "Whether this file should be copied instead of symlinking.\n",
+    "loc": ["environment", "launchDaemons", "<name>", "copy"],
+    "readOnly": false,
+    "type": "boolean"
+  },
+  "environment.launchDaemons.<name>.enable": {
+    "declarations": [
+      {
+        "name": "<nix-darwin/modules/system/launchd.nix>",
+        "url": "https://github.com/LnL7/nix-darwin/blob/master/modules/system/launchd.nix"
+      }
+    ],
+    "default": { "_type": "literalExpression", "text": "true" },
+    "description": "Whether this file should be generated.\nThis option allows specific files to be disabled.\n",
+    "loc": ["environment", "launchDaemons", "<name>", "enable"],
+    "readOnly": false,
+    "type": "boolean"
+  },
+  "environment.launchDaemons.<name>.source": {
+    "declarations": [
+      {
+        "name": "<nix-darwin/modules/system/launchd.nix>",
+        "url": "https://github.com/LnL7/nix-darwin/blob/master/modules/system/launchd.nix"
+      }
+    ],
+    "description": "Path of the source file.\n",
+    "loc": ["environment", "launchDaemons", "<name>", "source"],
+    "readOnly": false,
+    "type": "path"
+  },
+  "environment.launchDaemons.<name>.target": {
+    "declarations": [
+      {
+        "name": "<nix-darwin/modules/system/launchd.nix>",
+        "url": "https://github.com/LnL7/nix-darwin/blob/master/modules/system/launchd.nix"
+      }
+    ],
+    "default": { "_type": "literalExpression", "text": "\"\u2039name\u203a\"" },
+    "description": "Name of symlink.  Defaults to the attribute name.\n",
+    "loc": ["environment", "launchDaemons", "<name>", "target"],
+    "readOnly": false,
+    "type": "string"
+  },
+  "environment.launchDaemons.<name>.text": {
+    "declarations": [
+      {
+        "name": "<nix-darwin/modules/system/launchd.nix>",
+        "url": "https://github.com/LnL7/nix-darwin/blob/master/modules/system/launchd.nix"
+      }
+    ],
+    "default": { "_type": "literalExpression", "text": "\"\"" },
+    "description": "Text of the file.\n",
+    "loc": ["environment", "launchDaemons", "<name>", "text"],
+    "readOnly": false,
+    "type": "strings concatenated with \"\\n\""
+  },
+  "environment.loginShell": {
+    "declarations": [
+      {
+        "name": "<nix-darwin/modules/environment>",
+        "url": "https://github.com/LnL7/nix-darwin/blob/master/modules/environment"
+      }
+    ],
+    "default": { "_type": "literalExpression", "text": "\"$SHELL -l\"" },
+    "description": "Configure default login shell.",
+    "loc": ["environment", "loginShell"],
+    "readOnly": false,
+    "type": "string"
+  },
+  "environment.loginShellInit": {
+    "declarations": [
+      {
+        "name": "<nix-darwin/modules/environment>",
+        "url": "https://github.com/LnL7/nix-darwin/blob/master/modules/environment"
+      }
+    ],
+    "default": { "_type": "literalExpression", "text": "\"\"" },
+    "description": "Shell script code called during login shell initialisation.\nThis code is asumed to be shell-independent, which means you should\nstick to pure sh without sh word split.\n",
+    "loc": ["environment", "loginShellInit"],
+    "readOnly": false,
+    "type": "strings concatenated with \"\\n\""
+  },
+  "environment.pathsToLink": {
+    "declarations": [
+      {
+        "name": "<nix-darwin/modules/environment>",
+        "url": "https://github.com/LnL7/nix-darwin/blob/master/modules/environment"
+      }
+    ],
+    "default": { "_type": "literalExpression", "text": "[ ]" },
+    "description": "List of directories to be symlinked in {file}`/run/current-system/sw`.",
+    "example": {
+      "_type": "literalExpression",
+      "text": "[\n  \"/share/doc\"\n]"
+    },
+    "loc": ["environment", "pathsToLink"],
+    "readOnly": false,
+    "type": "list of string"
+  },
+  "environment.postBuild": {
+    "declarations": [
+      {
+        "name": "<nix-darwin/modules/environment>",
+        "url": "https://github.com/LnL7/nix-darwin/blob/master/modules/environment"
+      }
+    ],
+    "default": { "_type": "literalExpression", "text": "\"\"" },
+    "description": "Commands to execute when building the global environment.",
+    "loc": ["environment", "postBuild"],
+    "readOnly": false,
+    "type": "strings concatenated with \"\\n\""
+  },
+  "environment.profiles": {
+    "declarations": [
+      {
+        "name": "<nix-darwin/modules/environment>",
+        "url": "https://github.com/LnL7/nix-darwin/blob/master/modules/environment"
+      }
+    ],
+    "description": "A list of profiles used to setup the global environment.",
+    "loc": ["environment", "profiles"],
+    "readOnly": false,
+    "type": "list of string"
+  },
+  "environment.shellAliases": {
+    "declarations": [
+      {
+        "name": "<nix-darwin/modules/environment>",
+        "url": "https://github.com/LnL7/nix-darwin/blob/master/modules/environment"
+      }
+    ],
+    "default": { "_type": "literalExpression", "text": "{ }" },
+    "description": "An attribute set that maps aliases (the top level attribute names in\nthis option) to command strings or directly to build outputs. The\nalises are added to all users' shells.\n",
+    "example": {
+      "_type": "literalExpression",
+      "text": "{\n  ll = \"ls -l\";\n}"
+    },
+    "loc": ["environment", "shellAliases"],
+    "readOnly": false,
+    "type": "attribute set of string"
+  },
+  "environment.shellInit": {
+    "declarations": [
+      {
+        "name": "<nix-darwin/modules/environment>",
+        "url": "https://github.com/LnL7/nix-darwin/blob/master/modules/environment"
+      }
+    ],
+    "default": { "_type": "literalExpression", "text": "\"\"" },
+    "description": "Shell script code called during shell initialisation.\nThis code is asumed to be shell-independent, which means you should\nstick to pure sh without sh word split.\n",
+    "loc": ["environment", "shellInit"],
+    "readOnly": false,
+    "type": "strings concatenated with \"\\n\""
+  },
+  "environment.shells": {
+    "declarations": [
+      {
+        "name": "<nix-darwin/modules/system/shells.nix>",
+        "url": "https://github.com/LnL7/nix-darwin/blob/master/modules/system/shells.nix"
+      }
+    ],
+    "default": { "_type": "literalExpression", "text": "[ ]" },
+    "description": "A list of permissible login shells for user accounts.\nNo need to mention `/bin/sh`\nand other shells that are available by default on\nmacOS.\n",
+    "example": {
+      "_type": "literalExpression",
+      "text": "[ pkgs.bashInteractive pkgs.zsh ]"
+    },
+    "loc": ["environment", "shells"],
+    "readOnly": false,
+    "type": "list of (package or path)"
+  },
+  "environment.systemPackages": {
+    "declarations": [
+      {
+        "name": "<nix-darwin/modules/environment>",
+        "url": "https://github.com/LnL7/nix-darwin/blob/master/modules/environment"
+      }
+    ],
+    "default": { "_type": "literalExpression", "text": "[ ]" },
+    "description": "The set of packages that appear in\n/run/current-system/sw.  These packages are\nautomatically available to all users, and are\nautomatically updated every time you rebuild the system\nconfiguration.  (The latter is the main difference with\ninstalling them in the default profile,\n{file}`/nix/var/nix/profiles/default`.\n",
+    "example": {
+      "_type": "literalExpression",
+      "text": "[ pkgs.curl pkgs.vim ]"
+    },
+    "loc": ["environment", "systemPackages"],
+    "readOnly": false,
+    "type": "list of package"
+  },
+  "environment.systemPath": {
+    "declarations": [
+      {
+        "name": "<nix-darwin/modules/environment>",
+        "url": "https://github.com/LnL7/nix-darwin/blob/master/modules/environment"
+      }
+    ],
+    "description": "The set of paths that are added to PATH.",
+    "loc": ["environment", "systemPath"],
+    "readOnly": false,
+    "type": "list of (path or string)"
+  },
+  "environment.userLaunchAgents": {
+    "declarations": [
+      {
+        "name": "<nix-darwin/modules/system/launchd.nix>",
+        "url": "https://github.com/LnL7/nix-darwin/blob/master/modules/system/launchd.nix"
+      }
+    ],
+    "default": { "_type": "literalExpression", "text": "{ }" },
+    "description": "Set of files that have to be linked in {file}`~/Library/LaunchAgents`.\n",
+    "loc": ["environment", "userLaunchAgents"],
+    "readOnly": false,
+    "type": "attribute set of (submodule)"
+  },
+  "environment.userLaunchAgents.<name>.copy": {
+    "declarations": [
+      {
+        "name": "<nix-darwin/modules/system/launchd.nix>",
+        "url": "https://github.com/LnL7/nix-darwin/blob/master/modules/system/launchd.nix"
+      }
+    ],
+    "default": { "_type": "literalExpression", "text": "false" },
+    "description": "Whether this file should be copied instead of symlinking.\n",
+    "loc": ["environment", "userLaunchAgents", "<name>", "copy"],
+    "readOnly": false,
+    "type": "boolean"
+  },
+  "environment.userLaunchAgents.<name>.enable": {
+    "declarations": [
+      {
+        "name": "<nix-darwin/modules/system/launchd.nix>",
+        "url": "https://github.com/LnL7/nix-darwin/blob/master/modules/system/launchd.nix"
+      }
+    ],
+    "default": { "_type": "literalExpression", "text": "true" },
+    "description": "Whether this file should be generated.\nThis option allows specific files to be disabled.\n",
+    "loc": ["environment", "userLaunchAgents", "<name>", "enable"],
+    "readOnly": false,
+    "type": "boolean"
+  },
+  "environment.userLaunchAgents.<name>.source": {
+    "declarations": [
+      {
+        "name": "<nix-darwin/modules/system/launchd.nix>",
+        "url": "https://github.com/LnL7/nix-darwin/blob/master/modules/system/launchd.nix"
+      }
+    ],
+    "description": "Path of the source file.\n",
+    "loc": ["environment", "userLaunchAgents", "<name>", "source"],
+    "readOnly": false,
+    "type": "path"
+  },
+  "environment.userLaunchAgents.<name>.target": {
+    "declarations": [
+      {
+        "name": "<nix-darwin/modules/system/launchd.nix>",
+        "url": "https://github.com/LnL7/nix-darwin/blob/master/modules/system/launchd.nix"
+      }
+    ],
+    "default": { "_type": "literalExpression", "text": "\"\u2039name\u203a\"" },
+    "description": "Name of symlink.  Defaults to the attribute name.\n",
+    "loc": ["environment", "userLaunchAgents", "<name>", "target"],
+    "readOnly": false,
+    "type": "string"
+  },
+  "environment.userLaunchAgents.<name>.text": {
+    "declarations": [
+      {
+        "name": "<nix-darwin/modules/system/launchd.nix>",
+        "url": "https://github.com/LnL7/nix-darwin/blob/master/modules/system/launchd.nix"
+      }
+    ],
+    "default": { "_type": "literalExpression", "text": "\"\"" },
+    "description": "Text of the file.\n",
+    "loc": ["environment", "userLaunchAgents", "<name>", "text"],
+    "readOnly": false,
+    "type": "strings concatenated with \"\\n\""
+  },
+  "environment.variables": {
+    "declarations": [
+      {
+        "name": "<nix-darwin/modules/environment>",
+        "url": "https://github.com/LnL7/nix-darwin/blob/master/modules/environment"
+      }
+    ],
+    "default": { "_type": "literalExpression", "text": "{ }" },
+    "description": "A set of environment variables used in the global environment.\nThese variables will be set on shell initialisation.\nThe value of each variable can be either a string or a list of\nstrings.  The latter is concatenated, interspersed with colon\ncharacters.\n",
+    "example": {
+      "_type": "literalExpression",
+      "text": "{\n  EDITOR = \"vim\";\n  LANG = \"nl_NL.UTF-8\";\n}"
+    },
+    "loc": ["environment", "variables"],
+    "readOnly": false,
+    "type": "attribute set of (string or list of string)"
+  },
+  "fonts.fontDir.enable": {
+    "declarations": [
+      {
+        "name": "<nix-darwin/modules/fonts>",
+        "url": "https://github.com/LnL7/nix-darwin/blob/master/modules/fonts"
+      }
+    ],
+    "default": { "_type": "literalExpression", "text": "false" },
+    "description": "Whether to enable font management and install configured fonts to\n{file}`/Library/Fonts`.\n\nNOTE: removes any manually-added fonts.\n",
+    "loc": ["fonts", "fontDir", "enable"],
+    "readOnly": false,
+    "type": "boolean"
+  },
+  "fonts.fonts": {
+    "declarations": [
+      {
+        "name": "<nix-darwin/modules/fonts>",
+        "url": "https://github.com/LnL7/nix-darwin/blob/master/modules/fonts"
+      }
+    ],
+    "default": { "_type": "literalExpression", "text": "[ ]" },
+    "description": "List of fonts to install.\n\nFonts present in later entries override those with the same filenames\nin previous ones.\n",
+    "example": {
+      "_type": "literalExpression",
+      "text": "[ pkgs.dejavu_fonts ]"
+    },
+    "loc": ["fonts", "fonts"],
+    "readOnly": false,
+    "type": "list of path"
+  },
+  "homebrew.brewPrefix": {
+    "declarations": [
+      {
+        "name": "<nix-darwin/modules/homebrew.nix>",
+        "url": "https://github.com/LnL7/nix-darwin/blob/master/modules/homebrew.nix"
+      }
+    ],
+    "default": {
+      "_type": "literalExpression",
+      "text": "if pkgs.stdenv.hostPlatform.isAarch64 then \"/opt/homebrew/bin\"\nelse \"/usr/local/bin\"\n"
+    },
+    "description": "The path prefix where the {command}`brew` executable is located. This will be set to\nthe correct value based on your system's platform, and should only need to be changed if you\nmanually installed Homebrew in a non-standard location.\n",
+    "loc": ["homebrew", "brewPrefix"],
+    "readOnly": false,
+    "type": "string"
+  },
+  "homebrew.brews": {
+    "declarations": [
+      {
+        "name": "<nix-darwin/modules/homebrew.nix>",
+        "url": "https://github.com/LnL7/nix-darwin/blob/master/modules/homebrew.nix"
+      }
+    ],
+    "default": { "_type": "literalExpression", "text": "[ ]" },
+    "description": "List of Homebrew formulae to install.\n\nFormulae defined as strings, e.g., `\"imagemagick\"`, are a shorthand for:\n\n`{ name = \"imagemagick\"; }`\n",
+    "example": {
+      "_type": "literalExpression",
+      "text": "# Adapted examples from https://github.com/Homebrew/homebrew-bundle#usage\n[\n  # `brew install`\n  \"imagemagick\"\n\n  # `brew install --with-rmtp`, `brew services restart` on version changes\n  {\n    name = \"denji/nginx/nginx-full\";\n    args = [ \"with-rmtp\" ];\n    restart_service = \"changed\";\n  }\n\n  # `brew install`, always `brew services restart`, `brew link`, `brew unlink mysql` (if it is installed)\n  {\n    name = \"mysql@5.6\";\n    restart_service = true;\n    link = true;\n    conflicts_with = [ \"mysql\" ];\n  }\n]\n"
+    },
+    "loc": ["homebrew", "brews"],
+    "readOnly": false,
+    "type": "list of ((submodule) or string convertible to it)"
+  },
+  "homebrew.brews.*.args": {
+    "declarations": [
+      {
+        "name": "<nix-darwin/modules/homebrew.nix>",
+        "url": "https://github.com/LnL7/nix-darwin/blob/master/modules/homebrew.nix"
+      }
+    ],
+    "default": { "_type": "literalExpression", "text": "null" },
+    "description": "Arguments flags to pass to {command}`brew install`. Values should not include the\nleading `\"--\"`.\n",
+    "loc": ["homebrew", "brews", "*", "args"],
+    "readOnly": false,
+    "type": "null or (list of string)"
+  },
+  "homebrew.brews.*.conflicts_with": {
+    "declarations": [
+      {
+        "name": "<nix-darwin/modules/homebrew.nix>",
+        "url": "https://github.com/LnL7/nix-darwin/blob/master/modules/homebrew.nix"
+      }
+    ],
+    "default": { "_type": "literalExpression", "text": "null" },
+    "description": "List of formulae that should be unlinked and their services stopped (if they are\ninstalled).\n",
+    "loc": ["homebrew", "brews", "*", "conflicts_with"],
+    "readOnly": false,
+    "type": "null or (list of string)"
+  },
+  "homebrew.brews.*.link": {
+    "declarations": [
+      {
+        "name": "<nix-darwin/modules/homebrew.nix>",
+        "url": "https://github.com/LnL7/nix-darwin/blob/master/modules/homebrew.nix"
+      }
+    ],
+    "default": { "_type": "literalExpression", "text": "null" },
+    "description": "Whether to link the formula to the Homebrew prefix. When this option is\n`null`, Homebrew will use it's default behavior which is to link the\nformula if it's currently unlinked and not keg-only, and to unlink the formula if it's\ncurrently linked and keg-only.\n",
+    "loc": ["homebrew", "brews", "*", "link"],
+    "readOnly": false,
+    "type": "null or boolean"
+  },
+  "homebrew.brews.*.name": {
+    "declarations": [
+      {
+        "name": "<nix-darwin/modules/homebrew.nix>",
+        "url": "https://github.com/LnL7/nix-darwin/blob/master/modules/homebrew.nix"
+      }
+    ],
+    "description": "The name of the formula to install.",
+    "loc": ["homebrew", "brews", "*", "name"],
+    "readOnly": false,
+    "type": "string"
+  },
+  "homebrew.brews.*.restart_service": {
+    "declarations": [
+      {
+        "name": "<nix-darwin/modules/homebrew.nix>",
+        "url": "https://github.com/LnL7/nix-darwin/blob/master/modules/homebrew.nix"
+      }
+    ],
+    "default": { "_type": "literalExpression", "text": "null" },
+    "description": "Whether to run {command}`brew services restart` for the formula and register it to\nlaunch at login (or boot). If set to `\"changed\"`, the service will only\nbe restarted on version changes.\n\nHomebrew's default is `false`.\n",
+    "loc": ["homebrew", "brews", "*", "restart_service"],
+    "readOnly": false,
+    "type": "null or boolean or value \"changed\" (singular enum)"
+  },
+  "homebrew.brews.*.start_service": {
+    "declarations": [
+      {
+        "name": "<nix-darwin/modules/homebrew.nix>",
+        "url": "https://github.com/LnL7/nix-darwin/blob/master/modules/homebrew.nix"
+      }
+    ],
+    "default": { "_type": "literalExpression", "text": "null" },
+    "description": "Whether to run {command}`brew services start` for the formula and register it to\nlaunch at login (or boot).\n\nHomebrew's default is `false`.\n",
+    "loc": ["homebrew", "brews", "*", "start_service"],
+    "readOnly": false,
+    "type": "null or boolean"
+  },
+  "homebrew.caskArgs": {
+    "declarations": [
+      {
+        "name": "<nix-darwin/modules/homebrew.nix>",
+        "url": "https://github.com/LnL7/nix-darwin/blob/master/modules/homebrew.nix"
+      }
+    ],
+    "default": { "_type": "literalExpression", "text": "{ }" },
+    "description": "Arguments passed to {command}`brew install --cask` for all casks listed in\n[](#opt-homebrew.casks).\n",
+    "example": {
+      "_type": "literalExpression",
+      "text": "{\n  appdir = \"~/Applications\";\n  require_sha = true;\n}\n"
+    },
+    "loc": ["homebrew", "caskArgs"],
+    "readOnly": false,
+    "type": "submodule"
+  },
+  "homebrew.caskArgs.appdir": {
+    "declarations": [
+      {
+        "name": "<nix-darwin/modules/homebrew.nix>",
+        "url": "https://github.com/LnL7/nix-darwin/blob/master/modules/homebrew.nix"
+      }
+    ],
+    "default": { "_type": "literalExpression", "text": "null" },
+    "description": "Target location for Applications.\n\nHomebrew's default is {file}`/Applications`.\n",
+    "loc": ["homebrew", "caskArgs", "appdir"],
+    "readOnly": false,
+    "type": "null or string"
+  },
+  "homebrew.caskArgs.audio_unit_plugindir": {
+    "declarations": [
+      {
+        "name": "<nix-darwin/modules/homebrew.nix>",
+        "url": "https://github.com/LnL7/nix-darwin/blob/master/modules/homebrew.nix"
+      }
+    ],
+    "default": { "_type": "literalExpression", "text": "null" },
+    "description": "Target location for Audio Unit Plugins.\n\nHomebrew's default is\n{file}`~/Library/Audio/Plug-Ins/Components`.\n",
+    "loc": ["homebrew", "caskArgs", "audio_unit_plugindir"],
+    "readOnly": false,
+    "type": "null or string"
+  },
+  "homebrew.caskArgs.colorpickerdir": {
+    "declarations": [
+      {
+        "name": "<nix-darwin/modules/homebrew.nix>",
+        "url": "https://github.com/LnL7/nix-darwin/blob/master/modules/homebrew.nix"
+      }
+    ],
+    "default": { "_type": "literalExpression", "text": "null" },
+    "description": "Target location for Color Pickers.\n\nHomebrew's default is {file}`~/Library/ColorPickers`.\n",
+    "loc": ["homebrew", "caskArgs", "colorpickerdir"],
+    "readOnly": false,
+    "type": "null or string"
+  },
+  "homebrew.caskArgs.dictionarydir": {
+    "declarations": [
+      {
+        "name": "<nix-darwin/modules/homebrew.nix>",
+        "url": "https://github.com/LnL7/nix-darwin/blob/master/modules/homebrew.nix"
+      }
+    ],
+    "default": { "_type": "literalExpression", "text": "null" },
+    "description": "Target location for Dictionaries.\n\nHomebrew's default is {file}`~/Library/Dictionaries`.\n",
+    "loc": ["homebrew", "caskArgs", "dictionarydir"],
+    "readOnly": false,
+    "type": "null or string"
+  },
+  "homebrew.caskArgs.fontdir": {
+    "declarations": [
+      {
+        "name": "<nix-darwin/modules/homebrew.nix>",
+        "url": "https://github.com/LnL7/nix-darwin/blob/master/modules/homebrew.nix"
+      }
+    ],
+    "default": { "_type": "literalExpression", "text": "null" },
+    "description": "Target location for Fonts.\n\nHomebrew's default is {file}`~/Library/Fonts`.\n",
+    "loc": ["homebrew", "caskArgs", "fontdir"],
+    "readOnly": false,
+    "type": "null or string"
+  },
+  "homebrew.caskArgs.input_methoddir": {
+    "declarations": [
+      {
+        "name": "<nix-darwin/modules/homebrew.nix>",
+        "url": "https://github.com/LnL7/nix-darwin/blob/master/modules/homebrew.nix"
+      }
+    ],
+    "default": { "_type": "literalExpression", "text": "null" },
+    "description": "Target location for Input Methods.\n\nHomebrew's default is {file}`~/Library/Input Methods`.\n",
+    "loc": ["homebrew", "caskArgs", "input_methoddir"],
+    "readOnly": false,
+    "type": "null or string"
+  },
+  "homebrew.caskArgs.internet_plugindir": {
+    "declarations": [
+      {
+        "name": "<nix-darwin/modules/homebrew.nix>",
+        "url": "https://github.com/LnL7/nix-darwin/blob/master/modules/homebrew.nix"
+      }
+    ],
+    "default": { "_type": "literalExpression", "text": "null" },
+    "description": "Target location for Internet Plugins.\n\nHomebrew's default is {file}`~/Library/Internet Plug-Ins`.\n",
+    "loc": ["homebrew", "caskArgs", "internet_plugindir"],
+    "readOnly": false,
+    "type": "null or string"
+  },
+  "homebrew.caskArgs.language": {
+    "declarations": [
+      {
+        "name": "<nix-darwin/modules/homebrew.nix>",
+        "url": "https://github.com/LnL7/nix-darwin/blob/master/modules/homebrew.nix"
+      }
+    ],
+    "default": { "_type": "literalExpression", "text": "null" },
+    "description": "Comma-separated list of language codes to prefer for cask installation. The first matching\nlanguage is used, otherwise it reverts to the cask\u2019s default language. The default value\nis the language of your system.\n",
+    "example": { "_type": "literalExpression", "text": "\"zh-TW\"" },
+    "loc": ["homebrew", "caskArgs", "language"],
+    "readOnly": false,
+    "type": "null or string"
+  },
+  "homebrew.caskArgs.mdimporterdir": {
+    "declarations": [
+      {
+        "name": "<nix-darwin/modules/homebrew.nix>",
+        "url": "https://github.com/LnL7/nix-darwin/blob/master/modules/homebrew.nix"
+      }
+    ],
+    "default": { "_type": "literalExpression", "text": "null" },
+    "description": "Target location for Spotlight Plugins.\n\nHomebrew's default is {file}`~/Library/Spotlight`.\n",
+    "loc": ["homebrew", "caskArgs", "mdimporterdir"],
+    "readOnly": false,
+    "type": "null or string"
+  },
+  "homebrew.caskArgs.no_binaries": {
+    "declarations": [
+      {
+        "name": "<nix-darwin/modules/homebrew.nix>",
+        "url": "https://github.com/LnL7/nix-darwin/blob/master/modules/homebrew.nix"
+      }
+    ],
+    "default": { "_type": "literalExpression", "text": "null" },
+    "description": "Whether to disable linking of helper executables.",
+    "loc": ["homebrew", "caskArgs", "no_binaries"],
+    "readOnly": false,
+    "type": "null or boolean"
+  },
+  "homebrew.caskArgs.no_quarantine": {
+    "declarations": [
+      {
+        "name": "<nix-darwin/modules/homebrew.nix>",
+        "url": "https://github.com/LnL7/nix-darwin/blob/master/modules/homebrew.nix"
+      }
+    ],
+    "default": { "_type": "literalExpression", "text": "null" },
+    "description": "Whether to disable quarantining of downloads.",
+    "loc": ["homebrew", "caskArgs", "no_quarantine"],
+    "readOnly": false,
+    "type": "null or boolean"
+  },
+  "homebrew.caskArgs.prefpanedir": {
+    "declarations": [
+      {
+        "name": "<nix-darwin/modules/homebrew.nix>",
+        "url": "https://github.com/LnL7/nix-darwin/blob/master/modules/homebrew.nix"
+      }
+    ],
+    "default": { "_type": "literalExpression", "text": "null" },
+    "description": "Target location for Preference Panes.\n\nHomebrew's default is {file}`~/Library/PreferencePanes`.\n",
+    "loc": ["homebrew", "caskArgs", "prefpanedir"],
+    "readOnly": false,
+    "type": "null or string"
+  },
+  "homebrew.caskArgs.qlplugindir": {
+    "declarations": [
+      {
+        "name": "<nix-darwin/modules/homebrew.nix>",
+        "url": "https://github.com/LnL7/nix-darwin/blob/master/modules/homebrew.nix"
+      }
+    ],
+    "default": { "_type": "literalExpression", "text": "null" },
+    "description": "Target location for QuickLook Plugins.\n\nHomebrew's default is {file}`~/Library/QuickLook`.\n",
+    "loc": ["homebrew", "caskArgs", "qlplugindir"],
+    "readOnly": false,
+    "type": "null or string"
+  },
+  "homebrew.caskArgs.require_sha": {
+    "declarations": [
+      {
+        "name": "<nix-darwin/modules/homebrew.nix>",
+        "url": "https://github.com/LnL7/nix-darwin/blob/master/modules/homebrew.nix"
+      }
+    ],
+    "default": { "_type": "literalExpression", "text": "null" },
+    "description": "Whether to require cask(s) to have a checksum.\n\nHomebrew's default is `false`.\n",
+    "loc": ["homebrew", "caskArgs", "require_sha"],
+    "readOnly": false,
+    "type": "null or boolean"
+  },
+  "homebrew.caskArgs.screen_saverdir": {
+    "declarations": [
+      {
+        "name": "<nix-darwin/modules/homebrew.nix>",
+        "url": "https://github.com/LnL7/nix-darwin/blob/master/modules/homebrew.nix"
+      }
+    ],
+    "default": { "_type": "literalExpression", "text": "null" },
+    "description": "Target location for Screen Savers.\n\nHomebrew's default is {file}`~/Library/Screen Savers`.\n",
+    "loc": ["homebrew", "caskArgs", "screen_saverdir"],
+    "readOnly": false,
+    "type": "null or string"
+  },
+  "homebrew.caskArgs.servicedir": {
+    "declarations": [
+      {
+        "name": "<nix-darwin/modules/homebrew.nix>",
+        "url": "https://github.com/LnL7/nix-darwin/blob/master/modules/homebrew.nix"
+      }
+    ],
+    "default": { "_type": "literalExpression", "text": "null" },
+    "description": "Target location for Services.\n\nHomebrew's default is {file}`~/Library/Services`.\n",
+    "loc": ["homebrew", "caskArgs", "servicedir"],
+    "readOnly": false,
+    "type": "null or string"
+  },
+  "homebrew.caskArgs.vst3_plugindir": {
+    "declarations": [
+      {
+        "name": "<nix-darwin/modules/homebrew.nix>",
+        "url": "https://github.com/LnL7/nix-darwin/blob/master/modules/homebrew.nix"
+      }
+    ],
+    "default": { "_type": "literalExpression", "text": "null" },
+    "description": "Target location for VST3 Plugins.\n\nHomebrew's default is {file}`~/Library/Audio/Plug-Ins/VST3`.\n",
+    "loc": ["homebrew", "caskArgs", "vst3_plugindir"],
+    "readOnly": false,
+    "type": "null or string"
+  }
+}

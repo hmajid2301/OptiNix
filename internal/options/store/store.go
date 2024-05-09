@@ -28,7 +28,7 @@ type OptionWithSources struct {
 
 var SearchLimit = 10
 
-func New(db *sql.DB) (Store, error) {
+func NewStore(db *sql.DB) (Store, error) {
 	queries := sqlc.New(db)
 	store := Store{
 		db:      db,

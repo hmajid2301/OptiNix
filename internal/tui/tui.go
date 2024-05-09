@@ -4,14 +4,9 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
-	"log"
 
 	"github.com/charmbracelet/bubbles/textinput"
 	tea "github.com/charmbracelet/bubbletea"
-
-	"gitlab.com/hmajid2301/optinix/internal/options"
-	"gitlab.com/hmajid2301/optinix/internal/options/config"
-	"gitlab.com/hmajid2301/optinix/internal/options/store"
 )
 
 type Model struct {
@@ -57,59 +52,16 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m Model) View() string {
-	if m.done {
-		err := FindOptions(m.ctx, m.db, m.userInput.Value())
-		if err != nil {
-			log.Fatal(err)
-		}
-	}
-
+	// if m.done {
+	// 	// err := FindOptions(m.ctx, m.db, m.userInput.Value())
+	// 	// if err != nil {
+	// 	// 	log.Fatal(err)
+	// 	// }
+	// }
+	//
 	return fmt.Sprintf(
 		"Search for options:\n\n%s\n\n%s",
 		m.userInput.View(),
 		"(esc to quit)",
 	) + "\n"
-}
-
-func FindOptions(ctx context.Context, db *sql.DB, optionName string) (err error) {
-	conf, err := config.LoadConfig()
-	if err != nil {
-		return err
-	}
-
-	s, err := store.New(db)
-	if err != nil {
-		return err
-	}
-
-	opt := options.New(s)
-
-	sources := map[options.Source]string{
-		options.NixOSSource:       conf.Sources.NixOSURL,
-		options.HomeManagerSource: conf.Sources.HomeManagerURL,
-	}
-	err = opt.SaveOptions(ctx, sources)
-	if err != nil {
-		return err
-	}
-
-	matchingOpts, err := opt.GetOptions(ctx, optionName)
-	if err != nil {
-		return err
-	}
-
-	// TODO: format this nicely
-	for _, o := range matchingOpts {
-		fmt.Println(o.Name)
-		fmt.Println(o.Type)
-		fmt.Println(o.Description)
-		fmt.Println(o.DefaultValue)
-		fmt.Println(o.Example)
-
-		for _, s := range o.Sources {
-			fmt.Println(s)
-		}
-	}
-
-	return nil
 }

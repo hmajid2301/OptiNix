@@ -1,0 +1,1517 @@
+{
+  "_module.args": {
+    "declarations": [
+      {
+        "name": "<nixpkgs/lib/modules.nix>",
+        "url": "https://github.com/NixOS/nixpkgs/blob/master/lib/modules.nix"
+      }
+    ],
+    "description": "Additional arguments passed to each module in addition to ones\nlike `lib`, `config`,\nand `pkgs`, `modulesPath`.\n\nThis option is also available to all submodules. Submodules do not\ninherit args from their parent module, nor do they provide args to\ntheir parent module or sibling submodules. The sole exception to\nthis is the argument `name` which is provided by\nparent modules to a submodule and contains the attribute name\nthe submodule is bound to, or a unique generated name if it is\nnot bound to an attribute.\n\nSome arguments are already passed by default, of which the\nfollowing *cannot* be changed with this option:\n- {var}`lib`: The nixpkgs library.\n- {var}`config`: The results of all options after merging the values from all modules together.\n- {var}`options`: The options declared in all modules.\n- {var}`specialArgs`: The `specialArgs` argument passed to `evalModules`.\n- All attributes of {var}`specialArgs`\n\n  Whereas option values can generally depend on other option values\n  thanks to laziness, this does not apply to `imports`, which\n  must be computed statically before anything else.\n\n  For this reason, callers of the module system can provide `specialArgs`\n  which are available during import resolution.\n\n  For NixOS, `specialArgs` includes\n  {var}`modulesPath`, which allows you to import\n  extra modules from the nixpkgs package tree without having to\n  somehow make the module aware of the location of the\n  `nixpkgs` or NixOS directories.\n  ```\n  { modulesPath, ... }: {\n    imports = [\n      (modulesPath + \"/profiles/minimal.nix\")\n    ];\n  }\n  ```\n\nFor NixOS, the default value for this option includes at least this argument:\n- {var}`pkgs`: The nixpkgs package set according to\n  the {option}`nixpkgs.pkgs` option.\n",
+    "loc": ["_module", "args"],
+    "readOnly": false,
+    "type": "lazy attribute set of raw value"
+  },
+  "accounts.calendar.accounts": {
+    "declarations": [
+      {
+        "name": "<home-manager/modules/programs/qcal.nix>",
+        "url": "https://github.com/nix-community/home-manager/blob/master/modules/programs/qcal.nix"
+      },
+      {
+        "name": "<home-manager/modules/accounts/calendar.nix>",
+        "url": "https://github.com/nix-community/home-manager/blob/master/modules/accounts/calendar.nix"
+      }
+    ],
+    "default": { "_type": "literalExpression", "text": "{ }" },
+    "description": "List of calendars.",
+    "loc": ["accounts", "calendar", "accounts"],
+    "readOnly": false,
+    "type": "attribute set of (submodule)"
+  },
+  "accounts.calendar.accounts.<name>.khal.addresses": {
+    "declarations": [
+      {
+        "name": "<home-manager/modules/accounts/calendar.nix>",
+        "url": "https://github.com/nix-community/home-manager/blob/master/modules/accounts/calendar.nix"
+      }
+    ],
+    "default": { "_type": "literalExpression", "text": "[ ]" },
+    "description": "Email addresses to be associated with this account. Used to check the\nparticipation status (\"PARTSTAT\"), refer to khal documentation.\n",
+    "loc": ["accounts", "calendar", "accounts", "<name>", "khal", "addresses"],
+    "readOnly": false,
+    "type": "list of string"
+  },
+  "accounts.calendar.accounts.<name>.khal.color": {
+    "declarations": [
+      {
+        "name": "<home-manager/modules/accounts/calendar.nix>",
+        "url": "https://github.com/nix-community/home-manager/blob/master/modules/accounts/calendar.nix"
+      }
+    ],
+    "default": { "_type": "literalExpression", "text": "null" },
+    "description": "Color in which events in this calendar are displayed.\nFor instance 'light green' or an RGB color '#ff0000'\n",
+    "example": { "_type": "literalExpression", "text": "\"light green\"" },
+    "loc": ["accounts", "calendar", "accounts", "<name>", "khal", "color"],
+    "readOnly": false,
+    "type": "null or string"
+  },
+  "accounts.calendar.accounts.<name>.khal.enable": {
+    "declarations": [
+      {
+        "name": "<home-manager/modules/accounts/calendar.nix>",
+        "url": "https://github.com/nix-community/home-manager/blob/master/modules/accounts/calendar.nix"
+      }
+    ],
+    "default": { "_type": "literalExpression", "text": "false" },
+    "description": "Whether to enable khal access.",
+    "example": { "_type": "literalExpression", "text": "true" },
+    "loc": ["accounts", "calendar", "accounts", "<name>", "khal", "enable"],
+    "readOnly": false,
+    "type": "boolean"
+  },
+  "accounts.calendar.accounts.<name>.khal.glob": {
+    "declarations": [
+      {
+        "name": "<home-manager/modules/accounts/calendar.nix>",
+        "url": "https://github.com/nix-community/home-manager/blob/master/modules/accounts/calendar.nix"
+      }
+    ],
+    "default": { "_type": "literalExpression", "text": "\"*\"" },
+    "description": "The glob expansion to be searched for events or birthdays when\ntype is set to discover.\n",
+    "loc": ["accounts", "calendar", "accounts", "<name>", "khal", "glob"],
+    "readOnly": false,
+    "type": "string"
+  },
+  "accounts.calendar.accounts.<name>.khal.priority": {
+    "declarations": [
+      {
+        "name": "<home-manager/modules/accounts/calendar.nix>",
+        "url": "https://github.com/nix-community/home-manager/blob/master/modules/accounts/calendar.nix"
+      }
+    ],
+    "default": { "_type": "literalExpression", "text": "10" },
+    "description": "Priority of a calendar used for coloring (calendar with highest priority is preferred).\n",
+    "loc": ["accounts", "calendar", "accounts", "<name>", "khal", "priority"],
+    "readOnly": false,
+    "type": "signed integer"
+  },
+  "accounts.calendar.accounts.<name>.khal.readOnly": {
+    "declarations": [
+      {
+        "name": "<home-manager/modules/accounts/calendar.nix>",
+        "url": "https://github.com/nix-community/home-manager/blob/master/modules/accounts/calendar.nix"
+      }
+    ],
+    "default": { "_type": "literalExpression", "text": "false" },
+    "description": "Keep khal from making any changes to this account.\n",
+    "loc": ["accounts", "calendar", "accounts", "<name>", "khal", "readOnly"],
+    "readOnly": false,
+    "type": "boolean"
+  },
+  "accounts.calendar.accounts.<name>.khal.type": {
+    "declarations": [
+      {
+        "name": "<home-manager/modules/accounts/calendar.nix>",
+        "url": "https://github.com/nix-community/home-manager/blob/master/modules/accounts/calendar.nix"
+      }
+    ],
+    "default": { "_type": "literalExpression", "text": "\"calendar\"" },
+    "description": "Either a single calendar (calendar which is the default) or a directory with multiple calendars (discover).\n",
+    "loc": ["accounts", "calendar", "accounts", "<name>", "khal", "type"],
+    "readOnly": false,
+    "type": "one of \"calendar\", \"discover\""
+  },
+  "accounts.calendar.accounts.<name>.local": {
+    "declarations": [
+      {
+        "name": "<home-manager/modules/accounts/calendar.nix>",
+        "url": "https://github.com/nix-community/home-manager/blob/master/modules/accounts/calendar.nix"
+      }
+    ],
+    "default": { "_type": "literalExpression", "text": "{ }" },
+    "description": "Local configuration for the calendar.\n",
+    "loc": ["accounts", "calendar", "accounts", "<name>", "local"],
+    "readOnly": false,
+    "type": "submodule"
+  },
+  "accounts.calendar.accounts.<name>.local.encoding": {
+    "declarations": [
+      {
+        "name": "<home-manager/modules/accounts/calendar.nix>",
+        "url": "https://github.com/nix-community/home-manager/blob/master/modules/accounts/calendar.nix"
+      }
+    ],
+    "default": { "_type": "literalExpression", "text": "null" },
+    "description": "File encoding for items, both content and file name.\nDefaults to UTF-8.\n",
+    "loc": ["accounts", "calendar", "accounts", "<name>", "local", "encoding"],
+    "readOnly": false,
+    "type": "null or string"
+  },
+  "accounts.calendar.accounts.<name>.local.fileExt": {
+    "declarations": [
+      {
+        "name": "<home-manager/modules/accounts/calendar.nix>",
+        "url": "https://github.com/nix-community/home-manager/blob/master/modules/accounts/calendar.nix"
+      }
+    ],
+    "default": { "_type": "literalExpression", "text": "\".ics\"" },
+    "description": "The file extension to use.",
+    "loc": ["accounts", "calendar", "accounts", "<name>", "local", "fileExt"],
+    "readOnly": false,
+    "type": "null or string"
+  },
+  "accounts.calendar.accounts.<name>.local.path": {
+    "declarations": [
+      {
+        "name": "<home-manager/modules/accounts/calendar.nix>",
+        "url": "https://github.com/nix-community/home-manager/blob/master/modules/accounts/calendar.nix"
+      }
+    ],
+    "default": {
+      "_type": "literalExpression",
+      "text": "\"\u2039accounts.calendar.basePath\u203a/\u2039name\u203a\""
+    },
+    "description": "The path of the storage.",
+    "loc": ["accounts", "calendar", "accounts", "<name>", "local", "path"],
+    "readOnly": false,
+    "type": "string"
+  },
+  "accounts.calendar.accounts.<name>.local.type": {
+    "declarations": [
+      {
+        "name": "<home-manager/modules/accounts/calendar.nix>",
+        "url": "https://github.com/nix-community/home-manager/blob/master/modules/accounts/calendar.nix"
+      }
+    ],
+    "default": { "_type": "literalExpression", "text": "\"filesystem\"" },
+    "description": "The type of the storage.",
+    "loc": ["accounts", "calendar", "accounts", "<name>", "local", "type"],
+    "readOnly": false,
+    "type": "one of \"filesystem\", \"singlefile\""
+  },
+  "accounts.calendar.accounts.<name>.name": {
+    "declarations": [
+      {
+        "name": "<home-manager/modules/accounts/calendar.nix>",
+        "url": "https://github.com/nix-community/home-manager/blob/master/modules/accounts/calendar.nix"
+      }
+    ],
+    "description": "Unique identifier of the calendar. This is set to the\nattribute name of the calendar configuration.\n",
+    "loc": ["accounts", "calendar", "accounts", "<name>", "name"],
+    "readOnly": true,
+    "type": "string"
+  },
+  "accounts.calendar.accounts.<name>.primary": {
+    "declarations": [
+      {
+        "name": "<home-manager/modules/accounts/calendar.nix>",
+        "url": "https://github.com/nix-community/home-manager/blob/master/modules/accounts/calendar.nix"
+      }
+    ],
+    "default": { "_type": "literalExpression", "text": "false" },
+    "description": "Whether this is the primary account. Only one account may be\nset as primary.\n",
+    "loc": ["accounts", "calendar", "accounts", "<name>", "primary"],
+    "readOnly": false,
+    "type": "boolean"
+  },
+  "accounts.calendar.accounts.<name>.primaryCollection": {
+    "declarations": [
+      {
+        "name": "<home-manager/modules/accounts/calendar.nix>",
+        "url": "https://github.com/nix-community/home-manager/blob/master/modules/accounts/calendar.nix"
+      }
+    ],
+    "default": { "_type": "literalExpression", "text": "null" },
+    "description": "The primary collection of the account. Required when an\naccount has multiple collections.\n",
+    "loc": ["accounts", "calendar", "accounts", "<name>", "primaryCollection"],
+    "readOnly": false,
+    "type": "null or string"
+  },
+  "accounts.calendar.accounts.<name>.qcal.enable": {
+    "declarations": [
+      {
+        "name": "<home-manager/modules/programs/qcal.nix>",
+        "url": "https://github.com/nix-community/home-manager/blob/master/modules/programs/qcal.nix"
+      }
+    ],
+    "default": { "_type": "literalExpression", "text": "false" },
+    "description": "Whether to enable qcal access.",
+    "example": { "_type": "literalExpression", "text": "true" },
+    "loc": ["accounts", "calendar", "accounts", "<name>", "qcal", "enable"],
+    "readOnly": false,
+    "type": "boolean"
+  },
+  "accounts.calendar.accounts.<name>.remote": {
+    "declarations": [
+      {
+        "name": "<home-manager/modules/accounts/calendar.nix>",
+        "url": "https://github.com/nix-community/home-manager/blob/master/modules/accounts/calendar.nix"
+      }
+    ],
+    "default": { "_type": "literalExpression", "text": "null" },
+    "description": "Remote configuration for the calendar.\n",
+    "loc": ["accounts", "calendar", "accounts", "<name>", "remote"],
+    "readOnly": false,
+    "type": "null or (submodule)"
+  },
+  "accounts.calendar.accounts.<name>.remote.passwordCommand": {
+    "declarations": [
+      {
+        "name": "<home-manager/modules/accounts/calendar.nix>",
+        "url": "https://github.com/nix-community/home-manager/blob/master/modules/accounts/calendar.nix"
+      }
+    ],
+    "default": { "_type": "literalExpression", "text": "null" },
+    "description": "A command that prints the password to standard output.\n",
+    "example": {
+      "_type": "literalExpression",
+      "text": "[\n  \"pass\"\n  \"caldav\"\n]"
+    },
+    "loc": [
+      "accounts",
+      "calendar",
+      "accounts",
+      "<name>",
+      "remote",
+      "passwordCommand"
+    ],
+    "readOnly": false,
+    "type": "null or (list of string)"
+  },
+  "accounts.calendar.accounts.<name>.remote.type": {
+    "declarations": [
+      {
+        "name": "<home-manager/modules/accounts/calendar.nix>",
+        "url": "https://github.com/nix-community/home-manager/blob/master/modules/accounts/calendar.nix"
+      }
+    ],
+    "description": "The type of the storage.",
+    "loc": ["accounts", "calendar", "accounts", "<name>", "remote", "type"],
+    "readOnly": false,
+    "type": "one of \"caldav\", \"http\", \"google_calendar\""
+  },
+  "accounts.calendar.accounts.<name>.remote.url": {
+    "declarations": [
+      {
+        "name": "<home-manager/modules/accounts/calendar.nix>",
+        "url": "https://github.com/nix-community/home-manager/blob/master/modules/accounts/calendar.nix"
+      }
+    ],
+    "default": { "_type": "literalExpression", "text": "null" },
+    "description": "The URL of the storage.",
+    "loc": ["accounts", "calendar", "accounts", "<name>", "remote", "url"],
+    "readOnly": false,
+    "type": "null or string"
+  },
+  "accounts.calendar.accounts.<name>.remote.userName": {
+    "declarations": [
+      {
+        "name": "<home-manager/modules/accounts/calendar.nix>",
+        "url": "https://github.com/nix-community/home-manager/blob/master/modules/accounts/calendar.nix"
+      }
+    ],
+    "default": { "_type": "literalExpression", "text": "null" },
+    "description": "User name for authentication.",
+    "loc": ["accounts", "calendar", "accounts", "<name>", "remote", "userName"],
+    "readOnly": false,
+    "type": "null or string"
+  },
+  "accounts.calendar.accounts.<name>.vdirsyncer.auth": {
+    "declarations": [
+      {
+        "name": "<home-manager/modules/accounts/calendar.nix>",
+        "url": "https://github.com/nix-community/home-manager/blob/master/modules/accounts/calendar.nix"
+      }
+    ],
+    "default": { "_type": "literalExpression", "text": "null" },
+    "description": "Authentication settings. The default is `basic`.\n",
+    "loc": ["accounts", "calendar", "accounts", "<name>", "vdirsyncer", "auth"],
+    "readOnly": false,
+    "type": "null or one of \"basic\", \"digest\", \"guess\""
+  },
+  "accounts.calendar.accounts.<name>.vdirsyncer.authCert": {
+    "declarations": [
+      {
+        "name": "<home-manager/modules/accounts/calendar.nix>",
+        "url": "https://github.com/nix-community/home-manager/blob/master/modules/accounts/calendar.nix"
+      }
+    ],
+    "default": { "_type": "literalExpression", "text": "null" },
+    "description": "Either a path to a certificate with a client certificate and\nthe key or a list of paths to the files with them.\n",
+    "loc": [
+      "accounts",
+      "calendar",
+      "accounts",
+      "<name>",
+      "vdirsyncer",
+      "authCert"
+    ],
+    "readOnly": false,
+    "type": "null or string or list of string"
+  },
+  "accounts.calendar.accounts.<name>.vdirsyncer.clientIdCommand": {
+    "declarations": [
+      {
+        "name": "<home-manager/modules/accounts/calendar.nix>",
+        "url": "https://github.com/nix-community/home-manager/blob/master/modules/accounts/calendar.nix"
+      }
+    ],
+    "default": { "_type": "literalExpression", "text": "null" },
+    "description": "A command that prints the OAuth credentials to standard\noutput.\n\nSee\n<https://vdirsyncer.pimutils.org/en/stable/config.html#google>\nfor more information.\n",
+    "example": {
+      "_type": "literalExpression",
+      "text": "[\n  \"pass\"\n  \"client_id\"\n]"
+    },
+    "loc": [
+      "accounts",
+      "calendar",
+      "accounts",
+      "<name>",
+      "vdirsyncer",
+      "clientIdCommand"
+    ],
+    "readOnly": false,
+    "type": "null or (list of string)"
+  },
+  "accounts.calendar.accounts.<name>.vdirsyncer.clientSecretCommand": {
+    "declarations": [
+      {
+        "name": "<home-manager/modules/accounts/calendar.nix>",
+        "url": "https://github.com/nix-community/home-manager/blob/master/modules/accounts/calendar.nix"
+      }
+    ],
+    "default": { "_type": "literalExpression", "text": "null" },
+    "description": "A command that prints the OAuth credentials to standard\noutput.\n\nSee\n<https://vdirsyncer.pimutils.org/en/stable/config.html#google>\nfor more information.\n",
+    "example": {
+      "_type": "literalExpression",
+      "text": "[\n  \"pass\"\n  \"client_secret\"\n]"
+    },
+    "loc": [
+      "accounts",
+      "calendar",
+      "accounts",
+      "<name>",
+      "vdirsyncer",
+      "clientSecretCommand"
+    ],
+    "readOnly": false,
+    "type": "null or (list of string)"
+  },
+  "accounts.calendar.accounts.<name>.vdirsyncer.collections": {
+    "declarations": [
+      {
+        "name": "<home-manager/modules/accounts/calendar.nix>",
+        "url": "https://github.com/nix-community/home-manager/blob/master/modules/accounts/calendar.nix"
+      }
+    ],
+    "default": { "_type": "literalExpression", "text": "null" },
+    "description": "The collections to synchronize between the storages.\n",
+    "loc": [
+      "accounts",
+      "calendar",
+      "accounts",
+      "<name>",
+      "vdirsyncer",
+      "collections"
+    ],
+    "readOnly": false,
+    "type": "null or (list of (string or list of string))"
+  },
+  "accounts.calendar.accounts.<name>.vdirsyncer.conflictResolution": {
+    "declarations": [
+      {
+        "name": "<home-manager/modules/accounts/calendar.nix>",
+        "url": "https://github.com/nix-community/home-manager/blob/master/modules/accounts/calendar.nix"
+      }
+    ],
+    "default": { "_type": "literalExpression", "text": "null" },
+    "description": "What to do in case of a conflict between the storages. Either\n`remote wins` or\n`local wins` or\na list that contains a command to run. By default, an error\nmessage is printed.\n",
+    "loc": [
+      "accounts",
+      "calendar",
+      "accounts",
+      "<name>",
+      "vdirsyncer",
+      "conflictResolution"
+    ],
+    "readOnly": false,
+    "type": "null or one of \"remote wins\", \"local wins\" or list of string"
+  },
+  "accounts.calendar.accounts.<name>.vdirsyncer.enable": {
+    "declarations": [
+      {
+        "name": "<home-manager/modules/accounts/calendar.nix>",
+        "url": "https://github.com/nix-community/home-manager/blob/master/modules/accounts/calendar.nix"
+      }
+    ],
+    "default": { "_type": "literalExpression", "text": "false" },
+    "description": "Whether to enable synchronization using vdirsyncer.",
+    "example": { "_type": "literalExpression", "text": "true" },
+    "loc": [
+      "accounts",
+      "calendar",
+      "accounts",
+      "<name>",
+      "vdirsyncer",
+      "enable"
+    ],
+    "readOnly": false,
+    "type": "boolean"
+  },
+  "accounts.calendar.accounts.<name>.vdirsyncer.itemTypes": {
+    "declarations": [
+      {
+        "name": "<home-manager/modules/accounts/calendar.nix>",
+        "url": "https://github.com/nix-community/home-manager/blob/master/modules/accounts/calendar.nix"
+      }
+    ],
+    "default": { "_type": "literalExpression", "text": "null" },
+    "description": "Kinds of items to show. The default is to show everything.\nThis depends on particular features of the server, the results\nare not validated.\n",
+    "loc": [
+      "accounts",
+      "calendar",
+      "accounts",
+      "<name>",
+      "vdirsyncer",
+      "itemTypes"
+    ],
+    "readOnly": false,
+    "type": "null or (list of string)"
+  },
+  "accounts.calendar.accounts.<name>.vdirsyncer.metadata": {
+    "declarations": [
+      {
+        "name": "<home-manager/modules/accounts/calendar.nix>",
+        "url": "https://github.com/nix-community/home-manager/blob/master/modules/accounts/calendar.nix"
+      }
+    ],
+    "default": { "_type": "literalExpression", "text": "[ ]" },
+    "description": "Metadata keys that should be synchronized when vdirsyncer\nmetasync is executed.\n",
+    "example": {
+      "_type": "literalExpression",
+      "text": "[\n  \"color\"\n  \"displayname\"\n]"
+    },
+    "loc": [
+      "accounts",
+      "calendar",
+      "accounts",
+      "<name>",
+      "vdirsyncer",
+      "metadata"
+    ],
+    "readOnly": false,
+    "type": "list of string"
+  },
+  "accounts.calendar.accounts.<name>.vdirsyncer.partialSync": {
+    "declarations": [
+      {
+        "name": "<home-manager/modules/accounts/calendar.nix>",
+        "url": "https://github.com/nix-community/home-manager/blob/master/modules/accounts/calendar.nix"
+      }
+    ],
+    "default": { "_type": "literalExpression", "text": "null" },
+    "description": "What should happen if synchronization in one direction\nis impossible due to one storage being read-only.\nDefaults to `revert`.\n\nSee\n<https://vdirsyncer.pimutils.org/en/stable/config.html#pair-section>\nfor more information.\n",
+    "loc": [
+      "accounts",
+      "calendar",
+      "accounts",
+      "<name>",
+      "vdirsyncer",
+      "partialSync"
+    ],
+    "readOnly": false,
+    "type": "null or one of \"revert\", \"error\", \"ignore\""
+  },
+  "accounts.calendar.accounts.<name>.vdirsyncer.postHook": {
+    "declarations": [
+      {
+        "name": "<home-manager/modules/accounts/calendar.nix>",
+        "url": "https://github.com/nix-community/home-manager/blob/master/modules/accounts/calendar.nix"
+      }
+    ],
+    "default": { "_type": "literalExpression", "text": "null" },
+    "description": "Command to call for each item creation and modification.\nThe command will be called with the path of the new/updated\nfile.\n",
+    "loc": [
+      "accounts",
+      "calendar",
+      "accounts",
+      "<name>",
+      "vdirsyncer",
+      "postHook"
+    ],
+    "readOnly": false,
+    "type": "null or strings concatenated with \"\\n\""
+  },
+  "accounts.calendar.accounts.<name>.vdirsyncer.timeRange": {
+    "declarations": [
+      {
+        "name": "<home-manager/modules/accounts/calendar.nix>",
+        "url": "https://github.com/nix-community/home-manager/blob/master/modules/accounts/calendar.nix"
+      }
+    ],
+    "default": { "_type": "literalExpression", "text": "null" },
+    "description": "A time range to synchronize. start and end can be any Python\nexpression that returns a `datetime.datetime`\nobject.\n",
+    "example": {
+      "_type": "literalExpression",
+      "text": "{\n  end = \"datetime.now() + timedelta(days=365)\";\n  start = \"datetime.now() - timedelta(days=365)\";\n}"
+    },
+    "loc": [
+      "accounts",
+      "calendar",
+      "accounts",
+      "<name>",
+      "vdirsyncer",
+      "timeRange"
+    ],
+    "readOnly": false,
+    "type": "null or (submodule)"
+  },
+  "accounts.calendar.accounts.<name>.vdirsyncer.timeRange.end": {
+    "declarations": [
+      {
+        "name": "<home-manager/modules/accounts/calendar.nix>",
+        "url": "https://github.com/nix-community/home-manager/blob/master/modules/accounts/calendar.nix"
+      }
+    ],
+    "description": "End of time range to show.",
+    "loc": [
+      "accounts",
+      "calendar",
+      "accounts",
+      "<name>",
+      "vdirsyncer",
+      "timeRange",
+      "end"
+    ],
+    "readOnly": false,
+    "type": "string"
+  },
+  "accounts.calendar.accounts.<name>.vdirsyncer.timeRange.start": {
+    "declarations": [
+      {
+        "name": "<home-manager/modules/accounts/calendar.nix>",
+        "url": "https://github.com/nix-community/home-manager/blob/master/modules/accounts/calendar.nix"
+      }
+    ],
+    "description": "Start of time range to show.",
+    "loc": [
+      "accounts",
+      "calendar",
+      "accounts",
+      "<name>",
+      "vdirsyncer",
+      "timeRange",
+      "start"
+    ],
+    "readOnly": false,
+    "type": "string"
+  },
+  "accounts.calendar.accounts.<name>.vdirsyncer.tokenFile": {
+    "declarations": [
+      {
+        "name": "<home-manager/modules/accounts/calendar.nix>",
+        "url": "https://github.com/nix-community/home-manager/blob/master/modules/accounts/calendar.nix"
+      }
+    ],
+    "default": { "_type": "literalExpression", "text": "null" },
+    "description": "A file path where access tokens are stored.\n",
+    "loc": [
+      "accounts",
+      "calendar",
+      "accounts",
+      "<name>",
+      "vdirsyncer",
+      "tokenFile"
+    ],
+    "readOnly": false,
+    "type": "null or string"
+  },
+  "accounts.calendar.accounts.<name>.vdirsyncer.urlCommand": {
+    "declarations": [
+      {
+        "name": "<home-manager/modules/accounts/calendar.nix>",
+        "url": "https://github.com/nix-community/home-manager/blob/master/modules/accounts/calendar.nix"
+      }
+    ],
+    "default": { "_type": "literalExpression", "text": "null" },
+    "description": "A command that prints the URL of the storage.",
+    "example": {
+      "_type": "literalExpression",
+      "text": "[\n  \"~/get-url.sh\"\n]"
+    },
+    "loc": [
+      "accounts",
+      "calendar",
+      "accounts",
+      "<name>",
+      "vdirsyncer",
+      "urlCommand"
+    ],
+    "readOnly": false,
+    "type": "null or (list of string)"
+  },
+  "accounts.calendar.accounts.<name>.vdirsyncer.userAgent": {
+    "declarations": [
+      {
+        "name": "<home-manager/modules/accounts/calendar.nix>",
+        "url": "https://github.com/nix-community/home-manager/blob/master/modules/accounts/calendar.nix"
+      }
+    ],
+    "default": { "_type": "literalExpression", "text": "null" },
+    "description": "The user agent to report to the server. Defaults to\n`vdirsyncer`.\n",
+    "loc": [
+      "accounts",
+      "calendar",
+      "accounts",
+      "<name>",
+      "vdirsyncer",
+      "userAgent"
+    ],
+    "readOnly": false,
+    "type": "null or string"
+  },
+  "accounts.calendar.accounts.<name>.vdirsyncer.userNameCommand": {
+    "declarations": [
+      {
+        "name": "<home-manager/modules/accounts/calendar.nix>",
+        "url": "https://github.com/nix-community/home-manager/blob/master/modules/accounts/calendar.nix"
+      }
+    ],
+    "default": { "_type": "literalExpression", "text": "null" },
+    "description": "A command that prints the user name to standard output.",
+    "example": {
+      "_type": "literalExpression",
+      "text": "[\n  \"~/get-username.sh\"\n]"
+    },
+    "loc": [
+      "accounts",
+      "calendar",
+      "accounts",
+      "<name>",
+      "vdirsyncer",
+      "userNameCommand"
+    ],
+    "readOnly": false,
+    "type": "null or (list of string)"
+  },
+  "accounts.calendar.accounts.<name>.vdirsyncer.verify": {
+    "declarations": [
+      {
+        "name": "<home-manager/modules/accounts/calendar.nix>",
+        "url": "https://github.com/nix-community/home-manager/blob/master/modules/accounts/calendar.nix"
+      }
+    ],
+    "default": { "_type": "literalExpression", "text": "null" },
+    "description": "Null or path to certificate to verify SSL against",
+    "example": {
+      "_type": "literalExpression",
+      "text": "\"/path/to/cert.pem\""
+    },
+    "loc": [
+      "accounts",
+      "calendar",
+      "accounts",
+      "<name>",
+      "vdirsyncer",
+      "verify"
+    ],
+    "readOnly": false,
+    "type": "null or path"
+  },
+  "accounts.calendar.accounts.<name>.vdirsyncer.verifyFingerprint": {
+    "declarations": [
+      {
+        "name": "<home-manager/modules/accounts/calendar.nix>",
+        "url": "https://github.com/nix-community/home-manager/blob/master/modules/accounts/calendar.nix"
+      }
+    ],
+    "default": { "_type": "literalExpression", "text": "null" },
+    "description": "Optional. SHA1 or MD5 fingerprint of the expected server certificate.\n\nSee\n<https://vdirsyncer.pimutils.org/en/stable/ssl-tutorial.html#ssl-tutorial>\nfor more information.\n",
+    "loc": [
+      "accounts",
+      "calendar",
+      "accounts",
+      "<name>",
+      "vdirsyncer",
+      "verifyFingerprint"
+    ],
+    "readOnly": false,
+    "type": "null or string"
+  },
+  "accounts.calendar.basePath": {
+    "declarations": [
+      {
+        "name": "<home-manager/modules/accounts/calendar.nix>",
+        "url": "https://github.com/nix-community/home-manager/blob/master/modules/accounts/calendar.nix"
+      }
+    ],
+    "description": "The base directory in which to save calendars. May be a\nrelative path, in which case it is relative the home\ndirectory.\n",
+    "example": { "_type": "literalExpression", "text": "\".calendar\"" },
+    "loc": ["accounts", "calendar", "basePath"],
+    "readOnly": false,
+    "type": "string"
+  },
+  "accounts.contact.accounts": {
+    "declarations": [
+      {
+        "name": "<home-manager/modules/programs/khard.nix>",
+        "url": "https://github.com/nix-community/home-manager/blob/master/modules/programs/khard.nix"
+      },
+      {
+        "name": "<home-manager/modules/accounts/contacts.nix>",
+        "url": "https://github.com/nix-community/home-manager/blob/master/modules/accounts/contacts.nix"
+      }
+    ],
+    "default": { "_type": "literalExpression", "text": "{ }" },
+    "description": "List of contacts.",
+    "loc": ["accounts", "contact", "accounts"],
+    "readOnly": false,
+    "type": "attribute set of (submodule)"
+  },
+  "accounts.contact.accounts.<name>.khal.addresses": {
+    "declarations": [
+      {
+        "name": "<home-manager/modules/accounts/contacts.nix>",
+        "url": "https://github.com/nix-community/home-manager/blob/master/modules/accounts/contacts.nix"
+      }
+    ],
+    "default": { "_type": "literalExpression", "text": "[ ]" },
+    "description": "Email addresses to be associated with this account. Used to check the\nparticipation status (\"PARTSTAT\"), refer to khal documentation.\n",
+    "loc": ["accounts", "contact", "accounts", "<name>", "khal", "addresses"],
+    "readOnly": false,
+    "type": "list of string"
+  },
+  "accounts.contact.accounts.<name>.khal.collections": {
+    "declarations": [
+      {
+        "name": "<home-manager/modules/accounts/contacts.nix>",
+        "url": "https://github.com/nix-community/home-manager/blob/master/modules/accounts/contacts.nix"
+      }
+    ],
+    "default": { "_type": "literalExpression", "text": "null" },
+    "description": "VCARD collections to be searched for contact birthdays.\n",
+    "loc": ["accounts", "contact", "accounts", "<name>", "khal", "collections"],
+    "readOnly": false,
+    "type": "null or (list of string)"
+  },
+  "accounts.contact.accounts.<name>.khal.color": {
+    "declarations": [
+      {
+        "name": "<home-manager/modules/accounts/contacts.nix>",
+        "url": "https://github.com/nix-community/home-manager/blob/master/modules/accounts/contacts.nix"
+      }
+    ],
+    "default": { "_type": "literalExpression", "text": "null" },
+    "description": "Color in which events in this calendar are displayed.\nFor instance 'light green' or an RGB color '#ff0000'\n",
+    "example": { "_type": "literalExpression", "text": "\"light green\"" },
+    "loc": ["accounts", "contact", "accounts", "<name>", "khal", "color"],
+    "readOnly": false,
+    "type": "null or string"
+  },
+  "accounts.contact.accounts.<name>.khal.enable": {
+    "declarations": [
+      {
+        "name": "<home-manager/modules/accounts/contacts.nix>",
+        "url": "https://github.com/nix-community/home-manager/blob/master/modules/accounts/contacts.nix"
+      }
+    ],
+    "default": { "_type": "literalExpression", "text": "false" },
+    "description": "Whether to enable khal access.",
+    "example": { "_type": "literalExpression", "text": "true" },
+    "loc": ["accounts", "contact", "accounts", "<name>", "khal", "enable"],
+    "readOnly": false,
+    "type": "boolean"
+  },
+  "accounts.contact.accounts.<name>.khal.priority": {
+    "declarations": [
+      {
+        "name": "<home-manager/modules/accounts/contacts.nix>",
+        "url": "https://github.com/nix-community/home-manager/blob/master/modules/accounts/contacts.nix"
+      }
+    ],
+    "default": { "_type": "literalExpression", "text": "10" },
+    "description": "Priority of a calendar used for coloring (calendar with highest priority is preferred).\n",
+    "loc": ["accounts", "contact", "accounts", "<name>", "khal", "priority"],
+    "readOnly": false,
+    "type": "signed integer"
+  },
+  "accounts.contact.accounts.<name>.khal.readOnly": {
+    "declarations": [
+      {
+        "name": "<home-manager/modules/accounts/contacts.nix>",
+        "url": "https://github.com/nix-community/home-manager/blob/master/modules/accounts/contacts.nix"
+      }
+    ],
+    "default": { "_type": "literalExpression", "text": "false" },
+    "description": "Keep khal from making any changes to this account.\n",
+    "loc": ["accounts", "contact", "accounts", "<name>", "khal", "readOnly"],
+    "readOnly": false,
+    "type": "boolean"
+  },
+  "accounts.contact.accounts.<name>.khard.enable": {
+    "declarations": [
+      {
+        "name": "<home-manager/modules/programs/khard.nix>",
+        "url": "https://github.com/nix-community/home-manager/blob/master/modules/programs/khard.nix"
+      }
+    ],
+    "default": { "_type": "literalExpression", "text": "false" },
+    "description": "Whether to enable khard access.",
+    "example": { "_type": "literalExpression", "text": "true" },
+    "loc": ["accounts", "contact", "accounts", "<name>", "khard", "enable"],
+    "readOnly": false,
+    "type": "boolean"
+  },
+  "accounts.contact.accounts.<name>.local": {
+    "declarations": [
+      {
+        "name": "<home-manager/modules/accounts/contacts.nix>",
+        "url": "https://github.com/nix-community/home-manager/blob/master/modules/accounts/contacts.nix"
+      }
+    ],
+    "default": { "_type": "literalExpression", "text": "null" },
+    "description": "Local configuration for the contacts.\n",
+    "loc": ["accounts", "contact", "accounts", "<name>", "local"],
+    "readOnly": false,
+    "type": "null or (submodule)"
+  },
+  "accounts.contact.accounts.<name>.local.encoding": {
+    "declarations": [
+      {
+        "name": "<home-manager/modules/accounts/contacts.nix>",
+        "url": "https://github.com/nix-community/home-manager/blob/master/modules/accounts/contacts.nix"
+      }
+    ],
+    "default": { "_type": "literalExpression", "text": "null" },
+    "description": "File encoding for items, both content and file name.\nDefaults to UTF-8.\n",
+    "loc": ["accounts", "contact", "accounts", "<name>", "local", "encoding"],
+    "readOnly": false,
+    "type": "null or string"
+  },
+  "accounts.contact.accounts.<name>.local.fileExt": {
+    "declarations": [
+      {
+        "name": "<home-manager/modules/accounts/contacts.nix>",
+        "url": "https://github.com/nix-community/home-manager/blob/master/modules/accounts/contacts.nix"
+      }
+    ],
+    "default": { "_type": "literalExpression", "text": "null" },
+    "description": "The file extension to use.",
+    "loc": ["accounts", "contact", "accounts", "<name>", "local", "fileExt"],
+    "readOnly": false,
+    "type": "null or string"
+  },
+  "accounts.contact.accounts.<name>.local.path": {
+    "declarations": [
+      {
+        "name": "<home-manager/modules/accounts/contacts.nix>",
+        "url": "https://github.com/nix-community/home-manager/blob/master/modules/accounts/contacts.nix"
+      }
+    ],
+    "default": {
+      "_type": "literalExpression",
+      "text": "\"\u2039accounts.contact.basePath\u203a/\u2039name\u203a\""
+    },
+    "description": "The path of the storage.",
+    "loc": ["accounts", "contact", "accounts", "<name>", "local", "path"],
+    "readOnly": false,
+    "type": "string"
+  },
+  "programs.fish.package": {
+    "declarations": [
+      {
+        "name": "<home-manager/modules/programs/fish.nix>",
+        "url": "https://github.com/nix-community/home-manager/blob/master/modules/programs/fish.nix"
+      }
+    ],
+    "default": { "_type": "literalExpression", "text": "pkgs.fish" },
+    "description": "The fish package to install. May be used to change the version.\n",
+    "loc": ["programs", "fish", "package"],
+    "readOnly": false,
+    "type": "package"
+  },
+  "programs.fish.plugins": {
+    "declarations": [
+      {
+        "name": "<home-manager/modules/programs/fish.nix>",
+        "url": "https://github.com/nix-community/home-manager/blob/master/modules/programs/fish.nix"
+      }
+    ],
+    "default": { "_type": "literalExpression", "text": "[ ]" },
+    "description": "The plugins to source in\n{file}`conf.d/99plugins.fish`.\n",
+    "example": {
+      "_type": "literalExpression",
+      "text": "[\n  {\n    name = \"z\";\n    src = pkgs.fetchFromGitHub {\n      owner = \"jethrokuan\";\n      repo = \"z\";\n      rev = \"ddeb28a7b6a1f0ec6dae40c636e5ca4908ad160a\";\n      sha256 = \"0c5i7sdrsp0q3vbziqzdyqn4fmp235ax4mn4zslrswvn8g3fvdyh\";\n    };\n  }\n\n  # oh-my-fish plugins are stored in their own repositories, which\n  # makes them simple to import into home-manager.\n  {\n    name = \"fasd\";\n    src = pkgs.fetchFromGitHub {\n      owner = \"oh-my-fish\";\n      repo = \"plugin-fasd\";\n      rev = \"38a5b6b6011106092009549e52249c6d6f501fba\";\n      sha256 = \"06v37hqy5yrv5a6ssd1p3cjd9y3hnp19d3ab7dag56fs1qmgyhbs\";\n    };\n  }\n]\n"
+    },
+    "loc": ["programs", "fish", "plugins"],
+    "readOnly": false,
+    "type": "list of (submodule)"
+  },
+  "programs.fish.plugins.*.name": {
+    "declarations": [
+      {
+        "name": "<home-manager/modules/programs/fish.nix>",
+        "url": "https://github.com/nix-community/home-manager/blob/master/modules/programs/fish.nix"
+      }
+    ],
+    "description": "The name of the plugin.\n",
+    "loc": ["programs", "fish", "plugins", "*", "name"],
+    "readOnly": false,
+    "type": "string"
+  },
+  "programs.fish.plugins.*.src": {
+    "declarations": [
+      {
+        "name": "<home-manager/modules/programs/fish.nix>",
+        "url": "https://github.com/nix-community/home-manager/blob/master/modules/programs/fish.nix"
+      }
+    ],
+    "description": "Path to the plugin folder.\n\nRelevant pieces will be added to the fish function path and\nthe completion path. The {file}`init.fish` and\n{file}`key_binding.fish` files are sourced if\nthey exist.\n",
+    "loc": ["programs", "fish", "plugins", "*", "src"],
+    "readOnly": false,
+    "type": "path"
+  },
+  "programs.fish.shellAbbrs": {
+    "declarations": [
+      {
+        "name": "<home-manager/modules/programs/fish.nix>",
+        "url": "https://github.com/nix-community/home-manager/blob/master/modules/programs/fish.nix"
+      }
+    ],
+    "default": { "_type": "literalExpression", "text": "{ }" },
+    "description": "An attribute set that maps aliases (the top level attribute names\nin this option) to abbreviations. Abbreviations are expanded with\nthe longer phrase after they are entered.\n",
+    "example": {
+      "_type": "literalExpression",
+      "text": "{\n  l = \"less\";\n  gco = \"git checkout\";\n  \"-C\" = {\n    position = \"anywhere\";\n    expansion = \"--color\";\n  };\n}\n"
+    },
+    "loc": ["programs", "fish", "shellAbbrs"],
+    "readOnly": false,
+    "type": "attribute set of (string or (submodule))"
+  },
+  "programs.fish.shellAliases": {
+    "declarations": [
+      {
+        "name": "<home-manager/modules/programs/fish.nix>",
+        "url": "https://github.com/nix-community/home-manager/blob/master/modules/programs/fish.nix"
+      }
+    ],
+    "default": { "_type": "literalExpression", "text": "{ }" },
+    "description": "An attribute set that maps aliases (the top level attribute names\nin this option) to command strings or directly to build outputs.\n",
+    "example": {
+      "_type": "literalExpression",
+      "text": "{\n  g = \"git\";\n  \"...\" = \"cd ../..\";\n}\n"
+    },
+    "loc": ["programs", "fish", "shellAliases"],
+    "readOnly": false,
+    "type": "attribute set of string"
+  },
+  "programs.fish.shellInit": {
+    "declarations": [
+      {
+        "name": "<home-manager/modules/programs/fish.nix>",
+        "url": "https://github.com/nix-community/home-manager/blob/master/modules/programs/fish.nix"
+      }
+    ],
+    "default": { "_type": "literalExpression", "text": "\"\"" },
+    "description": "Shell script code called during fish shell\ninitialisation.\n",
+    "loc": ["programs", "fish", "shellInit"],
+    "readOnly": false,
+    "type": "strings concatenated with \"\\n\""
+  },
+  "programs.fish.shellInitLast": {
+    "declarations": [
+      {
+        "name": "<home-manager/modules/programs/fish.nix>",
+        "url": "https://github.com/nix-community/home-manager/blob/master/modules/programs/fish.nix"
+      }
+    ],
+    "default": { "_type": "literalExpression", "text": "\"\"" },
+    "description": "Shell script code called during interactive fish shell\ninitialisation, this will be the last thing executed in fish startup.\n",
+    "loc": ["programs", "fish", "shellInitLast"],
+    "readOnly": false,
+    "type": "strings concatenated with \"\\n\""
+  },
+  "programs.foot.enable": {
+    "declarations": [
+      {
+        "name": "<home-manager/modules/programs/foot.nix>",
+        "url": "https://github.com/nix-community/home-manager/blob/master/modules/programs/foot.nix"
+      }
+    ],
+    "default": { "_type": "literalExpression", "text": "false" },
+    "description": "Whether to enable Foot terminal.",
+    "example": { "_type": "literalExpression", "text": "true" },
+    "loc": ["programs", "foot", "enable"],
+    "readOnly": false,
+    "type": "boolean"
+  },
+  "programs.foot.package": {
+    "declarations": [
+      {
+        "name": "<home-manager/modules/programs/foot.nix>",
+        "url": "https://github.com/nix-community/home-manager/blob/master/modules/programs/foot.nix"
+      }
+    ],
+    "default": { "_type": "literalExpression", "text": "pkgs.foot" },
+    "description": "The foot package to install",
+    "loc": ["programs", "foot", "package"],
+    "readOnly": false,
+    "type": "package"
+  },
+  "programs.foot.server.enable": {
+    "declarations": [
+      {
+        "name": "<home-manager/modules/programs/foot.nix>",
+        "url": "https://github.com/nix-community/home-manager/blob/master/modules/programs/foot.nix"
+      }
+    ],
+    "default": { "_type": "literalExpression", "text": "false" },
+    "description": "Whether to enable Foot terminal server.",
+    "example": { "_type": "literalExpression", "text": "true" },
+    "loc": ["programs", "foot", "server", "enable"],
+    "readOnly": false,
+    "type": "boolean"
+  },
+  "programs.foot.settings": {
+    "declarations": [
+      {
+        "name": "<home-manager/modules/programs/foot.nix>",
+        "url": "https://github.com/nix-community/home-manager/blob/master/modules/programs/foot.nix"
+      }
+    ],
+    "default": { "_type": "literalExpression", "text": "{ }" },
+    "description": "Configuration written to\n{file}`$XDG_CONFIG_HOME/foot/foot.ini`. See <https://codeberg.org/dnkl/foot/src/branch/master/foot.ini>\nfor a list of available options.\n",
+    "example": {
+      "_type": "literalExpression",
+      "text": "{\n  main = {\n    term = \"xterm-256color\";\n\n    font = \"Fira Code:size=11\";\n    dpi-aware = \"yes\";\n  };\n\n  mouse = {\n    hide-when-typing = \"yes\";\n  };\n}\n"
+    },
+    "loc": ["programs", "foot", "settings"],
+    "readOnly": false,
+    "type": "attribute set of section of an INI file (attrs of INI atom (null, bool, int, float or string))"
+  },
+  "programs.freetube.enable": {
+    "declarations": [
+      {
+        "name": "<home-manager/modules/programs/freetube.nix>",
+        "url": "https://github.com/nix-community/home-manager/blob/master/modules/programs/freetube.nix"
+      }
+    ],
+    "default": { "_type": "literalExpression", "text": "false" },
+    "description": "Whether to enable FreeTube, a YT client for Windows, Mac, and Linux.",
+    "example": { "_type": "literalExpression", "text": "true" },
+    "loc": ["programs", "freetube", "enable"],
+    "readOnly": false,
+    "type": "boolean"
+  },
+  "programs.freetube.package": {
+    "declarations": [
+      {
+        "name": "<home-manager/modules/programs/freetube.nix>",
+        "url": "https://github.com/nix-community/home-manager/blob/master/modules/programs/freetube.nix"
+      }
+    ],
+    "default": { "_type": "literalExpression", "text": "pkgs.freetube" },
+    "description": "The freetube package to use.",
+    "loc": ["programs", "freetube", "package"],
+    "readOnly": false,
+    "type": "package"
+  },
+  "programs.freetube.settings": {
+    "declarations": [
+      {
+        "name": "<home-manager/modules/programs/freetube.nix>",
+        "url": "https://github.com/nix-community/home-manager/blob/master/modules/programs/freetube.nix"
+      }
+    ],
+    "default": { "_type": "literalExpression", "text": "{ }" },
+    "description": "Configuration settings for FreeTube.\n\nAll configurable options can be deduced by enabling them through the\nGUI and observing the changes in {file}`settings.db`.\n",
+    "example": {
+      "_type": "literalExpression",
+      "text": "{\n  allowDashAv1Formats = true;\n  checkForUpdates     = false;\n  defaultQuality      = \"1080\";\n  baseTheme           = \"catppuccinMocha\";\n}\n"
+    },
+    "loc": ["programs", "freetube", "settings"],
+    "readOnly": false,
+    "type": "attribute set"
+  },
+  "programs.fuzzel.enable": {
+    "declarations": [
+      {
+        "name": "<home-manager/modules/programs/fuzzel.nix>",
+        "url": "https://github.com/nix-community/home-manager/blob/master/modules/programs/fuzzel.nix"
+      }
+    ],
+    "default": { "_type": "literalExpression", "text": "false" },
+    "description": "Whether to enable fuzzel.",
+    "example": { "_type": "literalExpression", "text": "true" },
+    "loc": ["programs", "fuzzel", "enable"],
+    "readOnly": false,
+    "type": "boolean"
+  },
+  "programs.fuzzel.package": {
+    "declarations": [
+      {
+        "name": "<home-manager/modules/programs/fuzzel.nix>",
+        "url": "https://github.com/nix-community/home-manager/blob/master/modules/programs/fuzzel.nix"
+      }
+    ],
+    "default": { "_type": "literalExpression", "text": "pkgs.fuzzel" },
+    "description": "The fuzzel package to use.",
+    "loc": ["programs", "fuzzel", "package"],
+    "readOnly": false,
+    "type": "package"
+  },
+  "programs.fuzzel.settings": {
+    "declarations": [
+      {
+        "name": "<home-manager/modules/programs/fuzzel.nix>",
+        "url": "https://github.com/nix-community/home-manager/blob/master/modules/programs/fuzzel.nix"
+      }
+    ],
+    "default": { "_type": "literalExpression", "text": "{ }" },
+    "description": "Configuration for fuzzel written to\n{file}`$XDG_CONFIG_HOME/fuzzel/fuzzel.ini`. See\n{manpage}`fuzzel.ini(5)` for a list of available options.\n",
+    "example": {
+      "_type": "literalExpression",
+      "text": "{\n  main = {\n    terminal = \"${pkgs.foot}/bin/foot\";\n    layer = \"overlay\";\n  };\n  colors.background = \"ffffffff\";\n}\n"
+    },
+    "loc": ["programs", "fuzzel", "settings"],
+    "readOnly": false,
+    "type": "attribute set of section of an INI file (attrs of INI atom (null, bool, int, float or string))"
+  },
+  "programs.fzf.changeDirWidgetCommand": {
+    "declarations": [
+      {
+        "name": "<home-manager/modules/programs/fzf.nix>",
+        "url": "https://github.com/nix-community/home-manager/blob/master/modules/programs/fzf.nix"
+      }
+    ],
+    "default": { "_type": "literalExpression", "text": "null" },
+    "description": "The command that gets executed as the source for fzf for the\nALT-C keybinding.\n",
+    "example": { "_type": "literalExpression", "text": "\"fd --type d\"" },
+    "loc": ["programs", "fzf", "changeDirWidgetCommand"],
+    "readOnly": false,
+    "type": "null or string"
+  },
+  "programs.fzf.changeDirWidgetOptions": {
+    "declarations": [
+      {
+        "name": "<home-manager/modules/programs/fzf.nix>",
+        "url": "https://github.com/nix-community/home-manager/blob/master/modules/programs/fzf.nix"
+      }
+    ],
+    "default": { "_type": "literalExpression", "text": "[ ]" },
+    "description": "Command line options for the ALT-C keybinding.\n",
+    "example": {
+      "_type": "literalExpression",
+      "text": "[\n  \"--preview 'tree -C {} | head -200'\"\n]"
+    },
+    "loc": ["programs", "fzf", "changeDirWidgetOptions"],
+    "readOnly": false,
+    "type": "list of string"
+  },
+  "programs.fzf.colors": {
+    "declarations": [
+      {
+        "name": "<home-manager/modules/programs/fzf.nix>",
+        "url": "https://github.com/nix-community/home-manager/blob/master/modules/programs/fzf.nix"
+      }
+    ],
+    "default": { "_type": "literalExpression", "text": "{ }" },
+    "description": "Color scheme options added to `FZF_DEFAULT_OPTS`. See\n<https://github.com/junegunn/fzf/wiki/Color-schemes>\nfor documentation.\n",
+    "example": {
+      "_type": "literalExpression",
+      "text": "{\n  bg = \"#1e1e1e\";\n  \"bg+\" = \"#1e1e1e\";\n  fg = \"#d4d4d4\";\n  \"fg+\" = \"#d4d4d4\";\n}\n"
+    },
+    "loc": ["programs", "fzf", "colors"],
+    "readOnly": false,
+    "type": "attribute set of string"
+  },
+  "programs.fzf.defaultCommand": {
+    "declarations": [
+      {
+        "name": "<home-manager/modules/programs/fzf.nix>",
+        "url": "https://github.com/nix-community/home-manager/blob/master/modules/programs/fzf.nix"
+      }
+    ],
+    "default": { "_type": "literalExpression", "text": "null" },
+    "description": "The command that gets executed as the default source for fzf\nwhen running.\n",
+    "example": { "_type": "literalExpression", "text": "\"fd --type f\"" },
+    "loc": ["programs", "fzf", "defaultCommand"],
+    "readOnly": false,
+    "type": "null or string"
+  },
+  "programs.fzf.defaultOptions": {
+    "declarations": [
+      {
+        "name": "<home-manager/modules/programs/fzf.nix>",
+        "url": "https://github.com/nix-community/home-manager/blob/master/modules/programs/fzf.nix"
+      }
+    ],
+    "default": { "_type": "literalExpression", "text": "[ ]" },
+    "description": "Extra command line options given to fzf by default.\n",
+    "example": {
+      "_type": "literalExpression",
+      "text": "[\n  \"--height 40%\"\n  \"--border\"\n]"
+    },
+    "loc": ["programs", "fzf", "defaultOptions"],
+    "readOnly": false,
+    "type": "list of string"
+  },
+  "programs.fzf.enable": {
+    "declarations": [
+      {
+        "name": "<home-manager/modules/programs/fzf.nix>",
+        "url": "https://github.com/nix-community/home-manager/blob/master/modules/programs/fzf.nix"
+      }
+    ],
+    "default": { "_type": "literalExpression", "text": "false" },
+    "description": "Whether to enable fzf - a command-line fuzzy finder.",
+    "example": { "_type": "literalExpression", "text": "true" },
+    "loc": ["programs", "fzf", "enable"],
+    "readOnly": false,
+    "type": "boolean"
+  },
+  "programs.fzf.enableBashIntegration": {
+    "declarations": [
+      {
+        "name": "<home-manager/modules/programs/fzf.nix>",
+        "url": "https://github.com/nix-community/home-manager/blob/master/modules/programs/fzf.nix"
+      }
+    ],
+    "default": { "_type": "literalExpression", "text": "true" },
+    "description": "Whether to enable Bash integration.\n",
+    "loc": ["programs", "fzf", "enableBashIntegration"],
+    "readOnly": false,
+    "type": "boolean"
+  },
+  "programs.fzf.enableFishIntegration": {
+    "declarations": [
+      {
+        "name": "<home-manager/modules/programs/fzf.nix>",
+        "url": "https://github.com/nix-community/home-manager/blob/master/modules/programs/fzf.nix"
+      }
+    ],
+    "default": { "_type": "literalExpression", "text": "true" },
+    "description": "Whether to enable Fish integration.\n",
+    "loc": ["programs", "fzf", "enableFishIntegration"],
+    "readOnly": false,
+    "type": "boolean"
+  },
+  "programs.fzf.enableZshIntegration": {
+    "declarations": [
+      {
+        "name": "<home-manager/modules/programs/fzf.nix>",
+        "url": "https://github.com/nix-community/home-manager/blob/master/modules/programs/fzf.nix"
+      }
+    ],
+    "default": { "_type": "literalExpression", "text": "true" },
+    "description": "Whether to enable Zsh integration.\n",
+    "loc": ["programs", "fzf", "enableZshIntegration"],
+    "readOnly": false,
+    "type": "boolean"
+  },
+  "programs.fzf.fileWidgetCommand": {
+    "declarations": [
+      {
+        "name": "<home-manager/modules/programs/fzf.nix>",
+        "url": "https://github.com/nix-community/home-manager/blob/master/modules/programs/fzf.nix"
+      }
+    ],
+    "default": { "_type": "literalExpression", "text": "null" },
+    "description": "The command that gets executed as the source for fzf for the\nCTRL-T keybinding.\n",
+    "example": { "_type": "literalExpression", "text": "\"fd --type f\"" },
+    "loc": ["programs", "fzf", "fileWidgetCommand"],
+    "readOnly": false,
+    "type": "null or string"
+  },
+  "programs.fzf.fileWidgetOptions": {
+    "declarations": [
+      {
+        "name": "<home-manager/modules/programs/fzf.nix>",
+        "url": "https://github.com/nix-community/home-manager/blob/master/modules/programs/fzf.nix"
+      }
+    ],
+    "default": { "_type": "literalExpression", "text": "[ ]" },
+    "description": "Command line options for the CTRL-T keybinding.\n",
+    "example": {
+      "_type": "literalExpression",
+      "text": "[\n  \"--preview 'head {}'\"\n]"
+    },
+    "loc": ["programs", "fzf", "fileWidgetOptions"],
+    "readOnly": false,
+    "type": "list of string"
+  },
+  "programs.fzf.historyWidgetOptions": {
+    "declarations": [
+      {
+        "name": "<home-manager/modules/programs/fzf.nix>",
+        "url": "https://github.com/nix-community/home-manager/blob/master/modules/programs/fzf.nix"
+      }
+    ],
+    "default": { "_type": "literalExpression", "text": "[ ]" },
+    "description": "Command line options for the CTRL-R keybinding.\n",
+    "example": {
+      "_type": "literalExpression",
+      "text": "[\n  \"--sort\"\n  \"--exact\"\n]"
+    },
+    "loc": ["programs", "fzf", "historyWidgetOptions"],
+    "readOnly": false,
+    "type": "list of string"
+  },
+  "programs.fzf.package": {
+    "declarations": [
+      {
+        "name": "<home-manager/modules/programs/fzf.nix>",
+        "url": "https://github.com/nix-community/home-manager/blob/master/modules/programs/fzf.nix"
+      }
+    ],
+    "default": { "_type": "literalExpression", "text": "pkgs.fzf" },
+    "description": "Package providing the {command}`fzf` tool.",
+    "loc": ["programs", "fzf", "package"],
+    "readOnly": false,
+    "type": "package"
+  },
+  "programs.fzf.tmux.enableShellIntegration": {
+    "declarations": [
+      {
+        "name": "<home-manager/modules/programs/fzf.nix>",
+        "url": "https://github.com/nix-community/home-manager/blob/master/modules/programs/fzf.nix"
+      }
+    ],
+    "default": { "_type": "literalExpression", "text": "false" },
+    "description": "Whether to enable setting `FZF_TMUX=1` which causes shell integration to use fzf-tmux\n.",
+    "example": { "_type": "literalExpression", "text": "true" },
+    "loc": ["programs", "fzf", "tmux", "enableShellIntegration"],
+    "readOnly": false,
+    "type": "boolean"
+  },
+  "programs.fzf.tmux.shellIntegrationOptions": {
+    "declarations": [
+      {
+        "name": "<home-manager/modules/programs/fzf.nix>",
+        "url": "https://github.com/nix-community/home-manager/blob/master/modules/programs/fzf.nix"
+      }
+    ],
+    "default": { "_type": "literalExpression", "text": "[ ]" },
+    "description": "If {option}`programs.fzf.tmux.enableShellIntegration` is set to `true`,\nshell integration will use these options for fzf-tmux.\nSee {command}`fzf-tmux --help` for available options.\n",
+    "example": { "_type": "literalExpression", "text": "[ \"-d 40%\" ]" },
+    "loc": ["programs", "fzf", "tmux", "shellIntegrationOptions"],
+    "readOnly": false,
+    "type": "list of string"
+  },
+  "programs.gallery-dl.enable": {
+    "declarations": [
+      {
+        "name": "<home-manager/modules/programs/gallery-dl.nix>",
+        "url": "https://github.com/nix-community/home-manager/blob/master/modules/programs/gallery-dl.nix"
+      }
+    ],
+    "default": { "_type": "literalExpression", "text": "false" },
+    "description": "Whether to enable gallery-dl.",
+    "example": { "_type": "literalExpression", "text": "true" },
+    "loc": ["programs", "gallery-dl", "enable"],
+    "readOnly": false,
+    "type": "boolean"
+  },
+  "programs.gallery-dl.package": {
+    "declarations": [
+      {
+        "name": "<home-manager/modules/programs/gallery-dl.nix>",
+        "url": "https://github.com/nix-community/home-manager/blob/master/modules/programs/gallery-dl.nix"
+      }
+    ],
+    "default": { "_type": "literalExpression", "text": "pkgs.gallery-dl" },
+    "description": "The gallery-dl package to use.",
+    "loc": ["programs", "gallery-dl", "package"],
+    "readOnly": false,
+    "type": "package"
+  },
+  "programs.gallery-dl.settings": {
+    "declarations": [
+      {
+        "name": "<home-manager/modules/programs/gallery-dl.nix>",
+        "url": "https://github.com/nix-community/home-manager/blob/master/modules/programs/gallery-dl.nix"
+      }
+    ],
+    "default": { "_type": "literalExpression", "text": "{ }" },
+    "description": "Configuration written to\n{file}`$XDG_CONFIG_HOME/gallery-dl/config.json`. See\n<https://github.com/mikf/gallery-dl#configuration>\nfor supported values.\n",
+    "example": {
+      "_type": "literalExpression",
+      "text": "{\n  extractor.base-directory = \"~/Downloads\";\n}\n"
+    },
+    "loc": ["programs", "gallery-dl", "settings"],
+    "readOnly": false,
+    "type": "JSON value"
+  },
+  "programs.gh-dash.enable": {
+    "declarations": [
+      {
+        "name": "<home-manager/modules/programs/gh-dash.nix>",
+        "url": "https://github.com/nix-community/home-manager/blob/master/modules/programs/gh-dash.nix"
+      }
+    ],
+    "default": { "_type": "literalExpression", "text": "false" },
+    "description": "Whether to enable GitHub CLI dashboard plugin.",
+    "example": { "_type": "literalExpression", "text": "true" },
+    "loc": ["programs", "gh-dash", "enable"],
+    "readOnly": false,
+    "type": "boolean"
+  },
+  "programs.gh-dash.package": {
+    "declarations": [
+      {
+        "name": "<home-manager/modules/programs/gh-dash.nix>",
+        "url": "https://github.com/nix-community/home-manager/blob/master/modules/programs/gh-dash.nix"
+      }
+    ],
+    "default": { "_type": "literalExpression", "text": "pkgs.gh-dash" },
+    "description": "The gh-dash package to use.",
+    "loc": ["programs", "gh-dash", "package"],
+    "readOnly": false,
+    "type": "package"
+  },
+  "programs.gh-dash.settings": {
+    "declarations": [
+      {
+        "name": "<home-manager/modules/programs/gh-dash.nix>",
+        "url": "https://github.com/nix-community/home-manager/blob/master/modules/programs/gh-dash.nix"
+      }
+    ],
+    "default": { "_type": "literalExpression", "text": "{ }" },
+    "description": "Configuration written to {file}`$XDG_CONFIG_HOME/gh-dash/config.yml`.\n",
+    "example": {
+      "_type": "literalExpression",
+      "text": "{\n  prSections = [{\n    title = \"My Pull Requests\";\n    filters = \"is:open author:@me\";\n  }];\n}\n"
+    },
+    "loc": ["programs", "gh-dash", "settings"],
+    "readOnly": false,
+    "type": "YAML value"
+  },
+  "programs.gh.enable": {
+    "declarations": [
+      {
+        "name": "<home-manager/modules/programs/gh.nix>",
+        "url": "https://github.com/nix-community/home-manager/blob/master/modules/programs/gh.nix"
+      }
+    ],
+    "default": { "_type": "literalExpression", "text": "false" },
+    "description": "Whether to enable GitHub CLI tool.",
+    "example": { "_type": "literalExpression", "text": "true" },
+    "loc": ["programs", "gh", "enable"],
+    "readOnly": false,
+    "type": "boolean"
+  },
+  "programs.gh.extensions": {
+    "declarations": [
+      {
+        "name": "<home-manager/modules/programs/gh.nix>",
+        "url": "https://github.com/nix-community/home-manager/blob/master/modules/programs/gh.nix"
+      }
+    ],
+    "default": { "_type": "literalExpression", "text": "[ ]" },
+    "description": "gh extensions, see <https://cli.github.com/manual/gh_extension>.\n",
+    "example": { "_type": "literalExpression", "text": "[ pkgs.gh-eco ]" },
+    "loc": ["programs", "gh", "extensions"],
+    "readOnly": false,
+    "type": "list of package"
+  }
+}

@@ -71,3 +71,5 @@ report.xml
 testdata/options.db
 testdata/options.db-shm
 testdata/options.db-wal
+
+result/
