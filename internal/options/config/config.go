@@ -55,7 +55,7 @@ func setDefaults(dirs []string) {
 	}
 
 	viper.SetDefault("db_folder", dbFolder)
-	viper.SetDefault("sources.nixos_path", "./nix/nixos-options.nix")
-	viper.SetDefault("sources.home_manager_path", "./nix/hm-options.nix")
-	viper.SetDefault("sources.darwin_path", "./nix/darwin-options.nix")
+	viper.SetDefault("sources.nixos_path", "nix/nixos-options.nix")
+	viper.SetDefault("sources.home_manager_path", "nix/hm-options.nix")
+	viper.SetDefault("sources.darwin_path", "nix/darwin-options.nix")
 }

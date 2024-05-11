@@ -2,7 +2,7 @@ package main
 
 import (
 	"context"
-	_ "embed"
+	"embed"
 	"fmt"
 	"log"
 	"os"
@@ -15,6 +15,9 @@ import (
 
 //go:embed db/schema.sql
 var ddl string
+
+//go:embed nix
+var _ embed.FS
 
 func main() {
 	var exitCode int

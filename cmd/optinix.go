@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
+	"strings"
 
 	// used to connect to sqlite
 	_ "modernc.org/sqlite"
@@ -22,10 +23,9 @@ func Execute(ctx context.Context, db *sql.DB) error {
 		Version: "v0.1.0",
 		Use:     "optinix",
 		Short:   "optinix - a CLI tool to search nix options",
-		Long: `OptiNix is tool you can use on the command line to search options for both NixOS and home-manager
-	rather than needing to go to a website i.e. nixos.org or mynixos.com.`,
+		Long:    `OptiNix is tool you can use on the command line to search options for NixOS, home-manager and Darwin.`,
 		Args:    cobra.ExactArgs(1),
-		Example: "optinix",
+		Example: "optinix hyprland",
 		RunE: func(_ *cobra.Command, args []string) error {
 			// p := tea.NewProgram(tui.New(ctx, db))
 			// if _, err := p.Run(); err != nil {
@@ -57,10 +57,26 @@ func FindOptions(ctx context.Context, db *sql.DB, optionName string) (err error)
 
 	opt := options.NewOptions(s, fetcher)
 
+	// TODO: should I read file and evalute expression?
+	nixosPath, err := nixReader.Read(conf.Sources.NixOS)
+	if err != nil {
+		return err
+	}
+
+	homeManagerPath, err := nixReader.Read(conf.Sources.HomeManager)
+	if err != nil {
+		return err
+	}
+
+	darwinPath, err := nixReader.Read(conf.Sources.Darwin)
+	if err != nil {
+		return err
+	}
+
 	sources := options.Sources{
-		NixOS:       conf.Sources.NixOS,
-		HomeManager: conf.Sources.HomeManager,
-		Darwin:      conf.Sources.Darwin,
+		NixOS:       string(nixosPath),
+		HomeManager: string(homeManagerPath),
+		Darwin:      string(darwinPath),
 	}
 	err = opt.SaveOptions(ctx, sources)
 	if err != nil {
@@ -110,5 +126,6 @@ func (n NixCmdExecutor) Executor(expression string) (string, error) {
 		return "", err
 	}
 
-	return string(output), nil
+	trimmedOuput := strings.TrimSpace(string(output))
+	return trimmedOuput, nil
 }

@@ -83,18 +83,19 @@ func (o Opt) GetOptions(ctx context.Context, name string) ([]store.OptionWithSou
 
 // TODO: move this out from save options bit, what if user wants to a force a refresh using CLI
 func (o Opt) shouldFetch(ctx context.Context) (bool, error) {
-	lastUpdatedDB := time.Now()
-	time, err := o.store.GetLastAddedTime(ctx)
+	now := time.Now()
+	lastUpdatedDB, err := o.store.GetLastAddedTime(ctx)
 	if err != nil {
-		// Likely first time the CLI has ran, as DB is empty
+		// INFO: Likely first time the CLI has ran, as DB is empty
 		if err == sql.ErrNoRows {
 			return true, nil
 		}
 		return false, err
 	}
 
-	nextWeek := lastUpdatedDB.AddDate(0, 1, 0)
-	if nextWeek.Before(time) {
+	// INFO: If its been a day since we fetched the options, lets update the DB again
+	yesterday := now.AddDate(0, 0, -1)
+	if lastUpdatedDB.After(yesterday) {
 		return false, nil
 	}
 	return true, nil

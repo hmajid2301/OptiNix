@@ -39,6 +39,7 @@ func (f Fetcher) Fetch(ctx context.Context, sources Sources) ([]Option, error) {
 		var path string
 		var err error
 
+		// TODO: move reading file here.
 		switch source {
 		case sources.NixOS:
 			path, err = f.GetNixosDocPath(source)

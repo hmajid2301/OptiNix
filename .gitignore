@@ -72,4 +72,4 @@ testdata/options.db
 testdata/options.db-shm
 testdata/options.db-wal
 
-result/
+result
