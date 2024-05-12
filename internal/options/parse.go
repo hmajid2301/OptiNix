@@ -13,6 +13,9 @@ type Declaration struct {
 
 type Declarations []Declaration
 
+// INFO: Due to difference in structure between the options files between the different sources.
+// A declaration can either be a list of strings (NixOS) or an object with a name and URL for home-manager and darwin.
+// This custom unmarshal function handles that for us and allow us to keep the actual parse function a lot cleaner.
 func (d *Declarations) UnmarshalJSON(b []byte) error {
 	var single Declaration
 	if err := json.Unmarshal(b, &single); err == nil {
