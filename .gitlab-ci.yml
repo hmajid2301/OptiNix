@@ -1,8 +1,10 @@
 include:
   - 'https://gitlab.com/Cynerd/gitlab-ci-nix/-/raw/master/template.yml'
+
 .task:
   stage: test
   extends: .nix
+  tags: []
   only:
     - merge_request
 
@@ -55,8 +57,6 @@ release:
   only:
     - tags
   variables:
-    # Disable shallow cloning so that goreleaser can diff between tags to
-    # generate a changelog.
     GIT_DEPTH: 0
   script:
     - goreleaser release --clean

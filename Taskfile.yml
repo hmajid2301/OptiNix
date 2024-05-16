@@ -39,7 +39,6 @@ tasks:
 
   coverage:
     desc: Run the integration tests and gets the code coverage
-    deps: [up]
     cmds:
       - go test -covermode count -coverprofile=coverage.txt -v ./... | tee output.txt
       - cat output.txt | go-junit-report -set-exit-code > report.xml

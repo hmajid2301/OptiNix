@@ -17,9 +17,9 @@ type Declarations []Declaration
 // A declaration can either be a list of strings (NixOS) or an object with a name and URL for home-manager and darwin.
 // This custom unmarshal function handles that for us and allow us to keep the actual parse function a lot cleaner.
 func (d *Declarations) UnmarshalJSON(b []byte) error {
-	var single Declaration
-	if err := json.Unmarshal(b, &single); err == nil {
-		*d = Declarations{single}
+	var declarations []Declaration
+	if err := json.Unmarshal(b, &declarations); err == nil {
+		*d = declarations
 		return nil
 	}
 

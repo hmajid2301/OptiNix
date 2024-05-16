@@ -9,15 +9,8 @@ import (
 	"github.com/spf13/viper"
 )
 
-type Sources struct {
-	NixOS       string `mapstructure:"nixos_path"`
-	HomeManager string `mapstructure:"home_manager_path"`
-	Darwin      string `mapstructure:"darwin_path"`
-}
-
 type Config struct {
-	DBFolder string  `mapstructure:"db_folder"`
-	Sources  Sources `mapstructure:"sources"`
+	DBFolder string `mapstructure:"db_folder"`
 }
 
 func LoadConfig() (*Config, error) {
@@ -33,7 +26,12 @@ func LoadConfig() (*Config, error) {
 		return config, fmt.Errorf("unable to get data directory: %v", err)
 	}
 
-	setDefaults(dirs)
+	dbFolder, _ := os.UserHomeDir()
+	if len(dirs) > 0 {
+		dbFolder = dirs[0]
+	}
+
+	viper.SetDefault("db_folder", dbFolder)
 	if err := viper.ReadInConfig(); err != nil {
 		if _, ok := err.(viper.ConfigFileNotFoundError); !ok {
 			return config, err
@@ -46,16 +44,4 @@ func LoadConfig() (*Config, error) {
 	}
 
 	return config, nil
-}
-
-func setDefaults(dirs []string) {
-	dbFolder, _ := os.UserHomeDir()
-	if len(dirs) > 0 {
-		dbFolder = dirs[0]
-	}
-
-	viper.SetDefault("db_folder", dbFolder)
-	viper.SetDefault("sources.nixos_path", "nix/nixos-options.nix")
-	viper.SetDefault("sources.home_manager_path", "nix/hm-options.nix")
-	viper.SetDefault("sources.darwin_path", "nix/darwin-options.nix")
 }

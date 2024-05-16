@@ -12,7 +12,6 @@ import (
 	_ "modernc.org/sqlite"
 
 	"gitlab.com/hmajid2301/optinix/internal/options"
-	"gitlab.com/hmajid2301/optinix/internal/options/config"
 	"gitlab.com/hmajid2301/optinix/internal/options/store"
 
 	"github.com/spf13/cobra"
@@ -40,11 +39,6 @@ func Execute(ctx context.Context, db *sql.DB) error {
 }
 
 func FindOptions(ctx context.Context, db *sql.DB, optionName string) (err error) {
-	conf, err := config.LoadConfig()
-	if err != nil {
-		return err
-	}
-
 	s, err := store.NewStore(db)
 	if err != nil {
 		return err
@@ -58,17 +52,17 @@ func FindOptions(ctx context.Context, db *sql.DB, optionName string) (err error)
 	opt := options.NewOptions(s, fetcher)
 
 	// TODO: should I read file and evalute expression?
-	nixosPath, err := nixReader.Read(conf.Sources.NixOS)
+	nixosPath, err := nixReader.Read("nix/nixos-options.nix")
 	if err != nil {
 		return err
 	}
 
-	homeManagerPath, err := nixReader.Read(conf.Sources.HomeManager)
+	homeManagerPath, err := nixReader.Read("nix/hm-options.nix")
 	if err != nil {
 		return err
 	}
 
-	darwinPath, err := nixReader.Read(conf.Sources.Darwin)
+	darwinPath, err := nixReader.Read("nix/darwin-options.nix")
 	if err != nil {
 		return err
 	}
