@@ -6,8 +6,8 @@ import (
 	"os"
 	"testing"
 
+	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
-	"github.com/stretchr/testify/suite"
 
 	"gitlab.com/hmajid2301/optinix/internal/options"
 )
@@ -30,29 +30,15 @@ func (m *MockReader) Read(r string) ([]byte, error) {
 	return args.Get(0).([]byte), args.Error(1)
 }
 
-type FetchTestSuite struct {
-	suite.Suite
-	mockExecutor *MockCmdExecutor
-	mockReader   *MockReader
-	fetcher      options.Fetcher
-}
-
-func (s *FetchTestSuite) SetupTest() {
-	s.mockExecutor = new(MockCmdExecutor)
-	s.mockReader = new(MockReader)
-	s.fetcher = options.NewFetcher(s.mockExecutor, s.mockReader)
-}
-
-func TestFetchTestSuite(t *testing.T) {
-	suite.Run(t, new(FetchTestSuite))
-}
-
-func (s *FetchTestSuite) TestFetch() {
+func TestFetch(t *testing.T) {
+	mockExecutor := new(MockCmdExecutor)
+	mockReader := new(MockReader)
+	fetcher := options.NewFetcher(mockExecutor, mockReader)
 	defaultOptionsData, err := os.ReadFile("../../testdata/nixos-options.json")
-	s.NoError(err)
+	assert.NoError(t, err)
 
 	defaultExpression, err := os.ReadFile("../../nix/nixos-options.nix")
-	s.NoError(err)
+	assert.NoError(t, err)
 
 	expression := string(defaultExpression)
 	defaultSources := options.Sources{
@@ -62,46 +48,46 @@ func (s *FetchTestSuite) TestFetch() {
 	}
 
 	ctx := context.Background()
-	s.Run("Should successfully fetch options", func() {
-		mockExecCall := s.mockExecutor.On("Executor", string(defaultExpression)).Return("../../nix/nixos-options.nix", nil)
-		mockReaderCall := s.mockReader.On("Read", "../../nix/nixos-options.nix").Return(defaultOptionsData, nil)
+	t.Run("Should successfully fetch options", func(t *testing.T) {
+		mockExecCall := mockExecutor.On("Executor", string(defaultExpression)).Return("../../nix/nixos-options.nix", nil)
+		mockReaderCall := mockReader.On("Read", "../../nix/nixos-options.nix").Return(defaultOptionsData, nil)
 
-		options, err := s.fetcher.Fetch(ctx, defaultSources)
-		s.NoError(err)
-		s.Len(options, 291)
+		options, err := fetcher.Fetch(ctx, defaultSources)
+		assert.NoError(t, err)
+		assert.Len(t, options, 291)
 
-		s.mockExecutor.AssertExpectations(s.T())
-		s.mockReader.AssertExpectations(s.T())
+		mockExecutor.AssertExpectations(t)
+		mockReader.AssertExpectations(t)
 
 		// TODO: refactor this
 		mockExecCall.Unset()
 		mockReaderCall.Unset()
 	})
 
-	s.Run("Should fail to read file", func() {
-		mockExecCall := s.mockExecutor.On("Executor", string(defaultExpression)).Return("../../nix/nixos-options.nix", nil)
-		mockReaderCall := s.mockReader.On("Read", "../../nix/nixos-options.nix").Return(
+	t.Run("Should fail to read file", func(t *testing.T) {
+		mockExecCall := mockExecutor.On("Executor", string(defaultExpression)).Return("../../nix/nixos-options.nix", nil)
+		mockReaderCall := mockReader.On("Read", "../../nix/nixos-options.nix").Return(
 			[]byte{}, errors.New("failed to read file"),
 		)
 
-		_, err := s.fetcher.Fetch(ctx, defaultSources)
-		s.ErrorContains(err, "failed to read file")
+		_, err := fetcher.Fetch(ctx, defaultSources)
+		assert.ErrorContains(t, err, "failed to read file")
 
-		s.mockExecutor.AssertExpectations(s.T())
-		s.mockReader.AssertExpectations(s.T())
+		mockExecutor.AssertExpectations(t)
+		mockReader.AssertExpectations(t)
 		mockExecCall.Unset()
 		mockReaderCall.Unset()
 	})
 
-	s.Run("Should fail to execute cmd", func() {
-		mockExecCall := s.mockExecutor.On("Executor", mock.Anything).Return("", errors.New("failed to execute cmd"))
-		mockReaderCall := s.mockReader.On("Read", mock.Anything).Return(defaultOptionsData, nil)
+	t.Run("Should fail to execute cmd", func(t *testing.T) {
+		mockExecCall := mockExecutor.On("Executor", mock.Anything).Return("", errors.New("failed to execute cmd"))
+		mockReaderCall := mockReader.On("Read", mock.Anything).Return(defaultOptionsData, nil)
 
-		_, err := s.fetcher.Fetch(ctx, defaultSources)
-		s.ErrorContains(err, "failed to execute cmd")
+		_, err := fetcher.Fetch(ctx, defaultSources)
+		assert.ErrorContains(t, err, "failed to execute cmd")
 
-		s.mockExecutor.AssertExpectations(s.T())
-		s.mockReader.AssertExpectations(s.T())
+		mockExecutor.AssertExpectations(t)
+		mockReader.AssertExpectations(t)
 		mockExecCall.Unset()
 		mockReaderCall.Unset()
 	})

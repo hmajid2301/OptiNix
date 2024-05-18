@@ -6,7 +6,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/stretchr/testify/suite"
+	"github.com/stretchr/testify/assert"
 
 	"gitlab.com/hmajid2301/optinix/internal/options"
 	"gitlab.com/hmajid2301/optinix/internal/options/optionstest"
@@ -38,36 +38,25 @@ func (n NixCmdExecutor) Executor(expression string) (string, error) {
 	return "", nil
 }
 
-type TestFetchSuite struct {
-	suite.Suite
-	store store.Store
-	opt   options.Opt
+func setupSubTest(t *testing.T) (options.Opt, store.Store, func()) {
+	ctx := context.Background()
+	db := optionstest.CreateDB(ctx, t)
+	dbStore, err := store.NewStore(db)
+	assert.NoError(t, err)
+
+	fetcher := options.NewFetcher(NixCmdExecutor{}, NixReader{})
+	opt := options.NewOptions(dbStore, fetcher)
+
+	return opt, dbStore, func() {
+		db.Close()
+	}
 }
 
-func TestIntegrationStore(t *testing.T) {
+func TestIntegrationSaveOptions(t *testing.T) {
 	if testing.Short() {
 		t.Skip("skipping integration test")
 	}
 
-	suite.Run(t, &TestFetchSuite{opt: options.Opt{}})
-}
-
-func (s *TestFetchSuite) SetupSubTest() {
-	ctx := context.Background()
-	db := optionstest.CreateDB(ctx, s.T())
-	dbStore, err := store.NewStore(db)
-	s.NoError(err)
-
-	fetcher := options.NewFetcher(NixCmdExecutor{}, NixReader{})
-	s.store = dbStore
-	s.opt = options.NewOptions(dbStore, fetcher)
-
-	s.T().Cleanup(func() {
-		db.Close()
-	})
-}
-
-func (s *TestFetchSuite) TestIntegrationSaveOptions() {
 	sources := options.Sources{
 		NixOS:       "./nix/nixos-options.nix",
 		HomeManager: "./nix/hm-options.nix",
@@ -75,43 +64,55 @@ func (s *TestFetchSuite) TestIntegrationSaveOptions() {
 	}
 	forceRefresh := false
 
-	s.Run("Should save options", func() {
+	t.Run("Should save options", func(t *testing.T) {
+		opt, _, teardown := setupSubTest(t)
+		defer teardown()
+
 		ctx := context.Background()
-		err := s.opt.SaveOptions(ctx, sources, forceRefresh)
-		s.NoError(err)
+		err := opt.SaveOptions(ctx, sources, forceRefresh)
+		assert.NoError(t, err)
 	})
 
-	s.Run("Should not fetch new options unless they are a day old", func() {
-		ctx := context.Background()
-		err := s.opt.SaveOptions(ctx, sources, forceRefresh)
-		s.NoError(err)
+	t.Run("Should not fetch new options unless they are a day old", func(t *testing.T) {
+		opt, _, teardown := setupSubTest(t)
+		defer teardown()
 
-		shouldFetch, err := options.ShouldFetch(ctx, s.opt)
-		s.False(shouldFetch)
-		s.NoError(err)
+		ctx := context.Background()
+		err := opt.SaveOptions(ctx, sources, forceRefresh)
+		assert.NoError(t, err)
+
+		shouldFetch, err := opt.ShouldFetch(ctx)
+		assert.False(t, shouldFetch)
+		assert.NoError(t, err)
 	})
 
-	s.Run("Should fetch new options if force refresh argument is passed", func() {
-		ctx := context.Background()
+	t.Run("Should fetch new options if force refresh argument is passed", func(t *testing.T) {
+		opt, store, teardown := setupSubTest(t)
+		defer teardown()
 
-		err := s.opt.SaveOptions(ctx, sources, forceRefresh)
-		s.NoError(err)
-		lastUpdated, err := s.store.GetLastAddedTime(ctx)
-		s.NoError(err)
+		ctx := context.Background()
+		err := opt.SaveOptions(ctx, sources, forceRefresh)
+		assert.NoError(t, err)
+		lastUpdated, err := store.GetLastAddedTime(ctx)
+		assert.NoError(t, err)
 
 		// TODO: find a nicer to do this, time is only accurate to the second
 		time.Sleep(1 * time.Second)
 		shouldForceRefresh := true
-		err = s.opt.SaveOptions(ctx, sources, shouldForceRefresh)
-		s.NoError(err)
-		lastUpdated2, err := s.store.GetLastAddedTime(ctx)
-		s.NoError(err)
+		err = opt.SaveOptions(ctx, sources, shouldForceRefresh)
+		assert.NoError(t, err)
+		lastUpdated2, err := store.GetLastAddedTime(ctx)
+		assert.NoError(t, err)
 
-		s.NotEqual(lastUpdated, lastUpdated2, "check that new rows were added to the database")
+		assert.NotEqual(t, lastUpdated, lastUpdated2, "check that new rows were added to the database")
 	})
 }
 
-func (s *TestFetchSuite) TestIntegrationGetOptions() {
+func TestIntegrationGetOptions(t *testing.T) {
+	if testing.Short() {
+		t.Skip("skipping integration test")
+	}
+
 	sources := options.Sources{
 		NixOS:       "./nix/nixos-options.nix",
 		HomeManager: "./nix/hm-options.nix",
@@ -119,18 +120,21 @@ func (s *TestFetchSuite) TestIntegrationGetOptions() {
 	}
 	forceRefresh := false
 
-	s.Run("Should get option with `vdirsyncer` in option name", func() {
-		ctx := context.Background()
-		err := s.opt.SaveOptions(ctx, sources, forceRefresh)
-		s.NoError(err)
+	t.Run("Should get option with `vdirsyncer` in option name", func(t *testing.T) {
+		opt, _, teardown := setupSubTest(t)
+		defer teardown()
 
-		nixOpts, err := s.opt.GetOptions(ctx, "vdirsyncer enable")
-		s.NoError(err)
+		ctx := context.Background()
+		err := opt.SaveOptions(ctx, sources, forceRefresh)
+		assert.NoError(t, err)
+
+		nixOpts, err := opt.GetOptions(ctx, "vdirsyncer enable")
+		assert.NoError(t, err)
 
 		expectedResults := 2
-		s.Len(nixOpts, expectedResults)
+		assert.Len(t, nixOpts, expectedResults)
 
-		opt := store.OptionWithSources{
+		expectedOpt := store.OptionWithSources{
 			Name:         "accounts.calendar.accounts.<name>.vdirsyncer.enable",
 			Description:  "Whether to enable synchronization using vdirsyncer.",
 			Type:         "boolean",
@@ -140,6 +144,6 @@ func (s *TestFetchSuite) TestIntegrationGetOptions() {
 				"https://github.com/nix-community/home-manager/blob/master/modules/accounts/calendar.nix",
 			},
 		}
-		s.Contains(nixOpts, opt)
+		assert.Contains(t, nixOpts, expectedOpt)
 	})
 }

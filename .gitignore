@@ -73,3 +73,4 @@ testdata/options.db-shm
 testdata/options.db-wal
 
 result
+__debug_bin*

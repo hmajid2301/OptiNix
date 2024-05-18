@@ -4,6 +4,6 @@ import (
 	"context"
 )
 
-func ShouldFetch(ctx context.Context, o Opt) (bool, error) {
+func (o Opt) ShouldFetch(ctx context.Context) (bool, error) {
 	return o.shouldFetch(ctx)
 }
