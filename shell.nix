@@ -36,7 +36,6 @@ in
       gocover-cobertura
       go-task
       goreleaser
-      sqlc
       docker-compose
     ];
   }
