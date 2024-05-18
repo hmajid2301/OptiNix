@@ -2,11 +2,10 @@ package options_test
 
 import (
 	"context"
-	"database/sql"
 	"os"
 	"testing"
+	"time"
 
-	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
 
 	"gitlab.com/hmajid2301/optinix/internal/options"
@@ -41,8 +40,8 @@ func (n NixCmdExecutor) Executor(expression string) (string, error) {
 
 type TestFetchSuite struct {
 	suite.Suite
-	db  *sql.DB
-	opt options.Opt
+	store store.Store
+	opt   options.Opt
 }
 
 func TestIntegrationStore(t *testing.T) {
@@ -50,22 +49,21 @@ func TestIntegrationStore(t *testing.T) {
 		t.Skip("skipping integration test")
 	}
 
-	ctx := context.Background()
-	db := optionstest.CreateDB(ctx, t)
-	dbStore, err := store.NewStore(db)
-	assert.NoError(t, err)
-
-	fetcher := options.NewFetcher(NixCmdExecutor{}, NixReader{})
-	opt := options.NewOptions(dbStore, fetcher)
-
-	suite.Run(t, &TestFetchSuite{opt: opt})
+	suite.Run(t, &TestFetchSuite{opt: options.Opt{}})
 }
 
-func (s *TestFetchSuite) SetUpSubTest() {
+func (s *TestFetchSuite) SetupSubTest() {
 	ctx := context.Background()
-	s.db = optionstest.CreateDB(ctx, s.T())
+	db := optionstest.CreateDB(ctx, s.T())
+	dbStore, err := store.NewStore(db)
+	s.NoError(err)
+
+	fetcher := options.NewFetcher(NixCmdExecutor{}, NixReader{})
+	s.store = dbStore
+	s.opt = options.NewOptions(dbStore, fetcher)
+
 	s.T().Cleanup(func() {
-		s.db.Close()
+		db.Close()
 	})
 }
 
@@ -75,16 +73,41 @@ func (s *TestFetchSuite) TestIntegrationSaveOptions() {
 		HomeManager: "./nix/hm-options.nix",
 		Darwin:      "./nix/darwin-options.nix",
 	}
+	forceRefresh := false
 
 	s.Run("Should save options", func() {
 		ctx := context.Background()
-		err := s.opt.SaveOptions(ctx, sources)
+		err := s.opt.SaveOptions(ctx, sources, forceRefresh)
 		s.NoError(err)
 	})
 
-	// TODO: Make this an actual
-	s.Run("Should not save options because latest in db not a week old", func() {
-		s.True(true)
+	s.Run("Should not fetch new options unless they are a day old", func() {
+		ctx := context.Background()
+		err := s.opt.SaveOptions(ctx, sources, forceRefresh)
+		s.NoError(err)
+
+		shouldFetch, err := options.ShouldFetch(ctx, s.opt)
+		s.False(shouldFetch)
+		s.NoError(err)
+	})
+
+	s.Run("Should fetch new options if force refresh argument is passed", func() {
+		ctx := context.Background()
+
+		err := s.opt.SaveOptions(ctx, sources, forceRefresh)
+		s.NoError(err)
+		lastUpdated, err := s.store.GetLastAddedTime(ctx)
+		s.NoError(err)
+
+		// TODO: find a nicer to do this, time is only accurate to the second
+		time.Sleep(1 * time.Second)
+		shouldForceRefresh := true
+		err = s.opt.SaveOptions(ctx, sources, shouldForceRefresh)
+		s.NoError(err)
+		lastUpdated2, err := s.store.GetLastAddedTime(ctx)
+		s.NoError(err)
+
+		s.NotEqual(lastUpdated, lastUpdated2, "check that new rows were added to the database")
 	})
 }
 
@@ -94,10 +117,11 @@ func (s *TestFetchSuite) TestIntegrationGetOptions() {
 		HomeManager: "./nix/hm-options.nix",
 		Darwin:      "./nix/darwin-options.nix",
 	}
+	forceRefresh := false
 
 	s.Run("Should get option with `vdirsyncer` in option name", func() {
 		ctx := context.Background()
-		err := s.opt.SaveOptions(ctx, sources)
+		err := s.opt.SaveOptions(ctx, sources, forceRefresh)
 		s.NoError(err)
 
 		nixOpts, err := s.opt.GetOptions(ctx, "vdirsyncer enable")

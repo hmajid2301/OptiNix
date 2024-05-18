@@ -17,6 +17,10 @@ import (
 	"github.com/spf13/cobra"
 )
 
+type Flags struct {
+	forceRefresh bool
+}
+
 func Execute(ctx context.Context, db *sql.DB) error {
 	rootCmd := &cobra.Command{
 		Version: "v0.1.0",
@@ -25,12 +29,17 @@ func Execute(ctx context.Context, db *sql.DB) error {
 		Long:    `OptiNix is tool you can use on the command line to search options for NixOS, home-manager and Darwin.`,
 		Args:    cobra.ExactArgs(1),
 		Example: "optinix hyprland",
-		RunE: func(_ *cobra.Command, args []string) error {
+		RunE: func(cmd *cobra.Command, args []string) error {
+			forceRefresh := cmd.Flags().Bool("force-refresh", false, "If set will force a refresh of the options")
+
 			// p := tea.NewProgram(tui.New(ctx, db))
 			// if _, err := p.Run(); err != nil {
 			// 	log.Fatal(err)
 			// }
-			err := FindOptions(ctx, db, args[0])
+			flags := Flags{
+				forceRefresh: *forceRefresh,
+			}
+			err := FindOptions(ctx, db, args[0], flags)
 			return err
 		},
 	}
@@ -38,7 +47,7 @@ func Execute(ctx context.Context, db *sql.DB) error {
 	return rootCmd.ExecuteContext(context.Background())
 }
 
-func FindOptions(ctx context.Context, db *sql.DB, optionName string) (err error) {
+func FindOptions(ctx context.Context, db *sql.DB, optionName string, flags Flags) (err error) {
 	s, err := store.NewStore(db)
 	if err != nil {
 		return err
@@ -72,7 +81,7 @@ func FindOptions(ctx context.Context, db *sql.DB, optionName string) (err error)
 		HomeManager: string(homeManagerPath),
 		Darwin:      string(darwinPath),
 	}
-	err = opt.SaveOptions(ctx, sources)
+	err = opt.SaveOptions(ctx, sources, flags.forceRefresh)
 	if err != nil {
 		return err
 	}

@@ -23,14 +23,18 @@ func NewOptions(s store.Store, f Fetcherer) Opt {
 	return Opt{store: s, fetcher: f}
 }
 
-func (o Opt) SaveOptions(ctx context.Context, sources Sources) error {
-	shouldFetch, err := o.shouldFetch(ctx)
-	if err != nil {
-		return err
-	}
+func (o Opt) SaveOptions(ctx context.Context, sources Sources, forceRefresh bool) error {
+	// INFO: If force fresh is passed then we should always fetch the options and update the store.
+	// Else we check if should update the options in the store, if they have gone stale i.e. older than a day.
+	if !forceRefresh {
+		shouldFetch, err := o.shouldFetch(ctx)
+		if err != nil {
+			return err
+		}
 
-	if !shouldFetch {
-		return nil
+		if !shouldFetch {
+			return nil
+		}
 	}
 
 	options, err := o.fetcher.Fetch(ctx, sources)
@@ -94,8 +98,8 @@ func (o Opt) shouldFetch(ctx context.Context) (bool, error) {
 	}
 
 	// INFO: If its been a day since we fetched the options, lets update the DB again
-	yesterday := now.AddDate(0, 0, -1)
-	if lastUpdatedDB.After(yesterday) {
+	x := lastUpdatedDB.AddDate(0, 0, 1)
+	if x.After(now) {
 		return false, nil
 	}
 	return true, nil

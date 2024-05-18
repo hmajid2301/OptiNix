@@ -15,7 +15,8 @@ stages:
 
 install:deps:
   stage: pre
-  extends: .nix
+  extends:
+    - .task
   only:
     - merge_request
   script:

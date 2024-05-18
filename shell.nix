@@ -25,11 +25,7 @@
   };
 in
   pkgs.mkShell {
-    # inherit (pre-commit-check) shellHook;
-    shellHook = ''
-      echo "HELLO"
-      echo $goEnv
-    '';
+    inherit (pre-commit-check) shellHook;
     hardeningDisable = ["all"];
     packages = with pkgs; [
       goEnv
