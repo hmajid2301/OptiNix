@@ -20,7 +20,7 @@ WHERE
 GROUP BY
     o.id
 LIMIT
-    10;
+    ?;
 
 -- name: AddOption :one
 INSERT INTO options (option_name, description, option_type, default_value, example) VALUES (?, ?, ?, ?, ?) RETURNING *;

@@ -128,7 +128,7 @@ func TestIntegrationGetOptions(t *testing.T) {
 		err := opt.SaveOptions(ctx, sources, forceRefresh)
 		assert.NoError(t, err)
 
-		nixOpts, err := opt.GetOptions(ctx, "vdirsyncer enable")
+		nixOpts, err := opt.GetOptions(ctx, "vdirsyncer enable", 10)
 		assert.NoError(t, err)
 
 		expectedResults := 2

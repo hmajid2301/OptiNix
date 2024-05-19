@@ -103,8 +103,13 @@ WHERE
 GROUP BY
     o.id
 LIMIT
-    10
+    ?
 `
+
+type FindOptionsParams struct {
+	OptionName string
+	Limit      int64
+}
 
 type FindOptionsRow struct {
 	ID           int64
@@ -116,8 +121,8 @@ type FindOptionsRow struct {
 	SourceList   string
 }
 
-func (q *Queries) FindOptions(ctx context.Context, optionName string) ([]FindOptionsRow, error) {
-	rows, err := q.db.QueryContext(ctx, findOptions, optionName)
+func (q *Queries) FindOptions(ctx context.Context, arg FindOptionsParams) ([]FindOptionsRow, error) {
+	rows, err := q.db.QueryContext(ctx, findOptions, arg.OptionName, arg.Limit)
 	if err != nil {
 		return nil, err
 	}

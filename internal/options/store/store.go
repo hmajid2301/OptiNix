@@ -83,9 +83,12 @@ func (s Store) AddOptions(ctx context.Context, options []OptionWithSources) (err
 	return tx.Commit()
 }
 
-func (s Store) FindOptions(ctx context.Context, name string) ([]OptionWithSources, error) {
+func (s Store) FindOptions(ctx context.Context, name string, limit int64) ([]OptionWithSources, error) {
 	options := []OptionWithSources{}
-	opts, err := s.queries.FindOptions(ctx, name)
+	opts, err := s.queries.FindOptions(ctx, sqlc.FindOptionsParams{
+		OptionName: name,
+		Limit:      limit,
+	})
 	if err != nil {
 		return options, err
 	}

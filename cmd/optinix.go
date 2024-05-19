@@ -23,9 +23,12 @@ func Execute(ctx context.Context, db *sql.DB) error {
 		Example: "optinix hyprland",
 		RunE: func(cmd *cobra.Command, _ []string) error {
 			forceRefresh := cmd.Flags().Bool("force-refresh", false, "If set will force a refresh of the options")
+			//nolint: gomnd
+			limit := cmd.Flags().Int64("limit", 10, "Limit the number of results returned")
 
 			flags := tui.Flags{
 				ForceRefresh: *forceRefresh,
+				Limit:        *limit,
 			}
 			p := tea.NewProgram(tui.New(ctx, db, flags))
 			if _, err := p.Run(); err != nil {

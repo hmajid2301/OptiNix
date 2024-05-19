@@ -81,8 +81,8 @@ func getStoreOptions(options []Option) []store.OptionWithSources {
 }
 
 // TODO: Common options struct here
-func (o Opt) GetOptions(ctx context.Context, name string) ([]store.OptionWithSources, error) {
-	return o.store.FindOptions(ctx, name)
+func (o Opt) GetOptions(ctx context.Context, name string, limit int64) ([]store.OptionWithSources, error) {
+	return o.store.FindOptions(ctx, name, limit)
 }
 
 // TODO: move this out from save options bit, what if user wants to a force a refresh using CLI

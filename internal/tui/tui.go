@@ -27,6 +27,7 @@ type Model struct {
 
 type Flags struct {
 	ForceRefresh bool
+	Limit        int64
 }
 
 func New(ctx context.Context, db *sql.DB, flags Flags) Model {
@@ -122,7 +123,7 @@ func FindOptions(ctx context.Context,
 		return nil, err
 	}
 
-	opts, err = opt.GetOptions(ctx, optionName)
+	opts, err = opt.GetOptions(ctx, optionName, flags.Limit)
 	if err != nil {
 		return nil, err
 	}
