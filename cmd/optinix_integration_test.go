@@ -12,7 +12,7 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/stretchr/testify/assert"
 
-	"gitlab.com/hmajid2301/optinix/internal/options/store"
+	"gitlab.com/hmajid2301/optinix/internal/options"
 )
 
 func TestIntegrationCmd(t *testing.T) {
@@ -25,9 +25,8 @@ func TestIntegrationCmd(t *testing.T) {
 	os.Setenv("OPTINIX_SOURCES_DARWIN_PATH", "./nix/darwin-options.nix")
 	os.Setenv("OPTINIX_DB_FOLDER", "../testdata")
 
-	db, err := store.GetDB("../testdata")
+	db, err := options.GetDB("../testdata")
 	assert.NoError(t, err)
-
 	_, filename, _, ok := runtime.Caller(0)
 	assert.True(t, ok)
 	dir := path.Join(path.Dir(filename), "..")

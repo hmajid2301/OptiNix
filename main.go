@@ -9,8 +9,7 @@ import (
 	"os/signal"
 
 	"gitlab.com/hmajid2301/optinix/cmd"
-	"gitlab.com/hmajid2301/optinix/internal/options/config"
-	"gitlab.com/hmajid2301/optinix/internal/options/store"
+	"gitlab.com/hmajid2301/optinix/internal/options"
 )
 
 //go:embed db/schema.sql
@@ -24,13 +23,13 @@ func main() {
 	ctx := gracefulShutdown()
 
 	// TODO: proper error messages return back to CLI
-	conf, err := config.LoadConfig()
+	conf, err := options.LoadConfig()
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Whoops. There was an error while executing your CLI '%s'", err)
 		return
 	}
 
-	db, err := store.GetDB(conf.DBFolder)
+	db, err := options.GetDB(conf.DBFolder)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Whoops.  '%s'", err)
 		return

@@ -4,8 +4,6 @@ import (
 	"context"
 	"database/sql"
 	"time"
-
-	"gitlab.com/hmajid2301/optinix/internal/options/store"
 )
 
 type Source string
@@ -16,10 +14,10 @@ type Fetcherer interface {
 
 type Opt struct {
 	fetcher Fetcherer
-	store   store.Store
+	store   Store
 }
 
-func NewOptions(s store.Store, f Fetcherer) Opt {
+func NewOptions(s Store, f Fetcherer) Opt {
 	return Opt{store: s, fetcher: f}
 }
 
@@ -63,10 +61,10 @@ func (o Opt) SaveOptions(ctx context.Context, sources Sources, forceRefresh bool
 	return nil
 }
 
-func getStoreOptions(options []Option) []store.OptionWithSources {
-	matchingOptions := []store.OptionWithSources{}
+func getStoreOptions(options []Option) []OptionWithSources {
+	matchingOptions := []OptionWithSources{}
 	for _, option := range options {
-		storeOption := store.OptionWithSources{
+		storeOption := OptionWithSources{
 			Name:         option.Name,
 			Description:  option.Description,
 			Type:         option.Type,
@@ -81,7 +79,7 @@ func getStoreOptions(options []Option) []store.OptionWithSources {
 }
 
 // TODO: Common options struct here
-func (o Opt) GetOptions(ctx context.Context, name string, limit int64) ([]store.OptionWithSources, error) {
+func (o Opt) GetOptions(ctx context.Context, name string, limit int64) ([]OptionWithSources, error) {
 	return o.store.FindOptions(ctx, name, limit)
 }
 

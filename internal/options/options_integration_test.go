@@ -10,7 +10,6 @@ import (
 
 	"gitlab.com/hmajid2301/optinix/internal/options"
 	"gitlab.com/hmajid2301/optinix/internal/options/optionstest"
-	"gitlab.com/hmajid2301/optinix/internal/options/store"
 )
 
 type NixReader struct{}
@@ -38,10 +37,10 @@ func (n NixCmdExecutor) Executor(expression string) (string, error) {
 	return "", nil
 }
 
-func setupSubTest(t *testing.T) (options.Opt, store.Store, func()) {
+func setupSubTest(t *testing.T) (options.Opt, options.Store, func()) {
 	ctx := context.Background()
 	db := optionstest.CreateDB(ctx, t)
-	dbStore, err := store.NewStore(db)
+	dbStore, err := options.NewStore(db)
 	assert.NoError(t, err)
 
 	fetcher := options.NewFetcher(NixCmdExecutor{}, NixReader{})
@@ -134,7 +133,7 @@ func TestIntegrationGetOptions(t *testing.T) {
 		expectedResults := 2
 		assert.Len(t, nixOpts, expectedResults)
 
-		expectedOpt := store.OptionWithSources{
+		expectedOpt := options.OptionWithSources{
 			Name:         "accounts.calendar.accounts.<name>.vdirsyncer.enable",
 			Description:  "Whether to enable synchronization using vdirsyncer.",
 			Type:         "boolean",

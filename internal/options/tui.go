@@ -1,6 +1,7 @@
-package tui
+package options
 
 import (
+	"bytes"
 	"context"
 	"database/sql"
 	"fmt"
@@ -9,83 +10,88 @@ import (
 	"os/exec"
 	"strings"
 
+	"github.com/charmbracelet/bubbles/list"
 	"github.com/charmbracelet/bubbles/textinput"
 	tea "github.com/charmbracelet/bubbletea"
-
-	"gitlab.com/hmajid2301/optinix/internal/options"
-	"gitlab.com/hmajid2301/optinix/internal/options/store"
+	"github.com/charmbracelet/lipgloss"
 )
 
+type item struct {
+	title, desc string
+}
+
+func (i item) Title() string       { return i.title }
+func (i item) Description() string { return i.desc }
+func (i item) FilterValue() string { return i.title }
+
 type Model struct {
+	flags     Flags
 	userInput textinput.Model
-	// selected  int
-	done  bool
-	ctx   context.Context
-	db    *sql.DB
-	flags Flags
+	list      list.Model
+	db        *sql.DB
+	ctx       context.Context
+	docStyle  lipgloss.Style
 }
 
+// TODO: rename this
 type Flags struct {
-	ForceRefresh bool
+	OptionName   string
 	Limit        int64
+	ForceRefresh bool
 }
 
-func New(ctx context.Context, db *sql.DB, flags Flags) Model {
+func NewTUI(ctx context.Context, db *sql.DB, flags Flags) Model {
 	ti := textinput.New()
-	ti.CharLimit = 100
-	ti.Placeholder = "Type the option to search for"
-	ti.Width = 30
-	ti.Focus()
+	ti.SetValue(flags.OptionName)
 
-	return Model{userInput: ti, ctx: ctx, db: db, flags: flags}
+	//nolint: mnd
+	docStyle := lipgloss.NewStyle().Margin(1, 2)
+	opts, err := FindOptions(ctx, db, flags)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	optsList := []list.Item{}
+	for _, opt := range opts {
+		newDescription := strings.ReplaceAll(opt.Description, ".", ".\n")
+		listItem := item{title: opt.Name, desc: newDescription}
+		optsList = append(optsList, listItem)
+	}
+	l := list.New(optsList, list.NewDefaultDelegate(), 0, 0)
+
+	return Model{docStyle: docStyle, userInput: ti, ctx: ctx, db: db, flags: flags, list: l}
 }
 
 func (m Model) Init() tea.Cmd {
-	return textinput.Blink
+	return nil
 }
 
 func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
-	var cmd tea.Cmd
-
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
-		switch msg.String() {
-		case "ctrl+c", "esc":
-			return m, tea.Quit
-		case "enter":
-			m.done = true
+		if msg.String() == "ctrl+c" {
 			return m, tea.Quit
 		}
-
-	default:
-		return m, nil
+	case tea.WindowSizeMsg:
+		h, v := m.docStyle.GetFrameSize()
+		m.list.SetSize(msg.Width-h, msg.Height-v)
 	}
-	m.userInput, cmd = m.userInput.Update(msg)
+
+	var cmd tea.Cmd
+	m.list, cmd = m.list.Update(msg)
 	return m, cmd
 }
 
 func (m Model) View() string {
-	if m.done {
-		opts, err := FindOptions(m.ctx, m.db, m.userInput.Value(), m.flags)
-		if err != nil {
-			log.Fatal(err)
-		}
-		fmt.Println(opts)
-	}
-
-	return fmt.Sprintf(
-		"Search for options:\n\n%s\n\n%s",
-		m.userInput.View(),
-		"(esc to quit)",
-	) + "\n"
+	return m.docStyle.Render(m.list.View())
 }
 
+// TODO: move to a proper place
 func FindOptions(ctx context.Context,
 	db *sql.DB,
-	optionName string,
 	flags Flags,
-) (opts []store.OptionWithSources, err error) {
-	s, err := store.NewStore(db)
+) (opts []OptionWithSources, err error) {
+	s, err := NewStore(db)
 	if err != nil {
 		return nil, err
 	}
@@ -93,9 +99,9 @@ func FindOptions(ctx context.Context,
 	// TODO: should this be setup with constructors
 	cmdExecutor := NixCmdExecutor{}
 	nixReader := NixReader{}
-	fetcher := options.NewFetcher(cmdExecutor, nixReader)
+	fetcher := NewFetcher(cmdExecutor, nixReader)
 
-	opt := options.NewOptions(s, fetcher)
+	opt := NewOptions(s, fetcher)
 
 	// TODO: should I read file and evalute expression?
 	nixosPath, err := nixReader.Read("nix/nixos-options.nix")
@@ -113,7 +119,7 @@ func FindOptions(ctx context.Context,
 		return nil, err
 	}
 
-	sources := options.Sources{
+	sources := Sources{
 		NixOS:       string(nixosPath),
 		HomeManager: string(homeManagerPath),
 		Darwin:      string(darwinPath),
@@ -123,7 +129,7 @@ func FindOptions(ctx context.Context,
 		return nil, err
 	}
 
-	opts, err = opt.GetOptions(ctx, optionName, flags.Limit)
+	opts, err = opt.GetOptions(ctx, flags.OptionName, flags.Limit)
 	if err != nil {
 		return nil, err
 	}
@@ -147,12 +153,16 @@ func (n NixCmdExecutor) Executor(expression string) (string, error) {
 		"NIXPKGS_ALLOW_BROKEN=1",
 		"NIXPKGS_ALLOW_INSECURE=1",
 		"NIXPKGS_ALLOW_UNSUPPORTED_SYSTEM=1",
-		"NIX_PATH=/etc/nix/inputs",
+		// TODO: why does this needed on NixOS but not on Ubuntu
+		// "NIX_PATH=/etc/nix/inputs",
 		"--no-out-link",
 	)
+	var stderr bytes.Buffer
+	cmd.Stderr = &stderr
+
 	output, err := cmd.Output()
 	if err != nil {
-		return "", err
+		return "", fmt.Errorf("%v: %s", err, stderr.String())
 	}
 
 	trimmedOuput := strings.TrimSpace(string(output))

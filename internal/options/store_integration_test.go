@@ -1,4 +1,4 @@
-package store_test
+package options_test
 
 import (
 	"context"
@@ -7,8 +7,8 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
+	"gitlab.com/hmajid2301/optinix/internal/options"
 	"gitlab.com/hmajid2301/optinix/internal/options/optionstest"
-	"gitlab.com/hmajid2301/optinix/internal/options/store"
 )
 
 func setupSubtest(t *testing.T) (*sql.DB, func()) {
@@ -29,10 +29,10 @@ func TestIntegrationAddOptions(t *testing.T) {
 		db, teardown := setupSubtest(t)
 		defer teardown()
 
-		str, err := store.NewStore(db)
+		str, err := options.NewStore(db)
 		assert.NoError(t, err)
 
-		optionsToAdd := []store.OptionWithSources{
+		optionsToAdd := []options.OptionWithSources{
 			{
 				Name:         "option",
 				Description:  "description",
@@ -75,10 +75,10 @@ func TestIntegrationFindOptions(t *testing.T) {
 		db, teardown := setupSubtest(t)
 		defer teardown()
 
-		myStore, err := store.NewStore(db)
+		myStore, err := options.NewStore(db)
 		assert.NoError(t, err)
 
-		optionsToAdd := []store.OptionWithSources{
+		optionsToAdd := []options.OptionWithSources{
 			{
 				Name:         "option",
 				Description:  "description",

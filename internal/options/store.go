@@ -1,4 +1,4 @@
-package store
+package options
 
 import (
 	"context"
@@ -9,7 +9,7 @@ import (
 	"strings"
 	"time"
 
-	sqlc "gitlab.com/hmajid2301/optinix/internal/options/store/db"
+	sqlc "gitlab.com/hmajid2301/optinix/internal/options/db"
 )
 
 type Store struct {
