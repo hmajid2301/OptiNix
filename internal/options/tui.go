@@ -154,7 +154,7 @@ func (n NixCmdExecutor) Executor(expression string) (string, error) {
 		"NIXPKGS_ALLOW_INSECURE=1",
 		"NIXPKGS_ALLOW_UNSUPPORTED_SYSTEM=1",
 		// TODO: why does this needed on NixOS but not on Ubuntu
-		// "NIX_PATH=/etc/nix/inputs",
+		"NIX_PATH=/etc/nix/inputs",
 		"--no-out-link",
 	)
 	var stderr bytes.Buffer

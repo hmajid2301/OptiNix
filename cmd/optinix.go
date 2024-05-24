@@ -15,6 +15,9 @@ import (
 )
 
 func Execute(ctx context.Context, db *sql.DB) error {
+	var forceRefresh bool
+	var limit int64
+
 	rootCmd := &cobra.Command{
 		Version: "v0.1.0",
 		Use:     "optinix",
@@ -22,15 +25,15 @@ func Execute(ctx context.Context, db *sql.DB) error {
 		Long:    `OptiNix is tool you can use on the command line to search options for NixOS, home-manager and Darwin.`,
 		Example: "optinix hyprland",
 		Args:    cobra.ExactArgs(1),
-		RunE: func(cmd *cobra.Command, args []string) error {
-			forceRefresh := cmd.Flags().Bool("force-refresh", false, "If set will force a refresh of the options")
-			//nolint: mnd
-			limit := cmd.Flags().Int64("limit", 10, "Limit the number of results returned")
-
+		PreRun: func(cmd *cobra.Command, _ []string) {
+			forceRefresh, _ = cmd.Flags().GetBool("force-refresh")
+			limit, _ = cmd.Flags().GetInt64("limit")
+		},
+		RunE: func(_ *cobra.Command, args []string) error {
 			flags := options.Flags{
 				OptionName:   args[0],
-				ForceRefresh: *forceRefresh,
-				Limit:        *limit,
+				ForceRefresh: forceRefresh,
+				Limit:        limit,
 			}
 			p := tea.NewProgram(options.NewTUI(ctx, db, flags))
 			if _, err := p.Run(); err != nil {
@@ -40,5 +43,9 @@ func Execute(ctx context.Context, db *sql.DB) error {
 		},
 	}
 
+	rootCmd.Flags().BoolVar(&forceRefresh, "force-refresh", false, "If set will force a refresh of the options")
+
+	//nolint: mnd
+	rootCmd.Flags().Int64Var(&limit, "limit", 10, "Limit the number of results returned")
 	return rootCmd.ExecuteContext(ctx)
 }
