@@ -1,4 +1,4 @@
-package options_test
+package store_test
 
 import (
 	"context"
@@ -7,8 +7,9 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	"gitlab.com/hmajid2301/optinix/internal/options"
+	"gitlab.com/hmajid2301/optinix/internal/options/entities"
 	"gitlab.com/hmajid2301/optinix/internal/options/optionstest"
+	"gitlab.com/hmajid2301/optinix/internal/options/store"
 )
 
 func setupSubtest(t *testing.T) (*sql.DB, func()) {
@@ -29,25 +30,25 @@ func TestIntegrationAddOptions(t *testing.T) {
 		db, teardown := setupSubtest(t)
 		defer teardown()
 
-		str, err := options.NewStore(db)
+		str, err := store.NewStore(db)
 		assert.NoError(t, err)
 
-		optionsToAdd := []options.OptionWithSources{
+		optionsToAdd := []entities.Option{
 			{
-				Name:         "option",
-				Description:  "description",
-				Type:         "str",
-				DefaultValue: "default",
-				Example:      "example",
-				Sources:      []string{"http://example.com"},
+				Name:        "option",
+				Description: "description",
+				Type:        "str",
+				Default:     "default",
+				Example:     "example",
+				Sources:     []string{"http://example.com"},
 			},
 			{
-				Name:         "option1",
-				Description:  "description",
-				Type:         "str",
-				DefaultValue: "default",
-				Example:      "example",
-				Sources:      []string{"http://example1.com"},
+				Name:        "option1",
+				Description: "description",
+				Type:        "str",
+				Default:     "default",
+				Example:     "example",
+				Sources:     []string{"http://example1.com"},
 			},
 		}
 
@@ -75,33 +76,33 @@ func TestIntegrationFindOptions(t *testing.T) {
 		db, teardown := setupSubtest(t)
 		defer teardown()
 
-		myStore, err := options.NewStore(db)
+		myStore, err := store.NewStore(db)
 		assert.NoError(t, err)
 
-		optionsToAdd := []options.OptionWithSources{
+		optionsToAdd := []entities.Option{
 			{
-				Name:         "option",
-				Description:  "description",
-				Type:         "str",
-				DefaultValue: "default",
-				Example:      "example",
-				Sources:      []string{"http://example.com"},
+				Name:        "option",
+				Description: "description",
+				Type:        "str",
+				Default:     "default",
+				Example:     "example",
+				Sources:     []string{"http://example.com"},
 			},
 			{
-				Name:         "option.enable",
-				Description:  "description",
-				Type:         "str",
-				DefaultValue: "default",
-				Example:      "example",
-				Sources:      []string{"http://example1.com"},
+				Name:        "option.enable",
+				Description: "description",
+				Type:        "str",
+				Default:     "default",
+				Example:     "example",
+				Sources:     []string{"http://example1.com"},
 			},
 			{
-				Name:         "other_name",
-				Description:  "description",
-				Type:         "str",
-				DefaultValue: "default",
-				Example:      "example",
-				Sources:      []string{"http://example2.com"},
+				Name:        "other_name",
+				Description: "description",
+				Type:        "str",
+				Default:     "default",
+				Example:     "example",
+				Sources:     []string{"http://example2.com"},
 			},
 		}
 		ctx := context.Background()

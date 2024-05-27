@@ -31,6 +31,8 @@ lint:
 tests:unit:
   extends:
     - .task
+  variables:
+    XDG_DATA_HOME: "/tmp/"
   script:
     - nix develop -c task tests:unit
 
@@ -40,6 +42,8 @@ coverage:
   only:
     - main
     - merge_request
+  variables:
+    XDG_DATA_HOME: "/tmp/"
   script:
     - nix develop -c task coverage
   coverage: /^coverage:\s(\d+(?:\.\d+)?%)/

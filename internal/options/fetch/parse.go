@@ -1,11 +1,12 @@
-package options
+package fetch
 
 import (
 	"encoding/json"
 	"errors"
+
+	"gitlab.com/hmajid2301/optinix/internal/options/entities"
 )
 
-// TODO: see if there is a way we can use this again
 type Declaration struct {
 	Name string `json:"name"`
 	URL  string `json:"url"`
@@ -57,17 +58,9 @@ type OptionFile struct {
 // TODO: deal with code blocks in examples/descriptions
 // i.e. `accounts.calendar.accounts.<name>.remote.passwordCommand`,
 // from HM Options
-type Option struct {
-	Name        string
-	Description string
-	Type        string
-	Default     string
-	Example     string
-	Sources     []string
-}
 
-func ParseOptions(jsonData []byte) ([]Option, error) {
-	options := []Option{}
+func ParseOptions(jsonData []byte) ([]entities.Option, error) {
+	options := []entities.Option{}
 	var jsonOpts map[string]OptionFile
 	err := json.Unmarshal(jsonData, &jsonOpts)
 	if err != nil {
@@ -75,7 +68,7 @@ func ParseOptions(jsonData []byte) ([]Option, error) {
 	}
 
 	for key, option := range jsonOpts {
-		opt := Option{
+		opt := entities.Option{
 			Name:        key,
 			Description: option.Description,
 			Type:        option.Type,

@@ -1,4 +1,4 @@
-package options_test
+package tui_test
 
 import (
 	"testing"

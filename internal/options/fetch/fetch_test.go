@@ -1,4 +1,4 @@
-package options_test
+package fetch_test
 
 import (
 	"context"
@@ -9,15 +9,16 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 
-	"gitlab.com/hmajid2301/optinix/internal/options"
+	"gitlab.com/hmajid2301/optinix/internal/options/entities"
+	"gitlab.com/hmajid2301/optinix/internal/options/fetch"
 )
 
 type MockCmdExecutor struct {
 	mock.Mock
 }
 
-func (m *MockCmdExecutor) Executor(expression string) (string, error) {
-	args := m.Called(expression)
+func (m *MockCmdExecutor) Execute(ctx context.Context, path string) (string, error) {
+	args := m.Called(ctx, path)
 	return args.String(0), args.Error(1)
 }
 
@@ -33,24 +34,21 @@ func (m *MockReader) Read(r string) ([]byte, error) {
 func TestFetch(t *testing.T) {
 	mockExecutor := new(MockCmdExecutor)
 	mockReader := new(MockReader)
-	fetcher := options.NewFetcher(mockExecutor, mockReader)
-	defaultOptionsData, err := os.ReadFile("../../testdata/nixos-options.json")
+	fetcher := fetch.NewFetcher(mockExecutor, mockReader)
+	defaultOptionsData, err := os.ReadFile("../../../testdata/nixos-options.json")
 	assert.NoError(t, err)
 
-	defaultExpression, err := os.ReadFile("../../nix/nixos-options.nix")
-	assert.NoError(t, err)
-
-	expression := string(defaultExpression)
-	defaultSources := options.Sources{
-		NixOS:       expression,
-		HomeManager: expression,
-		Darwin:      expression,
+	nixFile := "../../../nix/nixos-options.nix"
+	defaultSources := entities.Sources{
+		NixOS:       nixFile,
+		HomeManager: nixFile,
+		Darwin:      nixFile,
 	}
 
 	ctx := context.Background()
 	t.Run("Should successfully fetch options", func(t *testing.T) {
-		mockExecCall := mockExecutor.On("Executor", string(defaultExpression)).Return("../../nix/nixos-options.nix", nil)
-		mockReaderCall := mockReader.On("Read", "../../nix/nixos-options.nix").Return(defaultOptionsData, nil)
+		mockExecCall := mockExecutor.On("Execute", ctx, nixFile).Return("../../../nix/nixos-options.nix", nil)
+		mockReaderCall := mockReader.On("Read", "../../../nix/nixos-options.nix").Return(defaultOptionsData, nil)
 
 		options, err := fetcher.Fetch(ctx, defaultSources)
 		assert.NoError(t, err)
@@ -65,8 +63,8 @@ func TestFetch(t *testing.T) {
 	})
 
 	t.Run("Should fail to read file", func(t *testing.T) {
-		mockExecCall := mockExecutor.On("Executor", string(defaultExpression)).Return("../../nix/nixos-options.nix", nil)
-		mockReaderCall := mockReader.On("Read", "../../nix/nixos-options.nix").Return(
+		mockExecCall := mockExecutor.On("Execute", ctx, nixFile).Return("../../../nix/nixos-options.nix", nil)
+		mockReaderCall := mockReader.On("Read", "../../../nix/nixos-options.nix").Return(
 			[]byte{}, errors.New("failed to read file"),
 		)
 
@@ -80,8 +78,7 @@ func TestFetch(t *testing.T) {
 	})
 
 	t.Run("Should fail to execute cmd", func(t *testing.T) {
-		mockExecCall := mockExecutor.On("Executor", mock.Anything).Return("", errors.New("failed to execute cmd"))
-		mockReaderCall := mockReader.On("Read", mock.Anything).Return(defaultOptionsData, nil)
+		mockExecCall := mockExecutor.On("Execute", ctx, nixFile).Return("", errors.New("failed to execute cmd"))
 
 		_, err := fetcher.Fetch(ctx, defaultSources)
 		assert.ErrorContains(t, err, "failed to execute cmd")
@@ -89,7 +86,6 @@ func TestFetch(t *testing.T) {
 		mockExecutor.AssertExpectations(t)
 		mockReader.AssertExpectations(t)
 		mockExecCall.Unset()
-		mockReaderCall.Unset()
 	})
 
 	// TODO: add more test cases

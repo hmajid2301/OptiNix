@@ -9,7 +9,10 @@ import (
 	"github.com/stretchr/testify/assert"
 
 	"gitlab.com/hmajid2301/optinix/internal/options"
+	"gitlab.com/hmajid2301/optinix/internal/options/entities"
+	"gitlab.com/hmajid2301/optinix/internal/options/fetch"
 	"gitlab.com/hmajid2301/optinix/internal/options/optionstest"
+	"gitlab.com/hmajid2301/optinix/internal/options/store"
 )
 
 type NixReader struct{}
@@ -24,7 +27,7 @@ func (f NixReader) Read(pathToExpression string) ([]byte, error) {
 
 type NixCmdExecutor struct{}
 
-func (n NixCmdExecutor) Executor(expression string) (string, error) {
+func (n NixCmdExecutor) Execute(_ context.Context, expression string) (string, error) {
 	switch expression {
 	case "./nix/nixos-options.nix":
 		return "../../testdata/nixos-options.json", nil
@@ -37,14 +40,14 @@ func (n NixCmdExecutor) Executor(expression string) (string, error) {
 	return "", nil
 }
 
-func setupSubTest(t *testing.T) (options.Opt, options.Store, func()) {
+func setupSubTest(t *testing.T) (options.Searcher, store.Store, func()) {
 	ctx := context.Background()
 	db := optionstest.CreateDB(ctx, t)
-	dbStore, err := options.NewStore(db)
+	dbStore, err := store.NewStore(db)
 	assert.NoError(t, err)
 
-	fetcher := options.NewFetcher(NixCmdExecutor{}, NixReader{})
-	opt := options.NewOptions(dbStore, fetcher)
+	fetcher := fetch.NewFetcher(NixCmdExecutor{}, NixReader{})
+	opt := options.NewSearcher(dbStore, fetcher)
 
 	return opt, dbStore, func() {
 		db.Close()
@@ -56,7 +59,7 @@ func TestIntegrationSaveOptions(t *testing.T) {
 		t.Skip("skipping integration test")
 	}
 
-	sources := options.Sources{
+	sources := entities.Sources{
 		NixOS:       "./nix/nixos-options.nix",
 		HomeManager: "./nix/hm-options.nix",
 		Darwin:      "./nix/darwin-options.nix",
@@ -112,7 +115,7 @@ func TestIntegrationGetOptions(t *testing.T) {
 		t.Skip("skipping integration test")
 	}
 
-	sources := options.Sources{
+	sources := entities.Sources{
 		NixOS:       "./nix/nixos-options.nix",
 		HomeManager: "./nix/hm-options.nix",
 		Darwin:      "./nix/darwin-options.nix",
@@ -133,12 +136,12 @@ func TestIntegrationGetOptions(t *testing.T) {
 		expectedResults := 2
 		assert.Len(t, nixOpts, expectedResults)
 
-		expectedOpt := options.OptionWithSources{
-			Name:         "accounts.calendar.accounts.<name>.vdirsyncer.enable",
-			Description:  "Whether to enable synchronization using vdirsyncer.",
-			Type:         "boolean",
-			DefaultValue: "false",
-			Example:      "true",
+		expectedOpt := entities.Option{
+			Name:        "accounts.calendar.accounts.<name>.vdirsyncer.enable",
+			Description: "Whether to enable synchronization using vdirsyncer.",
+			Type:        "boolean",
+			Default:     "false",
+			Example:     "true",
 			Sources: []string{
 				"https://github.com/nix-community/home-manager/blob/master/modules/accounts/calendar.nix",
 			},

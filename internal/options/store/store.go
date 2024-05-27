@@ -1,4 +1,4 @@
-package options
+package store
 
 import (
 	"context"
@@ -9,21 +9,13 @@ import (
 	"strings"
 	"time"
 
-	sqlc "gitlab.com/hmajid2301/optinix/internal/options/db"
+	"gitlab.com/hmajid2301/optinix/internal/options/entities"
+	sqlc "gitlab.com/hmajid2301/optinix/internal/options/store/db"
 )
 
 type Store struct {
 	db      *sql.DB
 	queries *sqlc.Queries
-}
-
-type OptionWithSources struct {
-	Name         string
-	Description  string
-	Type         string
-	DefaultValue string
-	Example      string
-	Sources      []string
 }
 
 var SearchLimit = 10
@@ -38,7 +30,7 @@ func NewStore(db *sql.DB) (Store, error) {
 	return store, nil
 }
 
-func (s Store) AddOptions(ctx context.Context, options []OptionWithSources) (err error) {
+func (s Store) AddOptions(ctx context.Context, options []entities.Option) (err error) {
 	tx, err := s.db.Begin()
 	if err != nil {
 		return err
@@ -55,7 +47,7 @@ func (s Store) AddOptions(ctx context.Context, options []OptionWithSources) (err
 			OptionName:   option.Name,
 			Description:  option.Description,
 			OptionType:   option.Type,
-			DefaultValue: option.DefaultValue,
+			DefaultValue: option.Default,
 			Example:      option.Example,
 		}
 
@@ -83,8 +75,8 @@ func (s Store) AddOptions(ctx context.Context, options []OptionWithSources) (err
 	return tx.Commit()
 }
 
-func (s Store) FindOptions(ctx context.Context, name string, limit int64) ([]OptionWithSources, error) {
-	options := []OptionWithSources{}
+func (s Store) FindOptions(ctx context.Context, name string, limit int64) ([]entities.Option, error) {
+	options := []entities.Option{}
 	opts, err := s.queries.FindOptions(ctx, sqlc.FindOptionsParams{
 		OptionName: name,
 		Limit:      limit,
@@ -95,13 +87,13 @@ func (s Store) FindOptions(ctx context.Context, name string, limit int64) ([]Opt
 
 	for _, opt := range opts {
 		sources := strings.Split(opt.SourceList, ",")
-		option := OptionWithSources{
-			Name:         opt.OptionName,
-			Description:  opt.Description,
-			Type:         opt.OptionType,
-			DefaultValue: opt.DefaultValue,
-			Example:      opt.Example,
-			Sources:      sources,
+		option := entities.Option{
+			Name:        opt.OptionName,
+			Description: opt.Description,
+			Type:        opt.OptionType,
+			Default:     opt.DefaultValue,
+			Example:     opt.Example,
+			Sources:     sources,
 		}
 		options = append(options, option)
 	}
