@@ -55,10 +55,6 @@ type OptionFile struct {
 	Type         string       `json:"type"`
 }
 
-// TODO: deal with code blocks in examples/descriptions
-// i.e. `accounts.calendar.accounts.<name>.remote.passwordCommand`,
-// from HM Options
-
 func ParseOptions(jsonData []byte) ([]entities.Option, error) {
 	options := []entities.Option{}
 	var jsonOpts map[string]OptionFile

@@ -31,6 +31,10 @@ func Execute(ctx context.Context, ddl string) error {
 	var limit int64
 
 	db, err := getDB(ctx, ddl)
+	defer func() {
+		err = db.Close()
+	}()
+
 	if err != nil {
 		return err
 	}
@@ -83,10 +87,6 @@ func getDB(ctx context.Context, ddl string) (*sql.DB, error) {
 	if err != nil {
 		return nil, fmt.Errorf("failed to get database: %w", err)
 	}
-
-	defer func() {
-		err = db.Close()
-	}()
 
 	if _, err := db.ExecContext(ctx, ddl); err != nil {
 		return nil, fmt.Errorf("failed to create database schema: %w", err)
