@@ -37,5 +37,6 @@ in
       go-task
       goreleaser
       docker-compose
+      sqlc
     ];
   }

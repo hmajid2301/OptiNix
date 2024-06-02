@@ -11,13 +11,14 @@ import (
 )
 
 const addOption = `-- name: AddOption :one
-INSERT INTO options (option_name, description, option_type, default_value, example) VALUES (?, ?, ?, ?, ?) RETURNING id, created_at, updated_at, option_name, description, option_type, default_value, example
+INSERT INTO options (option_name, description, option_type, option_from, default_value, example) VALUES (?, ?, ?, ?, ?, ?) RETURNING id, created_at, updated_at, option_name, description, option_type, option_from, default_value, example
 `
 
 type AddOptionParams struct {
 	OptionName   string
 	Description  string
 	OptionType   string
+	OptionFrom   string
 	DefaultValue string
 	Example      string
 }
@@ -27,6 +28,7 @@ func (q *Queries) AddOption(ctx context.Context, arg AddOptionParams) (Option, e
 		arg.OptionName,
 		arg.Description,
 		arg.OptionType,
+		arg.OptionFrom,
 		arg.DefaultValue,
 		arg.Example,
 	)
@@ -38,6 +40,7 @@ func (q *Queries) AddOption(ctx context.Context, arg AddOptionParams) (Option, e
 		&i.OptionName,
 		&i.Description,
 		&i.OptionType,
+		&i.OptionFrom,
 		&i.DefaultValue,
 		&i.Example,
 	)
@@ -89,6 +92,7 @@ SELECT
     o.option_type,
     o.default_value,
     o.example,
+    o.option_from,
     GROUP_CONCAT(s.url) AS source_list
 FROM
     options o
@@ -118,6 +122,7 @@ type FindOptionsRow struct {
 	OptionType   string
 	DefaultValue string
 	Example      string
+	OptionFrom   string
 	SourceList   string
 }
 
@@ -137,6 +142,7 @@ func (q *Queries) FindOptions(ctx context.Context, arg FindOptionsParams) ([]Fin
 			&i.OptionType,
 			&i.DefaultValue,
 			&i.Example,
+			&i.OptionFrom,
 			&i.SourceList,
 		); err != nil {
 			return nil, err

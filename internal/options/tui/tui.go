@@ -1,6 +1,8 @@
 package tui
 
 import (
+	"context"
+	"database/sql"
 	"fmt"
 	"strings"
 
@@ -11,7 +13,11 @@ import (
 
 	"github.com/charmbracelet/glamour"
 
+	"gitlab.com/hmajid2301/optinix/internal/options"
 	"gitlab.com/hmajid2301/optinix/internal/options/entities"
+	"gitlab.com/hmajid2301/optinix/internal/options/fetch"
+	"gitlab.com/hmajid2301/optinix/internal/options/nix"
+	"gitlab.com/hmajid2301/optinix/internal/options/store"
 )
 
 type item struct {
@@ -19,6 +25,7 @@ type item struct {
 	description  string
 	defaultValue string
 	optionType   string
+	optionFrom   string
 	sources      []string
 }
 
@@ -34,9 +41,14 @@ type Model struct {
 	showGlammy bool
 }
 
-func NewTUI(options []entities.Option) Model {
+func NewTUI(ctx context.Context, db *sql.DB, flag ArgsAndFlags) Model {
 	//nolint: mnd
 	docStyle := lipgloss.NewStyle().Margin(1, 2)
+
+	options, err := FindOptions(ctx, db, flag)
+	if err != nil {
+		tea.Printf("Failed to get options %s\n", err)
+	}
 
 	optsList := []list.Item{}
 	for _, opt := range options {
@@ -46,6 +58,7 @@ func NewTUI(options []entities.Option) Model {
 			description:  newDescription,
 			defaultValue: opt.Default,
 			optionType:   opt.Type,
+			optionFrom:   opt.OptionFrom,
 			sources:      opt.Sources,
 		}
 		optsList = append(optsList, listItem)
@@ -129,14 +142,73 @@ func renderMarkdown(item item) string {
 
 ## Sources
 
-Declared in:
-`
-	markdown := fmt.Sprintf(template, item.title, item.description, item.optionType, item.defaultValue)
+From: %s
 
+Declared in
+`
+	markdown := fmt.Sprintf(template, item.title, item.description, item.optionType, item.defaultValue, item.optionFrom)
+
+	// INFO: Convert a source from this path:
+	// /nix/store/sdfiiqwrf78i47gzld1favdx9m5ms1cj5pb1dx0brbrbigy8ij-source/nixos/modules/programs/wayland/hyprland.nix
+	// to this URL:
+	// https://github.com/nixos/nixpkgs/blob/master/nixos/modules/programs/wayland/hyprland.nix
 	for _, source := range item.sources {
-		tea.Printf(source)
-		sourceMarkdown := fmt.Sprintf(" - %s\n", source)
+		index := strings.Index(source, "nixos/modules")
+		if index == -1 {
+			continue
+		}
+
+		part := source[index:]
+		url := "https://github.com/nixos/nixpkgs/blob/master/" + part
+		sourceMarkdown := fmt.Sprintf(" - %s\n", url)
 		markdown += sourceMarkdown
 	}
 	return markdown
+}
+
+type ArgsAndFlags struct {
+	OptionName   string
+	Limit        int64
+	ForceRefresh bool
+}
+
+// TODO: better name
+type Updater struct{}
+
+func (u Updater) SendMessage(msg string) {
+	tea.Println(msg)
+}
+
+func FindOptions(ctx context.Context,
+	db *sql.DB,
+	flags ArgsAndFlags,
+) (opts []entities.Option, err error) {
+	myStore, err := store.NewStore(db)
+	if err != nil {
+		return nil, err
+	}
+
+	nixExecutor := nix.NewCmdExecutor()
+	nixReader := nix.NewReader()
+	updater := Updater{}
+	fetcher := fetch.NewFetcher(nixExecutor, nixReader, updater)
+
+	opt := options.NewSearcher(myStore, fetcher)
+
+	sources := entities.Sources{
+		NixOS:       "nix/nixos-options.nix",
+		HomeManager: "nix/hm-options.nix",
+		Darwin:      "nix/darwin-options.nix",
+	}
+	err = opt.SaveOptions(ctx, sources, flags.ForceRefresh)
+	if err != nil {
+		return nil, err
+	}
+
+	opts, err = opt.GetOptions(ctx, flags.OptionName, flags.Limit)
+	if err != nil {
+		return nil, err
+	}
+
+	return opts, nil
 }

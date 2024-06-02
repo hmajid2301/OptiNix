@@ -26,6 +26,14 @@ type MockReader struct {
 	mock.Mock
 }
 
+type MockUpdater struct {
+	mock.Mock
+}
+
+func (m *MockUpdater) SendMessage(msg string) {
+	m.Called(msg)
+}
+
 func (m *MockReader) Read(r string) ([]byte, error) {
 	args := m.Called(r)
 	return args.Get(0).([]byte), args.Error(1)
@@ -34,7 +42,9 @@ func (m *MockReader) Read(r string) ([]byte, error) {
 func TestFetch(t *testing.T) {
 	mockExecutor := new(MockCmdExecutor)
 	mockReader := new(MockReader)
-	fetcher := fetch.NewFetcher(mockExecutor, mockReader)
+	mockUpdater := new(MockUpdater)
+
+	fetcher := fetch.NewFetcher(mockExecutor, mockReader, mockUpdater)
 	defaultOptionsData, err := os.ReadFile("../../../testdata/nixos-options.json")
 	assert.NoError(t, err)
 
@@ -49,6 +59,7 @@ func TestFetch(t *testing.T) {
 	t.Run("Should successfully fetch options", func(t *testing.T) {
 		mockExecCall := mockExecutor.On("Execute", ctx, nixFile).Return("../../../nix/nixos-options.nix", nil)
 		mockReaderCall := mockReader.On("Read", "../../../nix/nixos-options.nix").Return(defaultOptionsData, nil)
+		mockUpdaterCall := mockUpdater.On("SendMessage", mock.Anything).Return()
 
 		options, err := fetcher.Fetch(ctx, defaultSources)
 		assert.NoError(t, err)
@@ -56,10 +67,12 @@ func TestFetch(t *testing.T) {
 
 		mockExecutor.AssertExpectations(t)
 		mockReader.AssertExpectations(t)
+		mockUpdater.AssertExpectations(t)
 
 		// TODO: refactor this
 		mockExecCall.Unset()
 		mockReaderCall.Unset()
+		mockUpdaterCall.Unset()
 	})
 
 	t.Run("Should fail to read file", func(t *testing.T) {
@@ -67,25 +80,33 @@ func TestFetch(t *testing.T) {
 		mockReaderCall := mockReader.On("Read", "../../../nix/nixos-options.nix").Return(
 			[]byte{}, errors.New("failed to read file"),
 		)
+		mockUpdaterCall := mockUpdater.On("SendMessage", mock.Anything).Return()
 
 		_, err := fetcher.Fetch(ctx, defaultSources)
 		assert.ErrorContains(t, err, "failed to read file")
 
 		mockExecutor.AssertExpectations(t)
 		mockReader.AssertExpectations(t)
+		mockUpdater.AssertExpectations(t)
+
 		mockExecCall.Unset()
 		mockReaderCall.Unset()
+		mockUpdaterCall.Unset()
 	})
 
 	t.Run("Should fail to execute cmd", func(t *testing.T) {
 		mockExecCall := mockExecutor.On("Execute", ctx, nixFile).Return("", errors.New("failed to execute cmd"))
+		mockUpdaterCall := mockUpdater.On("SendMessage", mock.Anything).Return()
 
 		_, err := fetcher.Fetch(ctx, defaultSources)
 		assert.ErrorContains(t, err, "failed to execute cmd")
 
 		mockExecutor.AssertExpectations(t)
 		mockReader.AssertExpectations(t)
+		mockUpdater.AssertExpectations(t)
+
 		mockExecCall.Unset()
+		mockUpdaterCall.Unset()
 	})
 
 	// TODO: add more test cases

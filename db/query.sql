@@ -6,6 +6,7 @@ SELECT
     o.option_type,
     o.default_value,
     o.example,
+    o.option_from,
     GROUP_CONCAT(s.url) AS source_list
 FROM
     options o
@@ -23,7 +24,7 @@ LIMIT
     ?;
 
 -- name: AddOption :one
-INSERT INTO options (option_name, description, option_type, default_value, example) VALUES (?, ?, ?, ?, ?) RETURNING *;
+INSERT INTO options (option_name, description, option_type, option_from, default_value, example) VALUES (?, ?, ?, ?, ?, ?) RETURNING *;
 
 -- name: AddSource :one
 INSERT INTO sources (url) VALUES (?) ON CONFLICT(url) DO UPDATE SET url = excluded.url RETURNING *;

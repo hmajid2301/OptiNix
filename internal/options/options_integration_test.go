@@ -40,13 +40,18 @@ func (n NixCmdExecutor) Execute(_ context.Context, expression string) (string, e
 	return "", nil
 }
 
+type Updater struct{}
+
+func (Updater) SendMessage(_ string) {
+}
+
 func setupSubTest(t *testing.T) (options.Searcher, store.Store, func()) {
 	ctx := context.Background()
 	db := optionstest.CreateDB(ctx, t)
 	dbStore, err := store.NewStore(db)
 	assert.NoError(t, err)
 
-	fetcher := fetch.NewFetcher(NixCmdExecutor{}, NixReader{})
+	fetcher := fetch.NewFetcher(NixCmdExecutor{}, NixReader{}, Updater{})
 	opt := options.NewSearcher(dbStore, fetcher)
 
 	return opt, dbStore, func() {
@@ -145,6 +150,7 @@ func TestIntegrationGetOptions(t *testing.T) {
 			Sources: []string{
 				"https://github.com/nix-community/home-manager/blob/master/modules/accounts/calendar.nix",
 			},
+			OptionFrom: "Home Manager",
 		}
 		assert.Contains(t, nixOpts, expectedOpt)
 	})

@@ -50,12 +50,12 @@ type OptionFile struct {
 	Default      Default      `json:"default"`
 	Description  string       `json:"description"`
 	Example      Example      `json:"example"`
+	Type         string       `json:"type"`
 	Loc          []string     `json:"loc"`
 	ReadOnly     bool         `json:"readOnly"`
-	Type         string       `json:"type"`
 }
 
-func ParseOptions(jsonData []byte) ([]entities.Option, error) {
+func ParseOptions(jsonData []byte, optionFrom string) ([]entities.Option, error) {
 	options := []entities.Option{}
 	var jsonOpts map[string]OptionFile
 	err := json.Unmarshal(jsonData, &jsonOpts)
@@ -70,6 +70,7 @@ func ParseOptions(jsonData []byte) ([]entities.Option, error) {
 			Type:        option.Type,
 			Example:     option.Example.Text,
 			Default:     option.Default.Text,
+			OptionFrom:  optionFrom,
 		}
 
 		for _, declaration := range option.Declarations {

@@ -15,7 +15,7 @@ func TestParse(t *testing.T) {
 		content, err := os.ReadFile("../../../testdata/hm-options.json")
 		assert.NoError(t, err)
 
-		opts, err := fetch.ParseOptions(content)
+		opts, err := fetch.ParseOptions(content, "Home Manager")
 		assert.Len(t, opts, 97)
 		assert.NoError(t, err)
 		option := entities.Option{
@@ -27,6 +27,7 @@ func TestParse(t *testing.T) {
 			Sources: []string{
 				"https://github.com/nix-community/home-manager/blob/master/modules/accounts/calendar.nix",
 			},
+			OptionFrom: "Home Manager",
 		}
 
 		assert.Contains(t, opts, option)
@@ -36,7 +37,7 @@ func TestParse(t *testing.T) {
 		content, err := os.ReadFile("../../../testdata/darwin-options.json")
 		assert.NoError(t, err)
 
-		opts, err := fetch.ParseOptions(content)
+		opts, err := fetch.ParseOptions(content, "Darwin")
 		assert.NoError(t, err)
 		assert.Len(t, opts, 72)
 		option := entities.Option{
@@ -48,6 +49,7 @@ func TestParse(t *testing.T) {
 			Sources: []string{
 				"https://github.com/LnL7/nix-darwin/blob/master/modules/homebrew.nix",
 			},
+			OptionFrom: "Darwin",
 		}
 
 		assert.Contains(t, opts, option)
@@ -57,7 +59,7 @@ func TestParse(t *testing.T) {
 		content, err := os.ReadFile("../../../testdata/nixos-options.json")
 		assert.NoError(t, err)
 
-		opts, err := fetch.ParseOptions(content)
+		opts, err := fetch.ParseOptions(content, "NixOS")
 		assert.NoError(t, err)
 		assert.Len(t, opts, 97)
 		option := entities.Option{
@@ -69,6 +71,7 @@ func TestParse(t *testing.T) {
 			Sources: []string{
 				"https://github.com/nix-community/home-manager/blob/master/modules/accounts/calendar.nix",
 			},
+			OptionFrom: "NixOS",
 		}
 
 		assert.Contains(t, opts, option)
@@ -78,7 +81,7 @@ func TestParse(t *testing.T) {
 		content, err := os.ReadFile("../../../testdata/empty-options.json")
 		assert.NoError(t, err)
 
-		opts, err := fetch.ParseOptions(content)
+		opts, err := fetch.ParseOptions(content, "")
 		assert.NoError(t, err)
 		assert.Len(t, opts, 0)
 	})
@@ -87,7 +90,7 @@ func TestParse(t *testing.T) {
 		content, err := os.ReadFile("../../../testdata/wrong-file.json")
 		assert.NoError(t, err)
 
-		_, err = fetch.ParseOptions(content)
+		_, err = fetch.ParseOptions(content, "")
 		assert.ErrorContains(t, err, "cannot unmarshal array into Go value of type map[string]fetch.OptionFile")
 	})
 
@@ -95,7 +98,7 @@ func TestParse(t *testing.T) {
 		content, err := os.ReadFile("../../../testdata/invalid-json-options.json")
 		assert.NoError(t, err)
 
-		_, err = fetch.ParseOptions(content)
+		_, err = fetch.ParseOptions(content, "")
 		assert.ErrorContains(t, err, "unexpected end of JSON input")
 	})
 }

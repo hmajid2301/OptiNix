@@ -2,7 +2,6 @@ package fetch
 
 import (
 	"context"
-	"fmt"
 	"path/filepath"
 
 	"gitlab.com/hmajid2301/optinix/internal/options/entities"
@@ -16,13 +15,18 @@ type Reader interface {
 	Read(path string) ([]byte, error)
 }
 
-type Fetcher struct {
-	NixCmdExecutor Exectutor
-	reader         Reader
+type Updater interface {
+	SendMessage(msg string)
 }
 
-func NewFetcher(executor Exectutor, reader Reader) Fetcher {
-	return Fetcher{NixCmdExecutor: executor, reader: reader}
+type Fetcher struct {
+	nixCmdExecutor Exectutor
+	reader         Reader
+	updater        Updater
+}
+
+func NewFetcher(executor Exectutor, reader Reader, updater Updater) Fetcher {
+	return Fetcher{nixCmdExecutor: executor, reader: reader, updater: updater}
 }
 
 func (f Fetcher) Fetch(ctx context.Context, sources entities.Sources) ([]entities.Option, error) {
@@ -30,19 +34,27 @@ func (f Fetcher) Fetch(ctx context.Context, sources entities.Sources) ([]entitie
 	for _, source := range []string{sources.NixOS, sources.HomeManager, sources.Darwin} {
 		var path string
 		var err error
+		var optionFrom string
+
+		f.updater.SendMessage("Trying to fetch options")
 
 		switch source {
 		case sources.NixOS:
+			optionFrom = "NixOS"
+			f.updater.SendMessage("Trying to fetch NixOS options")
 			path, err = f.GetNixosDocPath(ctx, source)
 		case sources.HomeManager:
+			optionFrom = "Home Manager"
+			f.updater.SendMessage("Trying to fetch Home Manager options")
 			path, err = f.GetHMDocPath(ctx, source)
 			if err != nil {
-				err = fmt.Errorf(`failed to get home-manager options, try to run:\n`+
-					`nix-channel --add https://github.com/nix-community/home-manager/archive/master.tar.gz home-manager\n`+
-					`nix-channel --update\n\n`+
-					`%s`, err)
+				f.updater.SendMessage(`failed to get home-manager options, try to run:\n` +
+					`nix-channel --add https://github.com/nix-community/home-manager/archive/master.tar.gz home-manager\n` +
+					`nix-channel --update\n\n`)
 			}
 		case sources.Darwin:
+			optionFrom = "Darwin"
+			f.updater.SendMessage("Trying to fetch Darwin options")
 			path, err = f.GetDarwinDocPath(ctx, source)
 		}
 
@@ -55,7 +67,7 @@ func (f Fetcher) Fetch(ctx context.Context, sources entities.Sources) ([]entitie
 			return nil, err
 		}
 
-		opts, err := ParseOptions(contents)
+		opts, err := ParseOptions(contents, optionFrom)
 		if err != nil {
 			return nil, err
 		}
@@ -66,7 +78,7 @@ func (f Fetcher) Fetch(ctx context.Context, sources entities.Sources) ([]entitie
 }
 
 func (f Fetcher) GetHMDocPath(ctx context.Context, expression string) (string, error) {
-	output, err := f.NixCmdExecutor.Execute(ctx, expression)
+	output, err := f.nixCmdExecutor.Execute(ctx, expression)
 	if err != nil {
 		return "", err
 	}
@@ -76,11 +88,11 @@ func (f Fetcher) GetHMDocPath(ctx context.Context, expression string) (string, e
 }
 
 func (f Fetcher) GetNixosDocPath(ctx context.Context, expression string) (string, error) {
-	output, err := f.NixCmdExecutor.Execute(ctx, expression)
+	output, err := f.nixCmdExecutor.Execute(ctx, expression)
 	return output, err
 }
 
 func (f Fetcher) GetDarwinDocPath(ctx context.Context, expression string) (string, error) {
-	output, err := f.NixCmdExecutor.Execute(ctx, expression)
+	output, err := f.nixCmdExecutor.Execute(ctx, expression)
 	return output, err
 }

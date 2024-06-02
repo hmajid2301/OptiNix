@@ -6,6 +6,7 @@ type Option struct {
 	Type        string
 	Default     string
 	Example     string
+	OptionFrom  string
 	Sources     []string
 }
 

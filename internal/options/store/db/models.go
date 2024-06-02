@@ -15,6 +15,7 @@ type Option struct {
 	OptionName   string
 	Description  string
 	OptionType   string
+	OptionFrom   string
 	DefaultValue string
 	Example      string
 }

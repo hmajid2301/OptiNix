@@ -47,6 +47,7 @@ func (s Store) AddOptions(ctx context.Context, options []entities.Option) (err e
 			OptionName:   option.Name,
 			Description:  option.Description,
 			OptionType:   option.Type,
+			OptionFrom:   option.OptionFrom,
 			DefaultValue: option.Default,
 			Example:      option.Example,
 		}
@@ -91,6 +92,7 @@ func (s Store) FindOptions(ctx context.Context, name string, limit int64) ([]ent
 			Name:        opt.OptionName,
 			Description: opt.Description,
 			Type:        opt.OptionType,
+			OptionFrom:  opt.OptionFrom,
 			Default:     opt.DefaultValue,
 			Example:     opt.Example,
 			Sources:     sources,

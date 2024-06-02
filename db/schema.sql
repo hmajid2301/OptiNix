@@ -5,6 +5,7 @@ CREATE TABLE IF NOT EXISTS options (
     option_name TEXT NOT NULL,
     description TEXT NOT NULL,
     option_type TEXT NOT NULL,
+    option_from TEXT NOT NULL,
     default_value TEXT NOT NULL,
     example TEXT NOT NULL
 );

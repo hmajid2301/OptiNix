@@ -40,6 +40,7 @@ func TestIntegrationAddOptions(t *testing.T) {
 				Type:        "str",
 				Default:     "default",
 				Example:     "example",
+				OptionFrom:  "nixos",
 				Sources:     []string{"http://example.com"},
 			},
 			{
@@ -48,6 +49,7 @@ func TestIntegrationAddOptions(t *testing.T) {
 				Type:        "str",
 				Default:     "default",
 				Example:     "example",
+				OptionFrom:  "home-manager",
 				Sources:     []string{"http://example1.com"},
 			},
 		}
