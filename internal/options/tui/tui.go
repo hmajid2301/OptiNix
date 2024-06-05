@@ -1,8 +1,6 @@
 package tui
 
 import (
-	"context"
-	"database/sql"
 	"fmt"
 	"strings"
 
@@ -13,26 +11,20 @@ import (
 	"github.com/charmbracelet/lipgloss"
 
 	"github.com/charmbracelet/glamour"
-
-	"gitlab.com/hmajid2301/optinix/internal/options"
-	"gitlab.com/hmajid2301/optinix/internal/options/entities"
-	"gitlab.com/hmajid2301/optinix/internal/options/fetch"
-	"gitlab.com/hmajid2301/optinix/internal/options/nix"
-	"gitlab.com/hmajid2301/optinix/internal/options/store"
 )
 
-type item struct {
-	title        string
-	description  string
-	defaultValue string
-	optionType   string
-	optionFrom   string
-	sources      []string
+type Item struct {
+	OptionName   string
+	OptionType   string
+	OptionFrom   string
+	Desc         string
+	DefaultValue string
+	Sources      []string
 }
 
-func (i item) Title() string       { return i.title }
-func (i item) Description() string { return i.description }
-func (i item) FilterValue() string { return i.title }
+func (i Item) Title() string       { return i.OptionName }
+func (i Item) Description() string { return i.Desc }
+func (i Item) FilterValue() string { return i.OptionName }
 
 type Model struct {
 	spinner    spinner.Model
@@ -41,16 +33,14 @@ type Model struct {
 	docStyle   lipgloss.Style
 	glammy     glamour.TermRenderer
 	showGlammy bool
-	ctx        context.Context
-	db         *sql.DB
-	flag       ArgsAndFlags
+	getOptions tea.Cmd
 }
 
-type doneMsg struct {
-	list []list.Item
+type DoneMsg struct {
+	List []list.Item
 }
 
-func NewTUI(ctx context.Context, db *sql.DB, flag ArgsAndFlags) *Model {
+func NewTUI(getOptions tea.Cmd) Model {
 	//nolint: mnd
 	docStyle := lipgloss.NewStyle().Margin(1, 2)
 
@@ -68,7 +58,7 @@ func NewTUI(ctx context.Context, db *sql.DB, flag ArgsAndFlags) *Model {
 	s := spinner.New()
 	s.Spinner = spinner.Dot
 	s.Style = lipgloss.NewStyle().Foreground(lipgloss.Color("205"))
-	return &Model{docStyle: docStyle, list: l, glammy: *glammy, keys: listKeys, ctx: ctx, db: db, flag: flag, spinner: s}
+	return Model{docStyle: docStyle, list: l, glammy: *glammy, keys: listKeys, getOptions: getOptions, spinner: s}
 }
 
 type listKeyMap struct {
@@ -83,38 +73,11 @@ func newListKeyMap() *listKeyMap {
 	}
 }
 
-func (m *Model) Init() tea.Cmd {
-	return tea.Batch(m.spinner.Tick, startLongRunningProcess(m))
+func (m Model) Init() tea.Cmd {
+	return tea.Batch(m.spinner.Tick, m.getOptions)
 }
 
-func startLongRunningProcess(m *Model) tea.Cmd {
-	return func() tea.Msg {
-		options, err := FindOptions(m.ctx, m.db, m.flag)
-		if err != nil {
-			tea.Printf("Failed to get options %s\n", err)
-		}
-
-		optsList := []list.Item{}
-		for _, opt := range options {
-			newDescription := strings.ReplaceAll(opt.Description, ".", ".\n")
-			listItem := item{
-				title:        opt.Name,
-				description:  newDescription,
-				defaultValue: opt.Default,
-				optionType:   opt.Type,
-				optionFrom:   opt.OptionFrom,
-				sources:      opt.Sources,
-			}
-			optsList = append(optsList, listItem)
-		}
-
-		return doneMsg{
-			list: optsList,
-		}
-	}
-}
-
-func (m *Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
 		switch {
@@ -133,9 +96,9 @@ func (m *Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		var cmd tea.Cmd
 		m.spinner, cmd = m.spinner.Update(msg)
 		return m, cmd
-	case doneMsg:
+	case DoneMsg:
 		cmds := []tea.Cmd{}
-		for _, newItem := range msg.list {
+		for _, newItem := range msg.List {
 			insCmd := m.list.InsertItem(0, newItem)
 			cmds = append(cmds, insCmd)
 		}
@@ -147,13 +110,13 @@ func (m *Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	return m, cmd
 }
 
-func (m *Model) View() string {
+func (m Model) View() string {
 	if len(m.list.Items()) == 0 {
 		return m.spinner.View()
 	}
 
 	if m.showGlammy {
-		selectedItem := m.list.SelectedItem().(item)
+		selectedItem := m.list.SelectedItem().(Item)
 		markdown := renderMarkdown(selectedItem)
 		markdownString, _ := m.glammy.Render(markdown)
 		return markdownString
@@ -162,7 +125,7 @@ func (m *Model) View() string {
 	return m.list.View()
 }
 
-func renderMarkdown(item item) string {
+func renderMarkdown(item Item) string {
 	template := `
 # %s
 
@@ -184,13 +147,13 @@ From: %s
 
 Declared in
 `
-	markdown := fmt.Sprintf(template, item.title, item.description, item.optionType, item.defaultValue, item.optionFrom)
+	markdown := fmt.Sprintf(template, item.OptionName, item.Desc, item.OptionType, item.DefaultValue, item.OptionFrom)
 
 	// INFO: Convert a source from this path:
 	// /nix/store/sdfiiqwrf78i47gzld1favdx9m5ms1cj5pb1dx0brbrbigy8ij-source/nixos/modules/programs/wayland/hyprland.nix
 	// to this URL:
 	// https://github.com/nixos/nixpkgs/blob/master/nixos/modules/programs/wayland/hyprland.nix
-	for _, source := range item.sources {
+	for _, source := range item.Sources {
 		index := strings.Index(source, "nixos/modules")
 		if index == -1 {
 			continue
@@ -202,51 +165,4 @@ Declared in
 		markdown += sourceMarkdown
 	}
 	return markdown
-}
-
-type ArgsAndFlags struct {
-	OptionName   string
-	Limit        int64
-	ForceRefresh bool
-}
-
-// TODO: better name
-type Updater struct{}
-
-func (u Updater) SendMessage(msg string) {
-	tea.Println(msg)
-}
-
-func FindOptions(ctx context.Context,
-	db *sql.DB,
-	flags ArgsAndFlags,
-) (opts []entities.Option, err error) {
-	myStore, err := store.NewStore(db)
-	if err != nil {
-		return nil, err
-	}
-
-	nixExecutor := nix.NewCmdExecutor()
-	nixReader := nix.NewReader()
-	updater := Updater{}
-	fetcher := fetch.NewFetcher(nixExecutor, nixReader, updater)
-
-	opt := options.NewSearcher(myStore, fetcher)
-
-	sources := entities.Sources{
-		NixOS:       "nix/nixos-options.nix",
-		HomeManager: "nix/hm-options.nix",
-		Darwin:      "nix/darwin-options.nix",
-	}
-	err = opt.SaveOptions(ctx, sources, flags.ForceRefresh)
-	if err != nil {
-		return nil, err
-	}
-
-	opts, err = opt.GetOptions(ctx, flags.OptionName, flags.Limit)
-	if err != nil {
-		return nil, err
-	}
-
-	return opts, nil
 }

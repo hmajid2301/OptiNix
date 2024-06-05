@@ -4,14 +4,20 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"strings"
 
 	// used to connect to sqlite
 	_ "modernc.org/sqlite"
 
+	"gitlab.com/hmajid2301/optinix/internal/options"
 	"gitlab.com/hmajid2301/optinix/internal/options/config"
+	"gitlab.com/hmajid2301/optinix/internal/options/entities"
+	"gitlab.com/hmajid2301/optinix/internal/options/fetch"
+	"gitlab.com/hmajid2301/optinix/internal/options/nix"
 	"gitlab.com/hmajid2301/optinix/internal/options/store"
 	"gitlab.com/hmajid2301/optinix/internal/options/tui"
 
+	"github.com/charmbracelet/bubbles/list"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/spf13/cobra"
 )
@@ -41,13 +47,14 @@ func Execute(ctx context.Context, ddl string) error {
 			limit, _ = cmd.Flags().GetInt64("limit")
 		},
 		RunE: func(_ *cobra.Command, args []string) error {
-			flags := tui.ArgsAndFlags{
+			flags := ArgsAndFlags{
 				OptionName:   args[0],
 				ForceRefresh: forceRefresh,
 				Limit:        limit,
 			}
 
-			p := tea.NewProgram(tui.NewTUI(ctx, db, flags))
+			startLongRunningProcess := startLongRunningProcess(ctx, db, flags)
+			p := tea.NewProgram(tui.NewTUI(startLongRunningProcess))
 			if _, err := p.Run(); err != nil {
 				fmt.Println(err)
 			}
@@ -60,6 +67,80 @@ func Execute(ctx context.Context, ddl string) error {
 	//nolint: mnd
 	rootCmd.Flags().Int64Var(&limit, "limit", 10, "Limit the number of results returned")
 	return rootCmd.ExecuteContext(ctx)
+}
+
+func startLongRunningProcess(ctx context.Context, db *sql.DB, flag ArgsAndFlags) tea.Cmd {
+	return func() tea.Msg {
+		options, err := FindOptions(ctx, db, flag)
+		if err != nil {
+			tea.Printf("Failed to get options %s\n", err)
+		}
+
+		optsList := []list.Item{}
+		for _, opt := range options {
+			newDescription := strings.ReplaceAll(opt.Description, ".", ".\n")
+			listItem := tui.Item{
+				OptionName:   opt.Name,
+				Desc:         newDescription,
+				DefaultValue: opt.Default,
+				OptionType:   opt.Type,
+				OptionFrom:   opt.OptionFrom,
+				Sources:      opt.Sources,
+			}
+			optsList = append(optsList, listItem)
+		}
+
+		return tui.DoneMsg{
+			List: optsList,
+		}
+	}
+}
+
+// TODO: better name
+type Updater struct{}
+
+func (u Updater) SendMessage(msg string) {
+	fmt.Println(msg)
+}
+
+type ArgsAndFlags struct {
+	OptionName   string
+	Limit        int64
+	ForceRefresh bool
+}
+
+func FindOptions(ctx context.Context,
+	db *sql.DB,
+	flags ArgsAndFlags,
+) (opts []entities.Option, err error) {
+	myStore, err := store.NewStore(db)
+	if err != nil {
+		return nil, err
+	}
+
+	nixExecutor := nix.NewCmdExecutor()
+	nixReader := nix.NewReader()
+	updater := Updater{}
+	fetcher := fetch.NewFetcher(nixExecutor, nixReader, updater)
+
+	opt := options.NewSearcher(myStore, fetcher)
+
+	sources := entities.Sources{
+		NixOS:       "nix/nixos-options.nix",
+		HomeManager: "nix/hm-options.nix",
+		Darwin:      "nix/darwin-options.nix",
+	}
+	err = opt.SaveOptions(ctx, sources, flags.ForceRefresh)
+	if err != nil {
+		return nil, err
+	}
+
+	opts, err = opt.GetOptions(ctx, flags.OptionName, flags.Limit)
+	if err != nil {
+		return nil, err
+	}
+
+	return opts, nil
 }
 
 func getDB(ctx context.Context, ddl string) (*sql.DB, error) {
