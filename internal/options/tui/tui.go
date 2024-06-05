@@ -154,13 +154,13 @@ Declared in
 	// to this URL:
 	// https://github.com/nixos/nixpkgs/blob/master/nixos/modules/programs/wayland/hyprland.nix
 	for _, source := range item.Sources {
+		url := source
 		index := strings.Index(source, "nixos/modules")
-		if index == -1 {
-			continue
+		if index != -1 {
+			part := source[index:]
+			url = "https://github.com/nixos/nixpkgs/blob/master/" + part
 		}
 
-		part := source[index:]
-		url := "https://github.com/nixos/nixpkgs/blob/master/" + part
 		sourceMarkdown := fmt.Sprintf(" - %s\n", url)
 		markdown += sourceMarkdown
 	}
