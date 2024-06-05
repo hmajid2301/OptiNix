@@ -36,8 +36,6 @@ func (f Fetcher) Fetch(ctx context.Context, sources entities.Sources) ([]entitie
 		var err error
 		var optionFrom string
 
-		f.updater.SendMessage("Trying to fetch options")
-
 		switch source {
 		case sources.NixOS:
 			optionFrom = "NixOS"

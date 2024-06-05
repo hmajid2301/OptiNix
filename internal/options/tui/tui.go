@@ -8,6 +8,7 @@ import (
 
 	"github.com/charmbracelet/bubbles/key"
 	"github.com/charmbracelet/bubbles/list"
+	"github.com/charmbracelet/bubbles/spinner"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 
@@ -34,36 +35,24 @@ func (i item) Description() string { return i.description }
 func (i item) FilterValue() string { return i.title }
 
 type Model struct {
+	spinner    spinner.Model
 	keys       *listKeyMap
 	list       list.Model
 	docStyle   lipgloss.Style
 	glammy     glamour.TermRenderer
 	showGlammy bool
+	ctx        context.Context
+	db         *sql.DB
+	flag       ArgsAndFlags
 }
 
-func NewTUI(ctx context.Context, db *sql.DB, flag ArgsAndFlags) Model {
+type doneMsg struct {
+	list []list.Item
+}
+
+func NewTUI(ctx context.Context, db *sql.DB, flag ArgsAndFlags) *Model {
 	//nolint: mnd
 	docStyle := lipgloss.NewStyle().Margin(1, 2)
-
-	options, err := FindOptions(ctx, db, flag)
-	if err != nil {
-		tea.Printf("Failed to get options %s\n", err)
-	}
-
-	optsList := []list.Item{}
-	for _, opt := range options {
-		newDescription := strings.ReplaceAll(opt.Description, ".", ".\n")
-		listItem := item{
-			title:        opt.Name,
-			description:  newDescription,
-			defaultValue: opt.Default,
-			optionType:   opt.Type,
-			optionFrom:   opt.OptionFrom,
-			sources:      opt.Sources,
-		}
-		optsList = append(optsList, listItem)
-	}
-	l := list.New(optsList, list.NewDefaultDelegate(), 0, 0)
 
 	// TODO: Handle errors
 	// TODO: Terminal Width set to 120
@@ -72,8 +61,14 @@ func NewTUI(ctx context.Context, db *sql.DB, flag ArgsAndFlags) Model {
 		//nolint: mnd
 		glamour.WithWordWrap(120))
 
+	optsList := []list.Item{}
+	l := list.New(optsList, list.NewDefaultDelegate(), 0, 0)
 	listKeys := newListKeyMap()
-	return Model{docStyle: docStyle, list: l, glammy: *glammy, keys: listKeys}
+
+	s := spinner.New()
+	s.Spinner = spinner.Dot
+	s.Style = lipgloss.NewStyle().Foreground(lipgloss.Color("205"))
+	return &Model{docStyle: docStyle, list: l, glammy: *glammy, keys: listKeys, ctx: ctx, db: db, flag: flag, spinner: s}
 }
 
 type listKeyMap struct {
@@ -88,11 +83,38 @@ func newListKeyMap() *listKeyMap {
 	}
 }
 
-func (m Model) Init() tea.Cmd {
-	return nil
+func (m *Model) Init() tea.Cmd {
+	return tea.Batch(m.spinner.Tick, startLongRunningProcess(m))
 }
 
-func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+func startLongRunningProcess(m *Model) tea.Cmd {
+	return func() tea.Msg {
+		options, err := FindOptions(m.ctx, m.db, m.flag)
+		if err != nil {
+			tea.Printf("Failed to get options %s\n", err)
+		}
+
+		optsList := []list.Item{}
+		for _, opt := range options {
+			newDescription := strings.ReplaceAll(opt.Description, ".", ".\n")
+			listItem := item{
+				title:        opt.Name,
+				description:  newDescription,
+				defaultValue: opt.Default,
+				optionType:   opt.Type,
+				optionFrom:   opt.OptionFrom,
+				sources:      opt.Sources,
+			}
+			optsList = append(optsList, listItem)
+		}
+
+		return doneMsg{
+			list: optsList,
+		}
+	}
+}
+
+func (m *Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
 		switch {
@@ -100,13 +122,24 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			return m, tea.Quit
 
 		case key.Matches(msg, m.keys.openModal):
-			cmd := m.list.NewStatusMessage(fmt.Sprint(m.list.Index()))
 			m.showGlammy = !m.showGlammy
-			return m, tea.Batch(cmd)
+			return m, nil
 		}
+
 	case tea.WindowSizeMsg:
 		h, v := m.docStyle.GetFrameSize()
 		m.list.SetSize(msg.Width-h, msg.Height-v)
+	case spinner.TickMsg:
+		var cmd tea.Cmd
+		m.spinner, cmd = m.spinner.Update(msg)
+		return m, cmd
+	case doneMsg:
+		cmds := []tea.Cmd{}
+		for _, newItem := range msg.list {
+			insCmd := m.list.InsertItem(0, newItem)
+			cmds = append(cmds, insCmd)
+		}
+		return m, tea.Batch(cmds...)
 	}
 
 	var cmd tea.Cmd
@@ -114,14 +147,19 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	return m, cmd
 }
 
-func (m Model) View() string {
+func (m *Model) View() string {
+	if len(m.list.Items()) == 0 {
+		return m.spinner.View()
+	}
+
 	if m.showGlammy {
 		selectedItem := m.list.SelectedItem().(item)
 		markdown := renderMarkdown(selectedItem)
 		markdownString, _ := m.glammy.Render(markdown)
 		return markdownString
 	}
-	return m.docStyle.Render(m.list.View())
+
+	return m.list.View()
 }
 
 func renderMarkdown(item item) string {
