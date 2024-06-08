@@ -54,7 +54,12 @@ func Execute(ctx context.Context, ddl string) error {
 			}
 
 			startLongRunningProcess := startLongRunningProcess(ctx, db, flags)
-			p := tea.NewProgram(tui.NewTUI(startLongRunningProcess))
+			t, err := tui.NewTUI(startLongRunningProcess)
+			if err != nil {
+				return err
+			}
+
+			p := tea.NewProgram(t)
 			if _, err := p.Run(); err != nil {
 				fmt.Println(err)
 			}
@@ -96,13 +101,6 @@ func startLongRunningProcess(ctx context.Context, db *sql.DB, flag ArgsAndFlags)
 	}
 }
 
-// TODO: better name
-type Updater struct{}
-
-func (u Updater) SendMessage(msg string) {
-	fmt.Println(msg)
-}
-
 type ArgsAndFlags struct {
 	OptionName   string
 	Limit        int64
@@ -120,8 +118,8 @@ func FindOptions(ctx context.Context,
 
 	nixExecutor := nix.NewCmdExecutor()
 	nixReader := nix.NewReader()
-	updater := Updater{}
-	fetcher := fetch.NewFetcher(nixExecutor, nixReader, updater)
+	messenger := nix.NewMessenger()
+	fetcher := fetch.NewFetcher(nixExecutor, nixReader, messenger)
 
 	opt := options.NewSearcher(myStore, fetcher)
 

@@ -42,7 +42,7 @@ func (n NixCmdExecutor) Execute(_ context.Context, expression string) (string, e
 
 type Updater struct{}
 
-func (Updater) SendMessage(_ string) {
+func (Updater) Send(_ string) {
 }
 
 func setupSubTest(t *testing.T) (options.Searcher, store.Store, func()) {

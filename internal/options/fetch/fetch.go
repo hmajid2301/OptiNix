@@ -2,6 +2,7 @@ package fetch
 
 import (
 	"context"
+	"fmt"
 	"path/filepath"
 
 	"gitlab.com/hmajid2301/optinix/internal/options/entities"
@@ -15,18 +16,18 @@ type Reader interface {
 	Read(path string) ([]byte, error)
 }
 
-type Updater interface {
-	SendMessage(msg string)
+type Messager interface {
+	Send(msg string)
 }
 
 type Fetcher struct {
 	nixCmdExecutor Exectutor
 	reader         Reader
-	updater        Updater
+	Messager       Messager
 }
 
-func NewFetcher(executor Exectutor, reader Reader, updater Updater) Fetcher {
-	return Fetcher{nixCmdExecutor: executor, reader: reader, updater: updater}
+func NewFetcher(executor Exectutor, reader Reader, messager Messager) Fetcher {
+	return Fetcher{nixCmdExecutor: executor, reader: reader, Messager: messager}
 }
 
 func (f Fetcher) Fetch(ctx context.Context, sources entities.Sources) ([]entities.Option, error) {
@@ -39,23 +40,24 @@ func (f Fetcher) Fetch(ctx context.Context, sources entities.Sources) ([]entitie
 		switch source {
 		case sources.NixOS:
 			optionFrom = "NixOS"
-			f.updater.SendMessage("Trying to fetch NixOS options")
+			f.Messager.Send("Trying to fetch NixOS options")
 			path, err = f.GetNixosDocPath(ctx, source)
 		case sources.HomeManager:
 			optionFrom = "Home Manager"
-			f.updater.SendMessage("Trying to fetch Home Manager options")
+			f.Messager.Send("Trying to fetch Home Manager options")
 			path, err = f.GetHMDocPath(ctx, source)
 			if err != nil {
-				f.updater.SendMessage(`failed to get home-manager options, try to run:\n` +
+				f.Messager.Send(`failed to get home-manager options, try to run:\n` +
 					`nix-channel --add https://github.com/nix-community/home-manager/archive/master.tar.gz home-manager\n` +
 					`nix-channel --update\n\n`)
 			}
 		case sources.Darwin:
 			optionFrom = "Darwin"
-			f.updater.SendMessage("Trying to fetch Darwin options")
+			f.Messager.Send("Trying to fetch Darwin options")
 			path, err = f.GetDarwinDocPath(ctx, source)
 		}
 
+		f.Messager.Send(fmt.Sprintf("err: %s", err))
 		if err != nil {
 			return nil, err
 		}

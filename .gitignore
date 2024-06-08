@@ -74,3 +74,5 @@ testdata/options.db-wal
 
 result
 __debug_bin*
+
+bin/optinix

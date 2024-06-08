@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"fmt"
+	"os"
 	"os/exec"
 	"strings"
 )
@@ -21,10 +22,13 @@ func (CmdExecutor) Execute(ctx context.Context, expression string) (string, erro
 		"NIXPKGS_ALLOW_BROKEN=1",
 		"NIXPKGS_ALLOW_INSECURE=1",
 		"NIXPKGS_ALLOW_UNSUPPORTED_SYSTEM=1",
-		// TODO: why does this needed on NixOS but not on Ubuntu
-		"NIX_PATH=/etc/nix/inputs",
 		"--no-out-link",
 	)
+
+	if nixPath, ok := os.LookupEnv("NIX_PATH"); ok {
+		cmd.Env = append(cmd.Env, fmt.Sprintf("NIX_PATH=%s", nixPath))
+	}
+
 	var stderr bytes.Buffer
 	cmd.Stderr = &stderr
 

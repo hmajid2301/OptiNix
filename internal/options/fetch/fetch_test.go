@@ -26,11 +26,11 @@ type MockReader struct {
 	mock.Mock
 }
 
-type MockUpdater struct {
+type MockMessenger struct {
 	mock.Mock
 }
 
-func (m *MockUpdater) SendMessage(msg string) {
+func (m *MockMessenger) Send(msg string) {
 	m.Called(msg)
 }
 
@@ -42,7 +42,7 @@ func (m *MockReader) Read(r string) ([]byte, error) {
 func TestFetch(t *testing.T) {
 	mockExecutor := new(MockCmdExecutor)
 	mockReader := new(MockReader)
-	mockUpdater := new(MockUpdater)
+	mockUpdater := new(MockMessenger)
 
 	fetcher := fetch.NewFetcher(mockExecutor, mockReader, mockUpdater)
 	defaultOptionsData, err := os.ReadFile("../../../testdata/nixos-options.json")
@@ -59,7 +59,7 @@ func TestFetch(t *testing.T) {
 	t.Run("Should successfully fetch options", func(t *testing.T) {
 		mockExecCall := mockExecutor.On("Execute", ctx, nixFile).Return("../../../nix/nixos-options.nix", nil)
 		mockReaderCall := mockReader.On("Read", "../../../nix/nixos-options.nix").Return(defaultOptionsData, nil)
-		mockUpdaterCall := mockUpdater.On("SendMessage", mock.Anything).Return()
+		mockUpdaterCall := mockUpdater.On("Send", mock.Anything).Return()
 
 		options, err := fetcher.Fetch(ctx, defaultSources)
 		assert.NoError(t, err)
@@ -80,7 +80,7 @@ func TestFetch(t *testing.T) {
 		mockReaderCall := mockReader.On("Read", "../../../nix/nixos-options.nix").Return(
 			[]byte{}, errors.New("failed to read file"),
 		)
-		mockUpdaterCall := mockUpdater.On("SendMessage", mock.Anything).Return()
+		mockUpdaterCall := mockUpdater.On("Send", mock.Anything).Return()
 
 		_, err := fetcher.Fetch(ctx, defaultSources)
 		assert.ErrorContains(t, err, "failed to read file")
@@ -96,7 +96,7 @@ func TestFetch(t *testing.T) {
 
 	t.Run("Should fail to execute cmd", func(t *testing.T) {
 		mockExecCall := mockExecutor.On("Execute", ctx, nixFile).Return("", errors.New("failed to execute cmd"))
-		mockUpdaterCall := mockUpdater.On("SendMessage", mock.Anything).Return()
+		mockUpdaterCall := mockUpdater.On("Send", mock.Anything).Return()
 
 		_, err := fetcher.Fetch(ctx, defaultSources)
 		assert.ErrorContains(t, err, "failed to execute cmd")

@@ -32,24 +32,25 @@ type Model struct {
 	list       list.Model
 	docStyle   lipgloss.Style
 	glammy     glamour.TermRenderer
-	showGlammy bool
 	getOptions tea.Cmd
+	showGlammy bool
 }
 
 type DoneMsg struct {
 	List []list.Item
 }
 
-func NewTUI(getOptions tea.Cmd) Model {
-	//nolint: mnd
-	docStyle := lipgloss.NewStyle().Margin(1, 2)
+func NewTUI(getOptions tea.Cmd) (Model, error) {
+	docStyle := lipgloss.NewStyle()
 
-	// TODO: Handle errors
-	// TODO: Terminal Width set to 120
-	glammy, _ := glamour.NewTermRenderer(
+	wordWrap := 80
+	glammy, err := glamour.NewTermRenderer(
 		glamour.WithAutoStyle(),
-		//nolint: mnd
-		glamour.WithWordWrap(120))
+		glamour.WithWordWrap(wordWrap))
+
+	if err != nil {
+		return Model{}, err
+	}
 
 	optsList := []list.Item{}
 	l := list.New(optsList, list.NewDefaultDelegate(), 0, 0)
@@ -58,7 +59,7 @@ func NewTUI(getOptions tea.Cmd) Model {
 	s := spinner.New()
 	s.Spinner = spinner.Dot
 	s.Style = lipgloss.NewStyle().Foreground(lipgloss.Color("205"))
-	return Model{docStyle: docStyle, list: l, glammy: *glammy, keys: listKeys, getOptions: getOptions, spinner: s}
+	return Model{docStyle: docStyle, list: l, glammy: *glammy, keys: listKeys, getOptions: getOptions, spinner: s}, nil
 }
 
 type listKeyMap struct {
