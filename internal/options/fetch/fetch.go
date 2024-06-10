@@ -23,11 +23,11 @@ type Messager interface {
 type Fetcher struct {
 	nixCmdExecutor Exectutor
 	reader         Reader
-	Messager       Messager
+	messenger      Messager
 }
 
 func NewFetcher(executor Exectutor, reader Reader, messager Messager) Fetcher {
-	return Fetcher{nixCmdExecutor: executor, reader: reader, Messager: messager}
+	return Fetcher{nixCmdExecutor: executor, reader: reader, messenger: messager}
 }
 
 func (f Fetcher) Fetch(ctx context.Context, sources entities.Sources) ([]entities.Option, error) {
@@ -37,27 +37,31 @@ func (f Fetcher) Fetch(ctx context.Context, sources entities.Sources) ([]entitie
 		var err error
 		var optionFrom string
 
+		if source == "" {
+			continue
+		}
+
 		switch source {
 		case sources.NixOS:
 			optionFrom = "NixOS"
-			f.Messager.Send("Trying to fetch NixOS options")
-			path, err = f.GetNixosDocPath(ctx, source)
+			f.messenger.Send("Trying to fetch NixOS options")
+			path, err = f.getNixosDocPath(ctx, source)
 		case sources.HomeManager:
 			optionFrom = "Home Manager"
-			f.Messager.Send("Trying to fetch Home Manager options")
-			path, err = f.GetHMDocPath(ctx, source)
+			f.messenger.Send("Trying to fetch Home Manager options")
+			path, err = f.getHMDocPath(ctx, source)
 			if err != nil {
-				f.Messager.Send(`failed to get home-manager options, try to run:\n` +
+				f.messenger.Send(`failed to get home-manager options, try to run:\n` +
 					`nix-channel --add https://github.com/nix-community/home-manager/archive/master.tar.gz home-manager\n` +
 					`nix-channel --update\n\n`)
 			}
 		case sources.Darwin:
 			optionFrom = "Darwin"
-			f.Messager.Send("Trying to fetch Darwin options")
-			path, err = f.GetDarwinDocPath(ctx, source)
+			f.messenger.Send("Trying to fetch Darwin options")
+			path, err = f.getDarwinDocPath(ctx, source)
 		}
 
-		f.Messager.Send(fmt.Sprintf("err: %s", err))
+		f.messenger.Send(fmt.Sprintf("err: %s", err))
 		if err != nil {
 			return nil, err
 		}
@@ -77,7 +81,7 @@ func (f Fetcher) Fetch(ctx context.Context, sources entities.Sources) ([]entitie
 	return options, nil
 }
 
-func (f Fetcher) GetHMDocPath(ctx context.Context, expression string) (string, error) {
+func (f Fetcher) getHMDocPath(ctx context.Context, expression string) (string, error) {
 	output, err := f.nixCmdExecutor.Execute(ctx, expression)
 	if err != nil {
 		return "", err
@@ -87,12 +91,12 @@ func (f Fetcher) GetHMDocPath(ctx context.Context, expression string) (string, e
 	return path, nil
 }
 
-func (f Fetcher) GetNixosDocPath(ctx context.Context, expression string) (string, error) {
+func (f Fetcher) getNixosDocPath(ctx context.Context, expression string) (string, error) {
 	output, err := f.nixCmdExecutor.Execute(ctx, expression)
 	return output, err
 }
 
-func (f Fetcher) GetDarwinDocPath(ctx context.Context, expression string) (string, error) {
+func (f Fetcher) getDarwinDocPath(ctx context.Context, expression string) (string, error) {
 	output, err := f.nixCmdExecutor.Execute(ctx, expression)
 	return output, err
 }

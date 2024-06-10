@@ -18,6 +18,7 @@ type Item struct {
 	OptionType   string
 	OptionFrom   string
 	Desc         string
+	Example      string
 	DefaultValue string
 	Sources      []string
 }
@@ -142,13 +143,25 @@ func renderMarkdown(item Item) string {
 
 %s
 
+## Example
+
+%s
+
 ## Sources
 
 From: %s
 
 Declared in
 `
-	markdown := fmt.Sprintf(template, item.OptionName, item.Desc, item.OptionType, item.DefaultValue, item.OptionFrom)
+	markdown := fmt.Sprintf(
+		template,
+		item.OptionName,
+		item.Desc,
+		item.Example,
+		item.OptionType,
+		item.DefaultValue,
+		item.OptionFrom,
+	)
 
 	// INFO: Convert a source from this path:
 	// /nix/store/sdfiiqwrf78i47gzld1favdx9m5ms1cj5pb1dx0brbrbigy8ij-source/nixos/modules/programs/wayland/hyprland.nix

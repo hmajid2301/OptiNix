@@ -53,13 +53,13 @@ func Execute(ctx context.Context, ddl string) error {
 				Limit:        limit,
 			}
 
-			startLongRunningProcess := startLongRunningProcess(ctx, db, flags)
-			t, err := tui.NewTUI(startLongRunningProcess)
+			getOptionsFunc := GetOptions(ctx, db, flags)
+			myTui, err := tui.NewTUI(getOptionsFunc)
 			if err != nil {
 				return err
 			}
 
-			p := tea.NewProgram(t)
+			p := tea.NewProgram(myTui)
 			if _, err := p.Run(); err != nil {
 				fmt.Println(err)
 			}
@@ -74,7 +74,7 @@ func Execute(ctx context.Context, ddl string) error {
 	return rootCmd.ExecuteContext(ctx)
 }
 
-func startLongRunningProcess(ctx context.Context, db *sql.DB, flag ArgsAndFlags) tea.Cmd {
+func GetOptions(ctx context.Context, db *sql.DB, flag ArgsAndFlags) tea.Cmd {
 	return func() tea.Msg {
 		options, err := FindOptions(ctx, db, flag)
 		if err != nil {
@@ -88,6 +88,7 @@ func startLongRunningProcess(ctx context.Context, db *sql.DB, flag ArgsAndFlags)
 				OptionName:   opt.Name,
 				Desc:         newDescription,
 				DefaultValue: opt.Default,
+				Example:      opt.Example,
 				OptionType:   opt.Type,
 				OptionFrom:   opt.OptionFrom,
 				Sources:      opt.Sources,

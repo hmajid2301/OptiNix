@@ -22,16 +22,16 @@ func (m *MockCmdExecutor) Execute(ctx context.Context, path string) (string, err
 	return args.String(0), args.Error(1)
 }
 
-type MockReader struct {
-	mock.Mock
-}
-
 type MockMessenger struct {
 	mock.Mock
 }
 
 func (m *MockMessenger) Send(msg string) {
 	m.Called(msg)
+}
+
+type MockReader struct {
+	mock.Mock
 }
 
 func (m *MockReader) Read(r string) ([]byte, error) {
@@ -42,9 +42,9 @@ func (m *MockReader) Read(r string) ([]byte, error) {
 func TestFetch(t *testing.T) {
 	mockExecutor := new(MockCmdExecutor)
 	mockReader := new(MockReader)
-	mockUpdater := new(MockMessenger)
+	mockMessenger := new(MockMessenger)
 
-	fetcher := fetch.NewFetcher(mockExecutor, mockReader, mockUpdater)
+	fetcher := fetch.NewFetcher(mockExecutor, mockReader, mockMessenger)
 	defaultOptionsData, err := os.ReadFile("../../../testdata/nixos-options.json")
 	assert.NoError(t, err)
 
@@ -59,7 +59,7 @@ func TestFetch(t *testing.T) {
 	t.Run("Should successfully fetch options", func(t *testing.T) {
 		mockExecCall := mockExecutor.On("Execute", ctx, nixFile).Return("../../../nix/nixos-options.nix", nil)
 		mockReaderCall := mockReader.On("Read", "../../../nix/nixos-options.nix").Return(defaultOptionsData, nil)
-		mockUpdaterCall := mockUpdater.On("Send", mock.Anything).Return()
+		mockMessengerCall := mockMessenger.On("Send", mock.Anything).Return()
 
 		options, err := fetcher.Fetch(ctx, defaultSources)
 		assert.NoError(t, err)
@@ -67,12 +67,11 @@ func TestFetch(t *testing.T) {
 
 		mockExecutor.AssertExpectations(t)
 		mockReader.AssertExpectations(t)
-		mockUpdater.AssertExpectations(t)
+		mockMessenger.AssertExpectations(t)
 
-		// TODO: refactor this
 		mockExecCall.Unset()
 		mockReaderCall.Unset()
-		mockUpdaterCall.Unset()
+		mockMessengerCall.Unset()
 	})
 
 	t.Run("Should fail to read file", func(t *testing.T) {
@@ -80,34 +79,56 @@ func TestFetch(t *testing.T) {
 		mockReaderCall := mockReader.On("Read", "../../../nix/nixos-options.nix").Return(
 			[]byte{}, errors.New("failed to read file"),
 		)
-		mockUpdaterCall := mockUpdater.On("Send", mock.Anything).Return()
+		mockMessengerCall := mockMessenger.On("Send", mock.Anything).Return()
 
 		_, err := fetcher.Fetch(ctx, defaultSources)
 		assert.ErrorContains(t, err, "failed to read file")
 
 		mockExecutor.AssertExpectations(t)
 		mockReader.AssertExpectations(t)
-		mockUpdater.AssertExpectations(t)
+		mockMessenger.AssertExpectations(t)
 
 		mockExecCall.Unset()
 		mockReaderCall.Unset()
-		mockUpdaterCall.Unset()
+		mockMessengerCall.Unset()
 	})
 
 	t.Run("Should fail to execute cmd", func(t *testing.T) {
 		mockExecCall := mockExecutor.On("Execute", ctx, nixFile).Return("", errors.New("failed to execute cmd"))
-		mockUpdaterCall := mockUpdater.On("Send", mock.Anything).Return()
+		mockMessengerCall := mockMessenger.On("Send", mock.Anything).Return()
 
 		_, err := fetcher.Fetch(ctx, defaultSources)
 		assert.ErrorContains(t, err, "failed to execute cmd")
 
 		mockExecutor.AssertExpectations(t)
 		mockReader.AssertExpectations(t)
-		mockUpdater.AssertExpectations(t)
+		mockMessenger.AssertExpectations(t)
 
 		mockExecCall.Unset()
-		mockUpdaterCall.Unset()
+		mockMessengerCall.Unset()
 	})
 
-	// TODO: add more test cases
+	t.Run("Should fail to execute home-manager cmd", func(t *testing.T) {
+		mockExecCall := mockExecutor.On("Execute", ctx, nixFile).Return("", errors.New("failed to execute cmd"))
+		mockMessengerCall := mockMessenger.On("Send", mock.Anything).Return().Once()
+		mockMessenger.On("Send",
+			`failed to get home-manager options, try to run:\n`+
+				`nix-channel --add https://github.com/nix-community/home-manager/archive/master.tar.gz home-manager\n`+
+				`nix-channel --update\n\n`).Return().Once()
+		mockMessenger.On("Send", mock.Anything).Return().Once()
+
+		hmSource := entities.Sources{
+			HomeManager: nixFile,
+		}
+
+		_, err := fetcher.Fetch(ctx, hmSource)
+		assert.ErrorContains(t, err, "failed to execute cmd")
+
+		mockExecutor.AssertExpectations(t)
+		mockReader.AssertExpectations(t)
+		mockMessenger.AssertExpectations(t)
+
+		mockExecCall.Unset()
+		mockMessengerCall.Unset()
+	})
 }
