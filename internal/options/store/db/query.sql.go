@@ -158,6 +158,69 @@ func (q *Queries) FindOptions(ctx context.Context, arg FindOptionsParams) ([]Fin
 	return items, nil
 }
 
+const getAllOptions = `-- name: GetAllOptions :many
+SELECT
+    o.id,
+    o.option_name,
+    o.description,
+    o.option_type,
+    o.default_value,
+    o.example,
+    o.option_from,
+    GROUP_CONCAT(s.url) AS source_list
+FROM
+    options o
+LEFT JOIN
+    source_options so ON o.id = so.option_id
+LEFT JOIN
+    sources s ON so.source_id = s.id
+GROUP BY
+    o.id
+`
+
+type GetAllOptionsRow struct {
+	ID           int64
+	OptionName   string
+	Description  string
+	OptionType   string
+	DefaultValue string
+	Example      string
+	OptionFrom   string
+	SourceList   string
+}
+
+func (q *Queries) GetAllOptions(ctx context.Context) ([]GetAllOptionsRow, error) {
+	rows, err := q.db.QueryContext(ctx, getAllOptions)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetAllOptionsRow
+	for rows.Next() {
+		var i GetAllOptionsRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.OptionName,
+			&i.Description,
+			&i.OptionType,
+			&i.DefaultValue,
+			&i.Example,
+			&i.OptionFrom,
+			&i.SourceList,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getLastUpdated = `-- name: GetLastUpdated :one
 SELECT
     options.updated_at

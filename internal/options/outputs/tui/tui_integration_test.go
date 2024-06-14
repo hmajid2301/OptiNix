@@ -10,7 +10,7 @@ import (
 	"github.com/charmbracelet/x/exp/teatest"
 	"github.com/stretchr/testify/assert"
 
-	"gitlab.com/hmajid2301/optinix/internal/options/tui"
+	"gitlab.com/hmajid2301/optinix/internal/options/outputs/tui"
 )
 
 func TestIntegrationTUI(t *testing.T) {

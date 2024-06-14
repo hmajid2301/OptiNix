@@ -68,13 +68,60 @@ func TestIntegrationAddOptions(t *testing.T) {
 		assert.Equal(t, 2, count, "Two entries should have been added to table")
 	})
 }
+func TestIntegrationGetAllOptions(t *testing.T) {
+	if testing.Short() {
+		t.Skip("skipping integration test")
+	}
+
+	t.Run("Should get all options from DB successfully", func(t *testing.T) {
+		db, teardown := setupSubtest(t)
+		defer teardown()
+
+		myStore, err := store.NewStore(db)
+		assert.NoError(t, err)
+
+		optionsToAdd := []entities.Option{
+			{
+				Name:        "option",
+				Description: "description",
+				Type:        "str",
+				Default:     "default",
+				Example:     "example",
+				Sources:     []string{"http://example.com"},
+			},
+			{
+				Name:        "option.enable",
+				Description: "description",
+				Type:        "str",
+				Default:     "default",
+				Example:     "example",
+				Sources:     []string{"http://example1.com"},
+			},
+			{
+				Name:        "other_name",
+				Description: "description",
+				Type:        "str",
+				Default:     "default",
+				Example:     "example",
+				Sources:     []string{"http://example2.com"},
+			},
+		}
+		ctx := context.Background()
+		err = myStore.AddOptions(ctx, optionsToAdd)
+		assert.NoError(t, err)
+
+		options, err := myStore.GetAllOptions(ctx)
+		assert.NoError(t, err)
+		assert.Len(t, options, 3, "Should get all 3 options")
+	})
+}
 
 func TestIntegrationFindOptions(t *testing.T) {
 	if testing.Short() {
 		t.Skip("skipping integration test")
 	}
 
-	t.Run("Should get options from DB successfully", func(t *testing.T) {
+	t.Run("Should find options from DB successfully", func(t *testing.T) {
 		db, teardown := setupSubtest(t)
 		defer teardown()
 

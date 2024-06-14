@@ -115,7 +115,6 @@ func TestFetch(t *testing.T) {
 			`failed to get home-manager options, try to run:\n`+
 				`nix-channel --add https://github.com/nix-community/home-manager/archive/master.tar.gz home-manager\n`+
 				`nix-channel --update\n\n`).Return().Once()
-		mockMessenger.On("Send", mock.Anything).Return().Once()
 
 		hmSource := entities.Sources{
 			HomeManager: nixFile,

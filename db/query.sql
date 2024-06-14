@@ -23,6 +23,25 @@ GROUP BY
 LIMIT
     ?;
 
+-- name: GetAllOptions :many
+SELECT
+    o.id,
+    o.option_name,
+    o.description,
+    o.option_type,
+    o.default_value,
+    o.example,
+    o.option_from,
+    GROUP_CONCAT(s.url) AS source_list
+FROM
+    options o
+LEFT JOIN
+    source_options so ON o.id = so.option_id
+LEFT JOIN
+    sources s ON so.source_id = s.id
+GROUP BY
+    o.id;
+
 -- name: AddOption :one
 INSERT INTO options (option_name, description, option_type, option_from, default_value, example) VALUES (?, ?, ?, ?, ?, ?) RETURNING *;
 

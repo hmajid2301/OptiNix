@@ -24,7 +24,11 @@ func NewSearcher(s store.Store, f Fetcherer) Searcher {
 	return Searcher{store: s, fetcher: f}
 }
 
-func (s Searcher) GetOptions(ctx context.Context, name string, limit int64) ([]entities.Option, error) {
+func (s Searcher) GetAllOptions(ctx context.Context) ([]entities.Option, error) {
+	return s.store.GetAllOptions(ctx)
+}
+
+func (s Searcher) FindOptions(ctx context.Context, name string, limit int64) ([]entities.Option, error) {
 	return s.store.FindOptions(ctx, name, limit)
 }
 

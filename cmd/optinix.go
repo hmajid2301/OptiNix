@@ -14,16 +14,25 @@ import (
 	"gitlab.com/hmajid2301/optinix/internal/options/entities"
 	"gitlab.com/hmajid2301/optinix/internal/options/fetch"
 	"gitlab.com/hmajid2301/optinix/internal/options/nix"
+	"gitlab.com/hmajid2301/optinix/internal/options/outputs/plaintext"
+	"gitlab.com/hmajid2301/optinix/internal/options/outputs/tui"
 	"gitlab.com/hmajid2301/optinix/internal/options/store"
-	"gitlab.com/hmajid2301/optinix/internal/options/tui"
 
 	"github.com/charmbracelet/bubbles/list"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/spf13/cobra"
 )
 
+type ArgsAndFlags struct {
+	OptionName   string
+	Limit        int64
+	ForceRefresh bool
+	NoTUI        bool
+}
+
 func Execute(ctx context.Context, ddl string) error {
 	var forceRefresh bool
+	var noTUI bool
 	var limit int64
 
 	db, err := getDB(ctx, ddl)
@@ -41,42 +50,54 @@ func Execute(ctx context.Context, ddl string) error {
 		Short:   "optinix - a CLI tool to search nix options",
 		Long:    `OptiNix is tool you can use on the command line to search options for NixOS, home-manager and Darwin.`,
 		Example: "optinix hyprland",
-		Args:    cobra.ExactArgs(1),
 		PreRun: func(cmd *cobra.Command, _ []string) {
 			forceRefresh, _ = cmd.Flags().GetBool("force-refresh")
+			noTUI, _ = cmd.Flags().GetBool("no-tui")
 			limit, _ = cmd.Flags().GetInt64("limit")
 		},
 		RunE: func(_ *cobra.Command, args []string) error {
 			flags := ArgsAndFlags{
-				OptionName:   args[0],
 				ForceRefresh: forceRefresh,
 				Limit:        limit,
+				NoTUI:        noTUI,
 			}
 
-			getOptionsFunc := GetOptions(ctx, db, flags)
-			myTui, err := tui.NewTUI(getOptionsFunc)
-			if err != nil {
-				return err
+			if len(args) > 0 {
+				flags.OptionName = args[0]
 			}
 
-			p := tea.NewProgram(myTui)
-			if _, err := p.Run(); err != nil {
-				fmt.Println(err)
-			}
+			outputOptions(ctx, flags, db)
 			return nil
 		},
 	}
 
 	rootCmd.Flags().BoolVar(&forceRefresh, "force-refresh", false, "If set will force a refresh of the options")
-
+	rootCmd.Flags().BoolVar(&noTUI, "no-tui", false, "If set will not show the TUI and just print the options to stdout")
 	//nolint: mnd
 	rootCmd.Flags().Int64Var(&limit, "limit", 10, "Limit the number of results returned")
 	return rootCmd.ExecuteContext(ctx)
 }
 
-func GetOptions(ctx context.Context, db *sql.DB, flag ArgsAndFlags) tea.Cmd {
+func getDB(ctx context.Context, ddl string) (*sql.DB, error) {
+	conf, err := config.LoadConfig()
+	if err != nil {
+		return nil, fmt.Errorf("failed to load config: %w", err)
+	}
+
+	db, err := store.GetDB(conf.DBFolder)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get database: %w", err)
+	}
+
+	if _, err := db.ExecContext(ctx, ddl); err != nil {
+		return nil, fmt.Errorf("failed to create database schema: %w", err)
+	}
+	return db, nil
+}
+
+func GetOptions(ctx context.Context, db *sql.DB, flags ArgsAndFlags) tea.Cmd {
 	return func() tea.Msg {
-		options, err := FindOptions(ctx, db, flag)
+		options, err := FindOptions(ctx, db, flags)
 		if err != nil {
 			tea.Printf("Failed to get options %s\n", err)
 		}
@@ -100,12 +121,6 @@ func GetOptions(ctx context.Context, db *sql.DB, flag ArgsAndFlags) tea.Cmd {
 			List: optsList,
 		}
 	}
-}
-
-type ArgsAndFlags struct {
-	OptionName   string
-	Limit        int64
-	ForceRefresh bool
 }
 
 func FindOptions(ctx context.Context,
@@ -134,27 +149,36 @@ func FindOptions(ctx context.Context,
 		return nil, err
 	}
 
-	opts, err = opt.GetOptions(ctx, flags.OptionName, flags.Limit)
+	// INFO: If not option name passed then get all options.
+	if flags.OptionName == "" {
+		opts, err = opt.GetAllOptions(ctx)
+	} else {
+		opts, err = opt.FindOptions(ctx, flags.OptionName, flags.Limit)
+	}
+
 	if err != nil {
 		return nil, err
 	}
-
 	return opts, nil
 }
 
-func getDB(ctx context.Context, ddl string) (*sql.DB, error) {
-	conf, err := config.LoadConfig()
-	if err != nil {
-		return nil, fmt.Errorf("failed to load config: %w", err)
-	}
+func outputOptions(ctx context.Context, flags ArgsAndFlags, db *sql.DB) {
+	if flags.NoTUI {
+		options, err := FindOptions(ctx, db, flags)
+		if err != nil {
+			fmt.Printf("Failed to get options %s\n", err)
+		}
+		plaintext.Output(options)
+	} else {
+		getOptionsFunc := GetOptions(ctx, db, flags)
+		myTui, err := tui.NewTUI(getOptionsFunc)
+		if err != nil {
+			fmt.Println(err)
+		}
 
-	db, err := store.GetDB(conf.DBFolder)
-	if err != nil {
-		return nil, fmt.Errorf("failed to get database: %w", err)
+		p := tea.NewProgram(myTui)
+		if _, err := p.Run(); err != nil {
+			fmt.Println(err)
+		}
 	}
-
-	if _, err := db.ExecContext(ctx, ddl); err != nil {
-		return nil, fmt.Errorf("failed to create database schema: %w", err)
-	}
-	return db, nil
 }

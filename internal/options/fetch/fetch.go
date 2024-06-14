@@ -2,7 +2,6 @@ package fetch
 
 import (
 	"context"
-	"fmt"
 	"path/filepath"
 
 	"gitlab.com/hmajid2301/optinix/internal/options/entities"
@@ -61,7 +60,6 @@ func (f Fetcher) Fetch(ctx context.Context, sources entities.Sources) ([]entitie
 			path, err = f.getDarwinDocPath(ctx, source)
 		}
 
-		f.messenger.Send(fmt.Sprintf("err: %s", err))
 		if err != nil {
 			return nil, err
 		}

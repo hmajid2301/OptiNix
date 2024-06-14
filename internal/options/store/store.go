@@ -76,6 +76,29 @@ func (s Store) AddOptions(ctx context.Context, options []entities.Option) (err e
 	return tx.Commit()
 }
 
+func (s Store) GetAllOptions(ctx context.Context) ([]entities.Option, error) {
+	options := []entities.Option{}
+	opts, err := s.queries.GetAllOptions(ctx)
+	if err != nil {
+		return options, err
+	}
+
+	for _, opt := range opts {
+		sources := strings.Split(opt.SourceList, ",")
+		option := entities.Option{
+			Name:        opt.OptionName,
+			Description: opt.Description,
+			Type:        opt.OptionType,
+			OptionFrom:  opt.OptionFrom,
+			Default:     opt.DefaultValue,
+			Example:     opt.Example,
+			Sources:     sources,
+		}
+		options = append(options, option)
+	}
+	return options, nil
+}
+
 func (s Store) FindOptions(ctx context.Context, name string, limit int64) ([]entities.Option, error) {
 	options := []entities.Option{}
 	opts, err := s.queries.FindOptions(ctx, sqlc.FindOptionsParams{
