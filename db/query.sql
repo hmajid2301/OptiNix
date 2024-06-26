@@ -7,7 +7,7 @@ SELECT
     o.default_value,
     o.example,
     o.option_from,
-    GROUP_CONCAT(s.url) AS source_list
+    IFNULL(GROUP_CONCAT(s.url), '') AS source_list
 FROM
     options o
 LEFT JOIN
@@ -32,7 +32,7 @@ SELECT
     o.default_value,
     o.example,
     o.option_from,
-    GROUP_CONCAT(s.url) AS source_list
+    IFNULL(GROUP_CONCAT(s.url), '') AS source_list
 FROM
     options o
 LEFT JOIN

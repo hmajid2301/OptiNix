@@ -154,4 +154,19 @@ func TestIntegrationGetOptions(t *testing.T) {
 		}
 		assert.Contains(t, nixOpts, expectedOpt)
 	})
+
+	t.Run("Should get all options", func(t *testing.T) {
+		opt, _, teardown := setupSubTest(t)
+		defer teardown()
+
+		ctx := context.Background()
+		err := opt.SaveOptions(ctx, sources, forceRefresh)
+		assert.NoError(t, err)
+
+		nixOpts, err := opt.GetAllOptions(ctx)
+		assert.NoError(t, err)
+
+		expectedResults := 266
+		assert.Len(t, nixOpts, expectedResults)
+	})
 }

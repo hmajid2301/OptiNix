@@ -84,7 +84,10 @@ func (s Store) GetAllOptions(ctx context.Context) ([]entities.Option, error) {
 	}
 
 	for _, opt := range opts {
-		sources := strings.Split(opt.SourceList, ",")
+		sources := ""
+		sources, _ = opt.SourceList.(string)
+		sourceList := strings.Split(sources, ",")
+
 		option := entities.Option{
 			Name:        opt.OptionName,
 			Description: opt.Description,
@@ -92,7 +95,7 @@ func (s Store) GetAllOptions(ctx context.Context) ([]entities.Option, error) {
 			OptionFrom:  opt.OptionFrom,
 			Default:     opt.DefaultValue,
 			Example:     opt.Example,
-			Sources:     sources,
+			Sources:     sourceList,
 		}
 		options = append(options, option)
 	}
@@ -110,7 +113,10 @@ func (s Store) FindOptions(ctx context.Context, name string, limit int64) ([]ent
 	}
 
 	for _, opt := range opts {
-		sources := strings.Split(opt.SourceList, ",")
+		sources := ""
+		sources, _ = opt.SourceList.(string)
+		sourceList := strings.Split(sources, ",")
+
 		option := entities.Option{
 			Name:        opt.OptionName,
 			Description: opt.Description,
@@ -118,7 +124,7 @@ func (s Store) FindOptions(ctx context.Context, name string, limit int64) ([]ent
 			OptionFrom:  opt.OptionFrom,
 			Default:     opt.DefaultValue,
 			Example:     opt.Example,
-			Sources:     sources,
+			Sources:     sourceList,
 		}
 		options = append(options, option)
 	}

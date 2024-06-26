@@ -93,7 +93,7 @@ SELECT
     o.default_value,
     o.example,
     o.option_from,
-    GROUP_CONCAT(s.url) AS source_list
+    IFNULL(GROUP_CONCAT(s.url), '') AS source_list
 FROM
     options o
 LEFT JOIN
@@ -123,7 +123,7 @@ type FindOptionsRow struct {
 	DefaultValue string
 	Example      string
 	OptionFrom   string
-	SourceList   string
+	SourceList   interface{}
 }
 
 func (q *Queries) FindOptions(ctx context.Context, arg FindOptionsParams) ([]FindOptionsRow, error) {
@@ -167,7 +167,7 @@ SELECT
     o.default_value,
     o.example,
     o.option_from,
-    GROUP_CONCAT(s.url) AS source_list
+    IFNULL(GROUP_CONCAT(s.url), '') AS source_list
 FROM
     options o
 LEFT JOIN
@@ -186,7 +186,7 @@ type GetAllOptionsRow struct {
 	DefaultValue string
 	Example      string
 	OptionFrom   string
-	SourceList   string
+	SourceList   interface{}
 }
 
 func (q *Queries) GetAllOptions(ctx context.Context) ([]GetAllOptionsRow, error) {
