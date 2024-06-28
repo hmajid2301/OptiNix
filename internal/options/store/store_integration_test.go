@@ -162,4 +162,46 @@ func TestIntegrationFindOptions(t *testing.T) {
 		assert.NoError(t, err)
 		assert.Len(t, options, 2, "Two entries with the name `option` should've been found")
 	})
+
+	t.Run("Should find options with fullstop from DB successfully", func(t *testing.T) {
+		db, teardown := setupSubtest(t)
+		defer teardown()
+
+		myStore, err := store.NewStore(db)
+		assert.NoError(t, err)
+
+		optionsToAdd := []entities.Option{
+			{
+				Name:        "option",
+				Description: "description",
+				Type:        "str",
+				Default:     "default",
+				Example:     "example",
+				Sources:     []string{"http://example.com"},
+			},
+			{
+				Name:        "option.enable",
+				Description: "description",
+				Type:        "str",
+				Default:     "default",
+				Example:     "example",
+				Sources:     []string{"http://example1.com"},
+			},
+			{
+				Name:        "other_name",
+				Description: "description",
+				Type:        "str",
+				Default:     "default",
+				Example:     "example",
+				Sources:     []string{"http://example2.com"},
+			},
+		}
+		ctx := context.Background()
+		err = myStore.AddOptions(ctx, optionsToAdd)
+		assert.NoError(t, err)
+
+		options, err := myStore.FindOptions(ctx, "option.enable", 1)
+		assert.NoError(t, err)
+		assert.Len(t, options, 1, "One entry should've been found")
+	})
 }

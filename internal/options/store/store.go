@@ -3,6 +3,7 @@ package store
 import (
 	"context"
 	"database/sql"
+	"fmt"
 	"io/fs"
 	"os"
 	"path/filepath"
@@ -105,7 +106,7 @@ func (s Store) GetAllOptions(ctx context.Context) ([]entities.Option, error) {
 func (s Store) FindOptions(ctx context.Context, name string, limit int64) ([]entities.Option, error) {
 	options := []entities.Option{}
 	opts, err := s.queries.FindOptions(ctx, sqlc.FindOptionsParams{
-		OptionName: name,
+		OptionName: fmt.Sprintf("\"%s\"", name),
 		Limit:      limit,
 	})
 	if err != nil {
