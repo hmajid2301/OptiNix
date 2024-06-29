@@ -30,13 +30,16 @@ in
     packages = with pkgs; [
       goEnv
       gomod2nix
+
       golangci-lint
       gotools
       go-junit-report
       gocover-cobertura
       go-task
       goreleaser
-      docker-compose
+
       sqlc
+
+      vhs
     ];
   }

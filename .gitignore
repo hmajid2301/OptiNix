@@ -67,6 +67,7 @@ tags
 output.txt
 coverage.txt
 report.xml
+coverage.xml
 
 testdata/options.db
 testdata/options.db-shm

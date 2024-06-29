@@ -121,7 +121,7 @@ func TestIntegrationTUI(t *testing.T) {
 
 		tm.Send(tea.KeyMsg{
 			Type:  tea.KeyRunes,
-			Runes: []rune(tea.KeyEnter.String()),
+			Runes: []rune("t"),
 		})
 
 		teatest.WaitFor(

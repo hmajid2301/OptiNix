@@ -3,11 +3,34 @@
 
 # OptiNix
 
-A CLI tool for searching options in Nix, written in Go.
+<!--toc:start-->
+- [OptiNix](#optinix)
+  - [Demo](#demo)
+    - [TUI](#tui)
+    - [No TUI - FZF](#no-tui-fzf)
+  - [Install](#install)
+    - [Nix flakes](#nix-flakes)
+    - [Go](#go)
+  - [Usage](#usage)
+    - [Key Maps](#key-maps)
+    - [Without TUI](#without-tui)
+    - [With FZF](#with-fzf)
+    - [Nix with flakes](#nix-with-flakes)
+  - [Supported Sources](#supported-sources)
+  - [Inspired By](#inspired-by)
+<!--toc:end-->
+
+A CLI tool for searching options in Nix, written in Go. Powered by the bubbletea framework for TUI.
 
 ## Demo
 
+### TUI
+
 ![Demo](docs/demo.gif)
+
+### No TUI - FZF
+
+![Demo FZF](docs/demo-no-tui.gif)
 
 ## Install
 
@@ -101,13 +124,17 @@ Flags:
 optinix hyprland
 ```
 
+### Key Maps
+
+Within the TUI; you can navigate the list using your arrow keys or vim bindings i.e. `j` and `k`.
+You can also open the markdown modal to show more information about an option by pressing `t` on the option.
+
 ### Without TUI
 
 By default, the tool will render a list using bubble tea, if you want just plain text output you can add the `--no-tui` flag.
 
 ```bash
 optinix podman --no-tui
-
 
 Option: 0
 Name: virtualisation.podman.networkSocket.server
