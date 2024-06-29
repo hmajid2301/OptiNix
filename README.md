@@ -1,5 +1,5 @@
 
-![Logo](docs/logo.png)
+<img src="docs/logo.png" alt="Logo" width="250">
 
 # OptiNix
 
@@ -118,16 +118,17 @@ Flags:
       --limit int       Limit the number of results returned (default 10)
       --no-tui          If set will not show the TUI and just print the options to stdout
   -v, --version         version for optinix
-
-
-# Example in the demo above
-optinix hyprland
 ```
 
 ### Key Maps
 
-Within the TUI; you can navigate the list using your arrow keys or vim bindings i.e. `j` and `k`.
-You can also open the markdown modal to show more information about an option by pressing `t` on the option.
+#### In TUI
+
+- `j`: Down one item in list
+- `k`: Up one item in list
+- `t`: Toggle modal, to view more information about the option
+- `g`: Top of list
+- `G`: End of list
 
 ### Without TUI
 

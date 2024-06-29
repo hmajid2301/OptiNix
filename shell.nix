@@ -31,6 +31,8 @@ in
       goEnv
       gomod2nix
 
+      docker
+
       golangci-lint
       gotools
       go-junit-report

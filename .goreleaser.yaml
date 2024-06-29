@@ -2,6 +2,9 @@ before:
   hooks:
     - go mod tidy
 
+gomod:
+  proxy: true
+
 builds:
   - env:
       - CGO_ENABLED=0
@@ -13,8 +16,11 @@ builds:
       - amd64
       - arm
       - arm64
+    mod_timestamp: '{{ .CommitTimestamp }}'
+    flags:
+      - -trimpath
     ldflags:
-      - -s -w -X main.Version={{.Version}} -X main.commit={{.Commit}} -X main.date={{.Date}}
+      - -s -w -X main.version={{.Version}} -X main.commit={{.Commit}} -X main.date={{ .CommitDate }}
 
 release:
   draft: true
