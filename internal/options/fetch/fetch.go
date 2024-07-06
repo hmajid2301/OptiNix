@@ -15,17 +15,13 @@ type Reader interface {
 	Read(path string) ([]byte, error)
 }
 
-type Messager interface {
-	Send(msg string)
-}
-
 type Fetcher struct {
 	nixCmdExecutor Exectutor
 	reader         Reader
-	messenger      Messager
+	messenger      entities.Messager
 }
 
-func NewFetcher(executor Exectutor, reader Reader, messager Messager) Fetcher {
+func NewFetcher(executor Exectutor, reader Reader, messager entities.Messager) Fetcher {
 	return Fetcher{nixCmdExecutor: executor, reader: reader, messenger: messager}
 }
 
@@ -64,16 +60,19 @@ func (f Fetcher) Fetch(ctx context.Context, sources entities.Sources) ([]entitie
 			return nil, err
 		}
 
+		f.messenger.Send("Successfully fetched options")
 		contents, err := f.reader.Read(path)
 		if err != nil {
 			return nil, err
 		}
 
+		f.messenger.Send("Trying to parse options")
 		opts, err := ParseOptions(contents, optionFrom)
 		if err != nil {
 			return nil, err
 		}
 		options = append(options, opts...)
+		f.messenger.Send("Successfully parsed options")
 	}
 
 	return options, nil

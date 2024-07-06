@@ -16,12 +16,13 @@ type Fetcherer interface {
 }
 
 type Searcher struct {
-	fetcher Fetcherer
-	store   store.Store
+	fetcher   Fetcherer
+	store     store.Store
+	messenger entities.Messager
 }
 
-func NewSearcher(s store.Store, f Fetcherer) Searcher {
-	return Searcher{store: s, fetcher: f}
+func NewSearcher(s store.Store, f Fetcherer, m entities.Messager) Searcher {
+	return Searcher{store: s, fetcher: f, messenger: m}
 }
 
 func (s Searcher) GetAllOptions(ctx context.Context) ([]entities.Option, error) {
@@ -51,7 +52,8 @@ func (s Searcher) SaveOptions(ctx context.Context, sources entities.Sources, for
 		return err
 	}
 
-	batchSize := 100
+	s.messenger.Send("Trying to save options to DB")
+	batchSize := 1000
 	maxBatches := (len(options) / batchSize) + 1
 
 	for i := 0; i < maxBatches; i++ {
@@ -68,6 +70,7 @@ func (s Searcher) SaveOptions(ctx context.Context, sources entities.Sources, for
 		}
 	}
 
+	s.messenger.Send("Successfully to save options to DB")
 	return nil
 }
 

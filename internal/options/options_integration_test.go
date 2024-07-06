@@ -52,7 +52,7 @@ func setupSubTest(t *testing.T) (options.Searcher, store.Store, func()) {
 	assert.NoError(t, err)
 
 	fetcher := fetch.NewFetcher(NixCmdExecutor{}, NixReader{}, Updater{})
-	opt := options.NewSearcher(dbStore, fetcher)
+	opt := options.NewSearcher(dbStore, fetcher, Updater{})
 
 	return opt, dbStore, func() {
 		db.Close()

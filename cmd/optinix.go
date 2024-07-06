@@ -137,7 +137,7 @@ func FindOptions(ctx context.Context,
 	messenger := nix.NewMessenger()
 	fetcher := fetch.NewFetcher(nixExecutor, nixReader, messenger)
 
-	opt := options.NewSearcher(myStore, fetcher)
+	opt := options.NewSearcher(myStore, fetcher, messenger)
 
 	sources := entities.Sources{
 		NixOS:       "nix/nixos-options.nix",
