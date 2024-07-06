@@ -2,8 +2,6 @@ package options
 
 import (
 	"context"
-	"database/sql"
-	"time"
 
 	"gitlab.com/hmajid2301/optinix/internal/options/entities"
 	"gitlab.com/hmajid2301/optinix/internal/options/store"
@@ -25,28 +23,19 @@ func NewSearcher(s store.Store, f Fetcherer, m entities.Messager) Searcher {
 	return Searcher{store: s, fetcher: f, messenger: m}
 }
 
-func (s Searcher) GetAllOptions(ctx context.Context) ([]entities.Option, error) {
+func (s Searcher) GetAll(ctx context.Context) ([]entities.Option, error) {
 	return s.store.GetAllOptions(ctx)
 }
 
-func (s Searcher) FindOptions(ctx context.Context, name string, limit int64) ([]entities.Option, error) {
+func (s Searcher) Find(ctx context.Context, name string, limit int64) ([]entities.Option, error) {
 	return s.store.FindOptions(ctx, name, limit)
 }
 
-func (s Searcher) SaveOptions(ctx context.Context, sources entities.Sources, forceRefresh bool) error {
-	// INFO: If force fresh is passed then we should always fetch the options and update the store.
-	// Else we check if should update the options in the store, if they have gone stale i.e. older than a day.
-	if !forceRefresh {
-		shouldFetch, err := s.shouldFetch(ctx)
-		if err != nil {
-			return err
-		}
+func (s Searcher) Count(ctx context.Context) (int64, error) {
+	return s.store.CountOptions(ctx)
+}
 
-		if !shouldFetch {
-			return nil
-		}
-	}
-
+func (s Searcher) Save(ctx context.Context, sources entities.Sources) error {
 	options, err := s.fetcher.Fetch(ctx, sources)
 	if err != nil {
 		return err
@@ -72,24 +61,4 @@ func (s Searcher) SaveOptions(ctx context.Context, sources entities.Sources, for
 
 	s.messenger.Send("Successfully to save options to DB")
 	return nil
-}
-
-func (s Searcher) shouldFetch(ctx context.Context) (bool, error) {
-	now := time.Now()
-	lastUpdatedDB, err := s.store.GetLastAddedTime(ctx)
-	if err != nil {
-		// INFO: Likely first time the CLI has ran, as DB is empty.
-		// So we should fetch the options.
-		if err == sql.ErrNoRows {
-			return true, nil
-		}
-		return false, err
-	}
-
-	// INFO: If its been a day since we fetched the options, lets update the DB again.
-	x := lastUpdatedDB.AddDate(0, 0, 1)
-	if x.After(now) {
-		return false, nil
-	}
-	return true, nil
 }

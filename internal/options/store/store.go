@@ -8,7 +8,6 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
-	"time"
 
 	"gitlab.com/hmajid2301/optinix/internal/options/entities"
 	sqlc "gitlab.com/hmajid2301/optinix/internal/options/store/db"
@@ -18,8 +17,6 @@ type Store struct {
 	db      *sql.DB
 	queries *sqlc.Queries
 }
-
-var SearchLimit = 10
 
 func NewStore(db *sql.DB) (Store, error) {
 	queries := sqlc.New(db)
@@ -132,13 +129,13 @@ func (s Store) FindOptions(ctx context.Context, name string, limit int64) ([]ent
 	return options, nil
 }
 
-func (s Store) GetLastAddedTime(ctx context.Context) (time.Time, error) {
-	result, err := s.queries.GetLastUpdated(ctx)
+func (s Store) CountOptions(ctx context.Context) (int64, error) {
+	result, err := s.queries.GetOptionCount(ctx)
 	if err != nil {
-		return time.Time{}, err
+		return 0, err
 	}
 
-	return result.Time, nil
+	return result, nil
 }
 
 func GetDB(dbFolder string) (*sql.DB, error) {

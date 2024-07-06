@@ -12,15 +12,16 @@
     - [Nix flakes](#nix-flakes)
     - [Go](#go)
   - [Usage](#usage)
+    - [Nix with flakes](#nix-with-flakes)
     - [Key Maps](#key-maps)
     - [Without TUI](#without-tui)
     - [With FZF](#with-fzf)
-    - [Nix with flakes](#nix-with-flakes)
+    - [Update](#update)
   - [Supported Sources](#supported-sources)
   - [Inspired By](#inspired-by)
 <!--toc:end-->
 
-A CLI tool for searching options in Nix, written in Go. Powered by the bubbletea framework for TUI.
+A CLI tool for searching options in Nix, written in Go, powered by the bubbletea framework for TUI.
 
 ## Demo
 
@@ -103,26 +104,32 @@ go install gitlab.com/hmajid2301/optinix
 ## Usage
 
 ```bash
-optinix --help
 OptiNix is tool you can use on the command line to search options for NixOS, home-manager and Darwin.
 
 Usage:
-  optinix [flags]
+  optinix [command]
 
-Examples:
-optinix hyprland
+Available Commands:
+  completion  Generate the autocompletion script for the specified shell
+  get         Finds options
+  help        Help about any command
+  update      When you want to fetch the latest options.
 
 Flags:
-      --force-refresh   If set will force a refresh of the options
-  -h, --help            help for optinix
-      --limit int       Limit the number of results returned (default 10)
-      --no-tui          If set will not show the TUI and just print the options to stdout
-  -v, --version         version for optinix
+  -h, --help      help for optinix
+  -v, --version   version for optinix
+
+Use "optinix [command] --help" for more information about a comman
+```
+### Nix with flakes
+
+If you are running Nix and have flakes enabled in your configuration, you can run the tool like the command below. Without needing to "install" OptiNix.
+
+```bash
+nix run 'gitlab.com/hmajid2301/optinix' get hyprland
 ```
 
 ### Key Maps
-
-#### In TUI
 
 - `j`: Down one item in list
 - `k`: Up one item in list
@@ -135,7 +142,7 @@ Flags:
 By default, the tool will render a list using bubble tea, if you want just plain text output you can add the `--no-tui` flag.
 
 ```bash
-optinix podman --no-tui
+optinix get podman --no-tui
 
 Option: 0
 Name: virtualisation.podman.networkSocket.server
@@ -170,15 +177,15 @@ Sources: [/nix/store/rhg90jpryc286xn9xjy6qjiaap6pjgdc-source/nixos/modules/virtu
 You can integrate this tool with FZF as well, like so:
 
 ```bash
-optinix --no-tui | rg "Name: " | cut -d' ' -f2 | fzf --preview="optinix --no-tui '{}'"
+optinix get --no-tui | rg "Name: " | cut -d' ' -f2 | fzf --preview="optinix get --no-tui '{}'"
 ```
 
-### Nix with flakes
+### Update
 
-If you are running Nix and have flakes enabled in your configuration, you can run the tool like the command below. Without needing to "install" OptiNix.
+To get the latest options you can run the following command, to update your local database.
 
 ```bash
-nix run 'gitlab.com/hmajid2301/optinix' hyprland
+optinix update
 ```
 
 ## Supported Sources

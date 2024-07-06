@@ -51,12 +51,5 @@ INSERT INTO sources (url) VALUES (?) ON CONFLICT(url) DO UPDATE SET url = exclud
 -- name: AddSourceOption :one
 INSERT INTO source_options (source_id, option_id) VALUES (?, ?) RETURNING *;
 
--- name: GetLastUpdated :one
-SELECT
-    options.updated_at
-FROM
-    options
-ORDER BY
-    options.updated_at DESC
-LIMIT
-	1;
+-- name: GetOptionCount :one
+SELECT COUNT(*) FROM options;

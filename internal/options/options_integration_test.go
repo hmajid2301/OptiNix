@@ -4,7 +4,6 @@ import (
 	"context"
 	"os"
 	"testing"
-	"time"
 
 	"github.com/stretchr/testify/assert"
 
@@ -42,10 +41,9 @@ func (n NixCmdExecutor) Execute(_ context.Context, expression string) (string, e
 
 type Updater struct{}
 
-func (Updater) Send(_ string) {
-}
+func (Updater) Send(_ string) {}
 
-func setupSubTest(t *testing.T) (options.Searcher, store.Store, func()) {
+func setupSubTest(t *testing.T) (options.Searcher, func()) {
 	ctx := context.Background()
 	db := optionstest.CreateDB(ctx, t)
 	dbStore, err := store.NewStore(db)
@@ -54,7 +52,7 @@ func setupSubTest(t *testing.T) (options.Searcher, store.Store, func()) {
 	fetcher := fetch.NewFetcher(NixCmdExecutor{}, NixReader{}, Updater{})
 	opt := options.NewSearcher(dbStore, fetcher, Updater{})
 
-	return opt, dbStore, func() {
+	return opt, func() {
 		db.Close()
 	}
 }
@@ -69,49 +67,17 @@ func TestIntegrationSaveOptions(t *testing.T) {
 		HomeManager: "./nix/hm-options.nix",
 		Darwin:      "./nix/darwin-options.nix",
 	}
-	forceRefresh := false
 
 	t.Run("Should save options", func(t *testing.T) {
-		opt, _, teardown := setupSubTest(t)
+		opt, teardown := setupSubTest(t)
 		defer teardown()
 
 		ctx := context.Background()
-		err := opt.SaveOptions(ctx, sources, forceRefresh)
+		err := opt.Save(ctx, sources)
 		assert.NoError(t, err)
-	})
-
-	t.Run("Should not fetch new options unless they are a day old", func(t *testing.T) {
-		opt, _, teardown := setupSubTest(t)
-		defer teardown()
-
-		ctx := context.Background()
-		err := opt.SaveOptions(ctx, sources, forceRefresh)
+		count, err := opt.Count(ctx)
+		assert.Greater(t, count, int64(0))
 		assert.NoError(t, err)
-
-		shouldFetch, err := opt.ShouldFetch(ctx)
-		assert.False(t, shouldFetch)
-		assert.NoError(t, err)
-	})
-
-	t.Run("Should fetch new options if force refresh argument is passed", func(t *testing.T) {
-		opt, store, teardown := setupSubTest(t)
-		defer teardown()
-
-		ctx := context.Background()
-		err := opt.SaveOptions(ctx, sources, forceRefresh)
-		assert.NoError(t, err)
-		lastUpdated, err := store.GetLastAddedTime(ctx)
-		assert.NoError(t, err)
-
-		// TODO: find a nicer to do this, time is only accurate to the second
-		time.Sleep(1 * time.Second)
-		shouldForceRefresh := true
-		err = opt.SaveOptions(ctx, sources, shouldForceRefresh)
-		assert.NoError(t, err)
-		lastUpdated2, err := store.GetLastAddedTime(ctx)
-		assert.NoError(t, err)
-
-		assert.NotEqual(t, lastUpdated, lastUpdated2, "check that new rows were added to the database")
 	})
 }
 
@@ -125,17 +91,16 @@ func TestIntegrationGetOptions(t *testing.T) {
 		HomeManager: "./nix/hm-options.nix",
 		Darwin:      "./nix/darwin-options.nix",
 	}
-	forceRefresh := false
 
 	t.Run("Should get option with `vdirsyncer` in option name", func(t *testing.T) {
-		opt, _, teardown := setupSubTest(t)
+		opt, teardown := setupSubTest(t)
 		defer teardown()
 
 		ctx := context.Background()
-		err := opt.SaveOptions(ctx, sources, forceRefresh)
+		err := opt.Save(ctx, sources)
 		assert.NoError(t, err)
 
-		nixOpts, err := opt.FindOptions(ctx, "vdirsyncer enable", 10)
+		nixOpts, err := opt.Find(ctx, "vdirsyncer enable", 10)
 		assert.NoError(t, err)
 
 		expectedResults := 2
@@ -156,14 +121,14 @@ func TestIntegrationGetOptions(t *testing.T) {
 	})
 
 	t.Run("Should get all options", func(t *testing.T) {
-		opt, _, teardown := setupSubTest(t)
+		opt, teardown := setupSubTest(t)
 		defer teardown()
 
 		ctx := context.Background()
-		err := opt.SaveOptions(ctx, sources, forceRefresh)
+		err := opt.Save(ctx, sources)
 		assert.NoError(t, err)
 
-		nixOpts, err := opt.GetAllOptions(ctx)
+		nixOpts, err := opt.GetAll(ctx)
 		assert.NoError(t, err)
 
 		expectedResults := 266

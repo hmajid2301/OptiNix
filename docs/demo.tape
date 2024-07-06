@@ -5,7 +5,7 @@ Set Width 1920
 Set Height 1080
 
 Sleep 1s
-Type "./bin/optinix hyprland"
+Type "./bin/optinix get hyprland"
 Enter
 Sleep 1s
 

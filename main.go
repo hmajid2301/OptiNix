@@ -20,9 +20,18 @@ var _ embed.FS
 func main() {
 	var exitCode int
 	ctx := gracefulShutdown()
-
 	defer func() { os.Exit(exitCode) }()
-	if err := cmd.Execute(ctx, ddl); err != nil {
+
+	rootCmd, err := cmd.NewRootCmd(ctx, ddl)
+	if err != nil {
+		fmt.Println("Error creating root command")
+		fmt.Print(err)
+		exitCode = 1
+		return
+	}
+
+	err = rootCmd.ExecuteContext(ctx)
+	if err != nil {
 		fmt.Println("Error executing command failed")
 		fmt.Print(err)
 		exitCode = 1

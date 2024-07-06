@@ -7,7 +7,6 @@ package sqlc
 
 import (
 	"context"
-	"database/sql"
 )
 
 const addOption = `-- name: AddOption :one
@@ -221,20 +220,13 @@ func (q *Queries) GetAllOptions(ctx context.Context) ([]GetAllOptionsRow, error)
 	return items, nil
 }
 
-const getLastUpdated = `-- name: GetLastUpdated :one
-SELECT
-    options.updated_at
-FROM
-    options
-ORDER BY
-    options.updated_at DESC
-LIMIT
-	1
+const getOptionCount = `-- name: GetOptionCount :one
+SELECT COUNT(*) FROM options
 `
 
-func (q *Queries) GetLastUpdated(ctx context.Context) (sql.NullTime, error) {
-	row := q.db.QueryRowContext(ctx, getLastUpdated)
-	var updated_at sql.NullTime
-	err := row.Scan(&updated_at)
-	return updated_at, err
+func (q *Queries) GetOptionCount(ctx context.Context) (int64, error) {
+	row := q.db.QueryRowContext(ctx, getOptionCount)
+	var count int64
+	err := row.Scan(&count)
+	return count, err
 }
