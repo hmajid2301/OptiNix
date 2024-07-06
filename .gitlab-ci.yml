@@ -1,12 +1,16 @@
 include:
   - 'https://gitlab.com/Cynerd/gitlab-ci-nix/-/raw/master/template.yml'
 
+image: nixos/nix
+
 .task:
   stage: test
-  extends: .nix
-  tags: []
+  # extends: .nix
+  # tags: [docker]
   only:
     - merge_request
+  before_script:
+    - echo "experimental-features = nix-command flakes" >>/etc/nix/nix.conf
 
 stages:
   - pre
@@ -14,15 +18,15 @@ stages:
   - build
   - release
 
-install:deps:
-  stage: pre
-  extends:
-    - .task
-  only:
-    - merge_request
-  script:
-    - nix develop
-
+# install:deps:
+#   stage: pre
+#   extends:
+#     - .task
+#   only:
+#     - merge_request
+#   script:
+#     - nix develop
+#
 lint:
   extends:
     - .task
@@ -63,23 +67,22 @@ build:binary:
     - .task
   script:
     - nix build
-    - ls -al
 
 build:docker:
   stage: build
   only:
     - tags
+  needs: []
   extends:
     - .task
+  variables:
+    DOCKER_HOST: tcp://docker:2375
+    DOCKER_DRIVER: overlay2
   services:
-    - docker:20.10.16-dind
+    - docker:27.0.3-dind
   script:
     - nix build .#container
-    - docker load < result
-    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
-    - docker image tag localhost/optinix $CI_REGISTRY_IMAGE:$CI_COMMIT_TAG
-    - docker image tag localhost/optinix $CI_REGISTRY_IMAGE:latest
-    - docker push $CI_REGISTRY_IMAGE:$CI_COMMIT_TAG $CI_REGISTRY_IMAGE:latest
+    - nix develop -c task docker:publish
 
 release:
   stage: release
@@ -91,4 +94,4 @@ release:
   variables:
     GIT_DEPTH: 0
   script:
-    - goreleaser release --clean
+    - nix develop -v task release

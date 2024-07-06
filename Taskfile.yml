@@ -11,11 +11,26 @@ tasks:
     cmds:
       - golangci-lint run {{.CLI_ARGS}}
 
-  docker:
-    desc: Create Docker image from Nix
+  docker:build:
+    desc: Builds a Docker image using Nix.
     cmds:
-      - nix build .#dockerImage
-      - ./result | docker load
+      - nix build .#container
+
+  docker:load:
+    desc: Loads the Docker image from tar (in results).
+    cmds:
+      - docker load < result
+
+  docker:publish:
+    desc: Publishes the Docker image
+    deps:
+      - docker:load
+    cmds:
+      - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+      - docker image tag optinix:0.1 $CI_REGISTRY_IMAGE:$CI_COMMIT_TAG
+      - docker image tag optinix:0.1 $CI_REGISTRY_IMAGE:latest
+      - docker push $CI_REGISTRY_IMAGE:$CI_COMMIT_TAG $CI_REGISTRY_IMAGE:latest
+      - docker push $CI_REGISTRY_IMAGE:latest
 
   format:
     desc: Runs the formatter.
@@ -30,7 +45,7 @@ tasks:
   tests:integration:
     desc: Runs all the integration tests.
     cmds:
-      - go test -run Integration -v ./...
+      - go test -run ^TestIntegration -v ./...
 
   tests:
     desc: Runs all the tests.
@@ -44,3 +59,7 @@ tasks:
       - cat output.txt | go-junit-report -set-exit-code > report.xml
       - gocover-cobertura < coverage.txt > coverage.xml
 
+  release:
+    desc: Release the CLI tool.
+    cmds:
+      - goreleaser release --clean

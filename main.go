@@ -23,7 +23,7 @@ func main() {
 
 	defer func() { os.Exit(exitCode) }()
 	if err := cmd.Execute(ctx, ddl); err != nil {
-		fmt.Println("Error executing command falfd")
+		fmt.Println("Error executing command failed")
 		fmt.Print(err)
 		exitCode = 1
 		return
