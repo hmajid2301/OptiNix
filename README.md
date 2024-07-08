@@ -194,6 +194,13 @@ optinix update
 - Home Manager
 - Darwin
 
+
+## Features to implement
+
+- Add more sources (like manix has)
+  - Maybe nixvim even
+- Get it working in Docker
+
 ## Inspired By
 - Manix: https://github.com/nix-community/manix
   - When I started this project back last year, this project was not working but has since been fixed and had new features added

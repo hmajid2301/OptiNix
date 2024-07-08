@@ -67,22 +67,22 @@ build:binary:
     - .task
   script:
     - nix build
-
-build:docker:
-  stage: build
-  only:
-    - tags
-  needs: []
-  extends:
-    - .task
-  variables:
-    DOCKER_HOST: tcp://docker:2375
-    DOCKER_DRIVER: overlay2
-  services:
-    - docker:27.0.3-dind
-  script:
-    - nix build .#container
-    - nix develop -c task docker:publish
+#
+# build:docker:
+#   stage: build
+#   only:
+#     - tags
+#   needs: []
+#   extends:
+#     - .task
+#   variables:
+#     DOCKER_HOST: tcp://docker:2375
+#     DOCKER_DRIVER: overlay2
+#   services:
+#     - docker:27.0.3-dind
+#   script:
+#     - nix build .#container
+#     - nix develop -c task docker:publish
 
 release:
   stage: release
