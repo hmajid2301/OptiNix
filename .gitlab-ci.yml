@@ -86,12 +86,11 @@ build:binary:
 
 release:
   stage: release
-  image:
-    name: goreleaser/goreleaser
-    entrypoint: ['']
+  extends:
+    - .task
   only:
     - tags
   variables:
     GIT_DEPTH: 0
   script:
-    - nix develop -v task release
+    - nix develop -c task release

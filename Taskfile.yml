@@ -62,4 +62,4 @@ tasks:
   release:
     desc: Release the CLI tool.
     cmds:
-      - goreleaser release --clean
+      - goreleaser release --clean --verbose

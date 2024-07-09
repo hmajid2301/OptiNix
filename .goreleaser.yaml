@@ -12,7 +12,6 @@ builds:
       - CGO_ENABLED=0
     goos:
       - linux
-      - windows
       - darwin
     goarch:
       - amd64
@@ -40,7 +39,4 @@ checksum:
 
 snapshot:
   name_template: "{{ incpatch .Version }}-next"
-
-git:
-  tag_sort: semver
 
