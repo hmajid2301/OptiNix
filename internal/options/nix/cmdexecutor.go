@@ -16,7 +16,7 @@ func NewCmdExecutor() CmdExecutor {
 }
 
 func (CmdExecutor) Execute(ctx context.Context, expression string) (string, error) {
-	cmd := exec.CommandContext(ctx, "nix-build", expression)
+	cmd := exec.CommandContext(ctx, "nix-build", "-E", expression)
 	cmd.Env = append(cmd.Env,
 		"NIXPKGS_ALLOW_UNFREE=1",
 		"NIXPKGS_ALLOW_BROKEN=1",

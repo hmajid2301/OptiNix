@@ -3,27 +3,17 @@ package cmd
 import (
 	"context"
 	"database/sql"
-	"fmt"
+	"embed"
 
 	// used to connect to sqlite
 	_ "modernc.org/sqlite"
 
-	"gitlab.com/hmajid2301/optinix/internal/options/config"
-	"gitlab.com/hmajid2301/optinix/internal/options/store"
+	"gitlab.com/hmajid2301/optinix/internal/options/entities"
 
 	"github.com/spf13/cobra"
 )
 
-func NewRootCmd(ctx context.Context, ddl string) (*cobra.Command, error) {
-	db, err := getDB(ctx, ddl)
-	defer func() {
-		err = db.Close()
-	}()
-
-	if err != nil {
-		return nil, err
-	}
-
+func NewRootCmd(ctx context.Context, db *sql.DB, nixExpressions embed.FS) (*cobra.Command, error) {
 	rootCmd := &cobra.Command{
 		Version: "v0.1.0",
 		Use:     "optinix",
@@ -31,27 +21,31 @@ func NewRootCmd(ctx context.Context, ddl string) (*cobra.Command, error) {
 		Long:    `OptiNix is tool you can use on the command line to search options for NixOS, home-manager and Darwin.`,
 	}
 
-	updateCmd := getUpdateCmd(ctx, db)
+	no, err := nixExpressions.ReadFile("nix/nixos-options.nix")
+	if err != nil {
+		return nil, err
+	}
+
+	ho, err := nixExpressions.ReadFile("nix/hm-options.nix")
+	if err != nil {
+		return nil, err
+	}
+
+	do, err := nixExpressions.ReadFile("nix/darwin-options.nix")
+	if err != nil {
+		return nil, err
+	}
+
+	sources := entities.Sources{
+		NixOS:       string(no),
+		HomeManager: string(ho),
+		Darwin:      string(do),
+	}
+
+	updateCmd := getUpdateCmd(ctx, db, sources)
 	rootCmd.AddCommand(updateCmd)
-	getCmd := getGetCmd(ctx, db)
+	getCmd := getGetCmd(ctx, db, sources)
 	rootCmd.AddCommand(getCmd)
 
 	return rootCmd, nil
-}
-
-func getDB(ctx context.Context, ddl string) (*sql.DB, error) {
-	conf, err := config.LoadConfig()
-	if err != nil {
-		return nil, fmt.Errorf("failed to load config: %w", err)
-	}
-
-	db, err := store.GetDB(conf.DBFolder)
-	if err != nil {
-		return nil, fmt.Errorf("failed to get database: %w", err)
-	}
-
-	if _, err := db.ExecContext(ctx, ddl); err != nil {
-		return nil, fmt.Errorf("failed to create database schema: %w", err)
-	}
-	return db, nil
 }

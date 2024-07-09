@@ -50,8 +50,8 @@ schema = 3
     version = "v1.1.2-0.20180830191138-d8f796af33cc"
     hash = "sha256-fV9oI51xjHdOmEx6+dlq7Ku2Ag+m/bmbzPo6A4Y74qc="
   [mod."github.com/dlclark/regexp2"]
-    version = "v1.11.0"
-    hash = "sha256-iXBBgykYu9Dcd+7LMJyRYc3Ry47jmuLGZFW13zU6toU="
+    version = "v1.11.1"
+    hash = "sha256-phRef83CEZyp6vDNyzwWct2JFRQhbu/ozKGaTOm1w/I="
   [mod."github.com/dustin/go-humanize"]
     version = "v1.0.1"
     hash = "sha256-yuvxYYngpfVkUg9yAmG99IUVmADTQA0tMbBXe0Fq0Mc="
@@ -86,8 +86,8 @@ schema = 3
     version = "v0.0.15"
     hash = "sha256-WP39EU2UrQbByYfnwrkBDoKN7xzXsBssDq3pNryBGm0="
   [mod."github.com/microcosm-cc/bluemonday"]
-    version = "v1.0.26"
-    hash = "sha256-ZX4QUWHVEoGBeTHfPcLD5XoiubeO8GhkdqkC4Me8nRE="
+    version = "v1.0.27"
+    hash = "sha256-EZSya9FLPQ83CL7N2cZy21fdS35hViTkiMK5f3op8Es="
   [mod."github.com/mitchellh/go-homedir"]
     version = "v1.1.0"
     hash = "sha256-oduBKXHAQG8X6aqLEpqZHs5DOKe84u6WkBwi4W6cv3k="
@@ -149,20 +149,17 @@ schema = 3
     version = "v1.0.3"
     hash = "sha256-hObFHhVNK016OZUTjGPXALiaejHDbRlIfFvP0frMqNc="
   [mod."golang.org/x/net"]
-    version = "v0.26.0"
-    hash = "sha256-WfY33QERNbcIiDkH3+p2XGrAVqvWBQfc8neUt6TH6dQ="
+    version = "v0.27.0"
+    hash = "sha256-GrlN5isYeEVrPZVAHK0MDQatttbnyfSPoWJHj0xqhjk="
   [mod."golang.org/x/sync"]
     version = "v0.7.0"
     hash = "sha256-2ETllEu2GDWoOd/yMkOkLC2hWBpKzbVZ8LhjLu0d2A8="
   [mod."golang.org/x/sys"]
-    version = "v0.21.0"
-    hash = "sha256-gapzPWuEqY36V6W2YhIDYR49sEvjJRd7bSuf9K1f4JY="
+    version = "v0.22.0"
+    hash = "sha256-RbG0XaXGGlErCsl2agvUxMnrkRwdbJLmriYT1H24FwA="
   [mod."golang.org/x/text"]
     version = "v0.16.0"
     hash = "sha256-hMTO45upjEuA4sJzGplJT+La2n3oAfHccfYWZuHcH+8="
-  [mod."golang.org/x/tools"]
-    version = "v0.21.1-0.20240508182429-e35e4ccd0d2d"
-    hash = "sha256-KfnS+3fREPAWQUBoUedPupQp9yLrugxMmmEoHvyzKNE="
   [mod."gopkg.in/check.v1"]
     version = "v1.0.0-20201130134442-10cb98267c6c"
     hash = "sha256-VlIpM2r/OD+kkyItn6vW35dyc0rtkJufA93rjFyzncs="
@@ -173,8 +170,8 @@ schema = 3
     version = "v3.0.0-20240304020402-f0dba7c97c2b"
     hash = "sha256-mNcc0Tw2uVVb9YzBUhZ5POHxBiUnCckQywHm/p9NI9s="
   [mod."modernc.org/libc"]
-    version = "v1.53.4"
-    hash = "sha256-PK0FVIfDYOEvkfM4QOFcmGOXbBrwFLlAP7G591a9+X0="
+    version = "v1.54.3"
+    hash = "sha256-5BmglY8A4MDH0JLsEvYmoi3kxO/ltdt3FO87+fLaqCo="
   [mod."modernc.org/mathutil"]
     version = "v1.6.0"
     hash = "sha256-lfuEiS1odd2TWrTylnaGihSJ9myqKs3FLdpvd7PqTnE="

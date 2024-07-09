@@ -13,7 +13,7 @@ import (
 	"gitlab.com/hmajid2301/optinix/internal/options/store"
 )
 
-func getUpdateCmd(ctx context.Context, db *sql.DB) *cobra.Command {
+func getUpdateCmd(ctx context.Context, db *sql.DB, sources entities.Sources) *cobra.Command {
 	updateCmd := &cobra.Command{
 		Use:     "update",
 		Short:   "Update and fetch the latest options.",
@@ -31,12 +31,6 @@ func getUpdateCmd(ctx context.Context, db *sql.DB) *cobra.Command {
 			fetcher := fetch.NewFetcher(nixExecutor, nixReader, messenger)
 
 			option := options.NewSearcher(myStore, fetcher, messenger)
-
-			sources := entities.Sources{
-				NixOS:       "nix/nixos-options.nix",
-				HomeManager: "nix/hm-options.nix",
-				Darwin:      "nix/darwin-options.nix",
-			}
 
 			err = option.Save(ctx, sources)
 			if err != nil {

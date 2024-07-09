@@ -25,7 +25,8 @@ type GetArgsAndFlags struct {
 	NoTUI      bool
 }
 
-func getGetCmd(ctx context.Context, db *sql.DB) *cobra.Command {
+// TODO: refactor args
+func getGetCmd(ctx context.Context, db *sql.DB, sources entities.Sources) *cobra.Command {
 	var noTUI bool
 	var limit int64
 
@@ -38,10 +39,7 @@ func getGetCmd(ctx context.Context, db *sql.DB) *cobra.Command {
 			noTUI, _ = cmd.Flags().GetBool("no-tui")
 			limit, _ = cmd.Flags().GetInt64("limit")
 		},
-		RunE: func(cmd *cobra.Command, args []string) error {
-			cmd.Flags().BoolVar(&noTUI, "no-tui", false, "If set will not show the TUI and just print the options to stdout")
-			//nolint: mnd
-			cmd.Flags().Int64Var(&limit, "limit", 10, "Limit the number of results returned")
+		RunE: func(_ *cobra.Command, args []string) error {
 			flags := GetArgsAndFlags{
 				Limit: limit,
 				NoTUI: noTUI,
@@ -51,23 +49,26 @@ func getGetCmd(ctx context.Context, db *sql.DB) *cobra.Command {
 				flags.OptionName = args[0]
 			}
 
-			outputOptions(ctx, flags, db)
+			outputOptions(ctx, flags, db, sources)
 			return nil
 		},
 	}
 
+	getCmd.Flags().BoolVar(&noTUI, "no-tui", false, "If set will not show the TUI and just print the options to stdout")
+	//nolint: mnd
+	getCmd.Flags().Int64Var(&limit, "limit", 10, "Limit the number of results returned")
 	return getCmd
 }
 
-func outputOptions(ctx context.Context, flags GetArgsAndFlags, db *sql.DB) {
+func outputOptions(ctx context.Context, flags GetArgsAndFlags, db *sql.DB, sources entities.Sources) {
 	if flags.NoTUI {
-		options, err := findOptions(ctx, db, flags)
+		options, err := findOptions(ctx, db, flags, sources)
 		if err != nil {
 			fmt.Printf("Failed to get options %s\n", err)
 		}
 		plaintext.Output(options)
 	} else {
-		getOptionsFunc := getOptions(ctx, db, flags)
+		getOptionsFunc := getOptions(ctx, db, flags, sources)
 		myTui, err := tui.NewTUI(getOptionsFunc)
 		if err != nil {
 			fmt.Println(err)
@@ -80,9 +81,9 @@ func outputOptions(ctx context.Context, flags GetArgsAndFlags, db *sql.DB) {
 	}
 }
 
-func getOptions(ctx context.Context, db *sql.DB, flags GetArgsAndFlags) tea.Cmd {
+func getOptions(ctx context.Context, db *sql.DB, flags GetArgsAndFlags, sources entities.Sources) tea.Cmd {
 	return func() tea.Msg {
-		options, err := findOptions(ctx, db, flags)
+		options, err := findOptions(ctx, db, flags, sources)
 		if err != nil {
 			tea.Printf("Failed to get options %s\n", err)
 		}
@@ -111,6 +112,7 @@ func getOptions(ctx context.Context, db *sql.DB, flags GetArgsAndFlags) tea.Cmd 
 func findOptions(ctx context.Context,
 	db *sql.DB,
 	flags GetArgsAndFlags,
+	sources entities.Sources,
 ) (opts []entities.Option, err error) {
 	myStore, err := store.NewStore(db)
 	if err != nil {
@@ -123,12 +125,6 @@ func findOptions(ctx context.Context,
 	fetcher := fetch.NewFetcher(nixExecutor, nixReader, messenger)
 
 	option := options.NewSearcher(myStore, fetcher, messenger)
-
-	sources := entities.Sources{
-		NixOS:       "nix/nixos-options.nix",
-		HomeManager: "nix/hm-options.nix",
-		Darwin:      "nix/darwin-options.nix",
-	}
 
 	// INFO: If the database is empty likely first time cli has been run so fetch all options.
 	optionCount, err := myStore.CountOptions(ctx)
