@@ -3,6 +3,7 @@ package cmd
 import (
 	"context"
 	"database/sql"
+	"errors"
 	"fmt"
 	"strings"
 
@@ -47,6 +48,10 @@ func getGetCmd(ctx context.Context, db *sql.DB, sources entities.Sources) *cobra
 
 			if len(args) > 0 {
 				flags.OptionName = args[0]
+			}
+
+			if flags.OptionName == "" && !flags.NoTUI {
+				return errors.New("option name is required when using the TUI, pass --no-tui to disable the TUI")
 			}
 
 			outputOptions(ctx, flags, db, sources)

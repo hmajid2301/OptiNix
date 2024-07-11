@@ -14,7 +14,7 @@
 }:
 buildGoApplication {
   pname = "optinix";
-  version = "0.1.1";
+  version = "0.1.2";
   go = pkgs.go_1_22;
   pwd = ./.;
   src = ./.;
