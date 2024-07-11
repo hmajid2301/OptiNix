@@ -56,6 +56,13 @@ func main() {
 }
 
 func getDB(ctx context.Context, ddl string) (*sql.DB, error) {
+	// INFO: This is a hack to allow to build completions in a Nix build, where we won't easily have access to the DB.
+	// We don't need the DB for completions, so we can just set it to nil. Until I come up with a better way to do this.
+	args := os.Args
+	if len(args) > 0 && args[1] == "completion" {
+		return nil, nil
+	}
+
 	conf, err := config.LoadConfig()
 	if err != nil {
 		return nil, fmt.Errorf("failed to load config: %w", err)
