@@ -2,7 +2,7 @@ CREATE TABLE IF NOT EXISTS options (
     id INTEGER PRIMARY KEY,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    option_name TEXT NOT NULL,
+    option_name TEXT UNIQUE NOT NULL,
     description TEXT NOT NULL,
     option_type TEXT NOT NULL,
     option_from TEXT NOT NULL,
@@ -52,5 +52,5 @@ BEGIN
     DELETE FROM options_fts WHERE option_id = OLD.option_id;
 END;
 
-CREATE INDEX IF NOT EXISTS options_name_idx ON options (option_name);
+-- CREATE INDEX IF NOT EXISTS options_name_idx ON options (option_name);
 CREATE UNIQUE INDEX IF NOT EXISTS sources_url_idx ON sources (url);

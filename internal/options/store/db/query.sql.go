@@ -10,7 +10,9 @@ import (
 )
 
 const addOption = `-- name: AddOption :one
-INSERT INTO options (option_name, description, option_type, option_from, default_value, example) VALUES (?, ?, ?, ?, ?, ?) RETURNING id, created_at, updated_at, option_name, description, option_type, option_from, default_value, example
+INSERT OR REPLACE INTO
+   options (option_name, description, option_type, option_from, default_value, example)
+VALUES (?, ?, ?, ?, ?, ?) RETURNING id, created_at, updated_at, option_name, description, option_type, option_from, default_value, example
 `
 
 type AddOptionParams struct {

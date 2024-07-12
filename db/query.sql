@@ -43,7 +43,9 @@ GROUP BY
     o.id;
 
 -- name: AddOption :one
-INSERT INTO options (option_name, description, option_type, option_from, default_value, example) VALUES (?, ?, ?, ?, ?, ?) RETURNING *;
+INSERT OR REPLACE INTO
+   options (option_name, description, option_type, option_from, default_value, example)
+VALUES (?, ?, ?, ?, ?, ?) RETURNING *;
 
 -- name: AddSource :one
 INSERT INTO sources (url) VALUES (?) ON CONFLICT(url) DO UPDATE SET url = excluded.url RETURNING *;

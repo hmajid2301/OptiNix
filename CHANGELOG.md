@@ -7,19 +7,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.3] - 13-07-2024
+### Fixed
+- Duplicate options with same name in the database, it will now replace the existing option.
+
+
 ## [0.1.2] - 12-07-2024
 ### Changed
 - Throw an error if user tries to pass no option name while using TUI.
+
 ## [0.1.1] - 11-07-2024
 ### Fixed
 - Nix build not adding shell completions properly due to needing a DB setup.
+
 ## [0.1.0] - 09-07-2024
 ### Added
 - Initial version released.
 
-
-[unreleased]: https://github.com/olivierlacan/keep-a-changelog/compare/v0.1.2...HEAD
-[0.1.2]: https://gitlab.com/hmajid2301/optinix/-/compare/v0.1.2...v0.1.0
+[unreleased]: https://gitlab.com/hmajid2301/optinix/compare/v0.1.3...HEAD
+[0.1.3]: https://gitlab.com/hmajid2301/optinix/-/compare/v0.1.3...v0.1.2
+[0.1.2]: https://gitlab.com/hmajid2301/optinix/-/compare/v0.1.2...v0.1.1
 [0.1.1]: https://gitlab.com/hmajid2301/optinix/-/compare/v0.1.1...v0.1.0
 [0.1.0]: https://gitlab.com/hmajid2301/optinix/releases/tag/v0.1.0
 

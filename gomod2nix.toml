@@ -26,17 +26,17 @@ schema = 3
     version = "v0.7.0"
     hash = "sha256-nNEQ6ONSknvXf3hXuQv6N4pWjbCVBATndzzT3jE07eM="
   [mod."github.com/charmbracelet/lipgloss"]
-    version = "v0.11.0"
-    hash = "sha256-CfyGRq1sxB6J/TtE4rGJsmMnfy0ZSELUbSd95K4sXQA="
+    version = "v0.12.0"
+    hash = "sha256-BQrWkQCTxJ2Ck5J4G9RoEPx4AlCqzzEsNEU1T5kSX28="
   [mod."github.com/charmbracelet/x/ansi"]
-    version = "v0.1.2"
-    hash = "sha256-Gq4kkBH1pNjR0kHk1LSueZskGM4jbyIbHymqUnmFhBs="
+    version = "v0.1.3"
+    hash = "sha256-Sp9CK9c4OMUj8pIxwxtAlCjWnS3e0wVY5coJcVWcPuQ="
   [mod."github.com/charmbracelet/x/exp/golden"]
-    version = "v0.0.0-20240521172236-71f88323a7ca"
+    version = "v0.0.0-20240617190524-788ec55faed1"
     hash = "sha256-Fo6J3IS+Q9rkqoSkonNi4dL0gLyNjeQKjCA85miinZc="
   [mod."github.com/charmbracelet/x/exp/teatest"]
-    version = "v0.0.0-20240606154654-7c42867b53c7"
-    hash = "sha256-d3WsqE3D5qCdwPWotCxQYEA0XhpQ6e2anBclBlj+3vo="
+    version = "v0.0.0-20240712164413-28bab17c47e2"
+    hash = "sha256-yCeXnI+15Ewev3EETx/t2BMH5qSLwalk2MIsGUd/HWU="
   [mod."github.com/charmbracelet/x/input"]
     version = "v0.1.2"
     hash = "sha256-pZs9BsmfPy3iWMw1IpxBUpzuxmxCa0pjZLzrVtPh/7E="

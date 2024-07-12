@@ -103,7 +103,7 @@ func TestIntegrationGetOptions(t *testing.T) {
 		nixOpts, err := opt.Find(ctx, "vdirsyncer enable", 10)
 		assert.NoError(t, err)
 
-		expectedResults := 2
+		expectedResults := 1
 		assert.Len(t, nixOpts, expectedResults)
 
 		expectedOpt := entities.Option{
@@ -117,7 +117,7 @@ func TestIntegrationGetOptions(t *testing.T) {
 			},
 			OptionFrom: "Home Manager",
 		}
-		assert.Contains(t, nixOpts, expectedOpt)
+		assert.Equal(t, nixOpts[0], expectedOpt)
 	})
 
 	t.Run("Should get all options", func(t *testing.T) {
@@ -131,7 +131,7 @@ func TestIntegrationGetOptions(t *testing.T) {
 		nixOpts, err := opt.GetAll(ctx)
 		assert.NoError(t, err)
 
-		expectedResults := 266
+		expectedResults := 168
 		assert.Len(t, nixOpts, expectedResults)
 	})
 }
