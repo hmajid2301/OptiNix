@@ -91,14 +91,14 @@ You can install using `go`
 go install gitlab.com/hmajid2301/optinix
 ```
 
-<!-- ### Nix (Coming Soon.) -->
-<!-- You can install this package from nixpkgs. -->
-<!---->
-<!-- ```bash -->
-<!-- nix-shell -p optinix -->
-<!---->
-<!-- optinix -v -->
-<!-- ``` -->
+### Nix
+You can install this package from nixpkgs, like you would with other packages.
+
+```bash
+nix-shell -p optinix
+
+optinix --help
+```
 
 
 ## Usage
