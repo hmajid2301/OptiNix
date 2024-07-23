@@ -11,6 +11,7 @@
   - [Install](#install)
     - [Nix flakes](#nix-flakes)
     - [Go](#go)
+    - [Nix](#nix)
   - [Usage](#usage)
     - [Nix with flakes](#nix-with-flakes)
     - [Key Maps](#key-maps)
@@ -18,6 +19,7 @@
     - [With FZF](#with-fzf)
     - [Update](#update)
   - [Supported Sources](#supported-sources)
+  - [Features to implement](#features-to-implement)
   - [Inspired By](#inspired-by)
 <!--toc:end-->
 
