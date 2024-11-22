@@ -128,7 +128,7 @@ Use "optinix [command] --help" for more information about a comman
 If you are running Nix and have flakes enabled in your configuration, you can run the tool like the command below. Without needing to "install" OptiNix.
 
 ```bash
-nix run 'gitlab.com/hmajid2301/optinix' get hyprland
+nix run 'gitlab:hmajid2301/optinix' get hyprland
 ```
 
 ### Key Maps
