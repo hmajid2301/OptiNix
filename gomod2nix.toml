@@ -17,35 +17,29 @@ schema = 3
     version = "v0.2.0"
     hash = "sha256-NiBX8EfOvLXNiK3pJaZX4N73YgfzdrzRXdiBFe3X3sE="
   [mod."github.com/charmbracelet/bubbles"]
-    version = "v0.18.0"
-    hash = "sha256-FVKLet2anNB6gupLYXO4kJaKQIXs1dg2dZ2ooaBiEZU="
+    version = "v0.20.0"
+    hash = "sha256-p5jmxDfH9vEWsafg1lB7HBTUSysXrTGymTThFYClrOE="
   [mod."github.com/charmbracelet/bubbletea"]
-    version = "v0.26.6"
-    hash = "sha256-D34zyOdsT/FJOquYzfSLO9hVujpAUCvS/LtmL/vcG6E="
+    version = "v1.2.4"
+    hash = "sha256-QMYSWZ4FRjvEEr5RCbNmm/F5v0pqXIujVdugKm+dh98="
   [mod."github.com/charmbracelet/glamour"]
     version = "v0.7.0"
     hash = "sha256-nNEQ6ONSknvXf3hXuQv6N4pWjbCVBATndzzT3jE07eM="
   [mod."github.com/charmbracelet/lipgloss"]
-    version = "v0.12.0"
-    hash = "sha256-BQrWkQCTxJ2Ck5J4G9RoEPx4AlCqzzEsNEU1T5kSX28="
+    version = "v1.0.0"
+    hash = "sha256-6ilMmaNrkVUt+RtuDu2lMAGFWe6Dx6921swURY+M1HE="
   [mod."github.com/charmbracelet/x/ansi"]
-    version = "v0.1.3"
-    hash = "sha256-Sp9CK9c4OMUj8pIxwxtAlCjWnS3e0wVY5coJcVWcPuQ="
+    version = "v0.4.5"
+    hash = "sha256-Lq+d2VYKVLIgF6pBac8phexaecdl7Q3Ga4B2tv+VvXY="
   [mod."github.com/charmbracelet/x/exp/golden"]
-    version = "v0.0.0-20240617190524-788ec55faed1"
-    hash = "sha256-Fo6J3IS+Q9rkqoSkonNi4dL0gLyNjeQKjCA85miinZc="
+    version = "v0.0.0-20240815200342-61de596daa2b"
+    hash = "sha256-un8ZNTtXHXdMnKAV61ujJmKeLOfEVY0VXPrlx0lsl6E="
   [mod."github.com/charmbracelet/x/exp/teatest"]
-    version = "v0.0.0-20240712164413-28bab17c47e2"
-    hash = "sha256-yCeXnI+15Ewev3EETx/t2BMH5qSLwalk2MIsGUd/HWU="
-  [mod."github.com/charmbracelet/x/input"]
-    version = "v0.1.2"
-    hash = "sha256-pZs9BsmfPy3iWMw1IpxBUpzuxmxCa0pjZLzrVtPh/7E="
+    version = "v0.0.0-20241205153503-10120d07f75b"
+    hash = "sha256-sLEErTt6XRexPWjd3wDAJuWci/1dSZMux6LYMkW8u8M="
   [mod."github.com/charmbracelet/x/term"]
-    version = "v0.1.1"
-    hash = "sha256-BBsMkabliwOYrGZAwFzWKA6lXDSOIkvE3FMJFjBGSSM="
-  [mod."github.com/charmbracelet/x/windows"]
-    version = "v0.1.2"
-    hash = "sha256-uufac0CkGUnJHWNvIuN1p5W62CEyHkc7XRRRmXJKJoc="
+    version = "v0.2.1"
+    hash = "sha256-VBkCZLI90PhMasftGw3403IqoV7d3E5WEGAIVrN5xQM="
   [mod."github.com/davecgh/go-spew"]
     version = "v1.1.2-0.20180830191138-d8f796af33cc"
     hash = "sha256-fV9oI51xjHdOmEx6+dlq7Ku2Ag+m/bmbzPo6A4Y74qc="
@@ -83,8 +77,8 @@ schema = 3
     version = "v0.0.1"
     hash = "sha256-JlWckeGaWG+bXK8l8WEdZqmSiTwCA8b1qbmBKa/Fj3E="
   [mod."github.com/mattn/go-runewidth"]
-    version = "v0.0.15"
-    hash = "sha256-WP39EU2UrQbByYfnwrkBDoKN7xzXsBssDq3pNryBGm0="
+    version = "v0.0.16"
+    hash = "sha256-NC+ntvwIpqDNmXb7aixcg09il80ygq6JAnW0Gb5b/DQ="
   [mod."github.com/microcosm-cc/bluemonday"]
     version = "v1.0.27"
     hash = "sha256-EZSya9FLPQ83CL7N2cZy21fdS35hViTkiMK5f3op8Es="
@@ -139,9 +133,6 @@ schema = 3
   [mod."github.com/stretchr/testify"]
     version = "v1.9.0"
     hash = "sha256-uUp/On+1nK+lARkTVtb5RxlW15zxtw2kaAFuIASA+J0="
-  [mod."github.com/xo/terminfo"]
-    version = "v0.0.0-20220910002029-abceb7e1c41e"
-    hash = "sha256-GyCDxxMQhXA3Pi/TsWXpA8cX5akEoZV7CFx4RO3rARU="
   [mod."github.com/yuin/goldmark"]
     version = "v1.7.4"
     hash = "sha256-1L0gZyD+AguN8GBy17rs54eFZv7LTU5dcttULEJRabI="
@@ -152,14 +143,14 @@ schema = 3
     version = "v0.27.0"
     hash = "sha256-GrlN5isYeEVrPZVAHK0MDQatttbnyfSPoWJHj0xqhjk="
   [mod."golang.org/x/sync"]
-    version = "v0.7.0"
-    hash = "sha256-2ETllEu2GDWoOd/yMkOkLC2hWBpKzbVZ8LhjLu0d2A8="
+    version = "v0.9.0"
+    hash = "sha256-sGvzGqaaXE5dxohKkpbJMnu+bMmismsSqr8YMtrK+Rc="
   [mod."golang.org/x/sys"]
-    version = "v0.22.0"
-    hash = "sha256-RbG0XaXGGlErCsl2agvUxMnrkRwdbJLmriYT1H24FwA="
+    version = "v0.27.0"
+    hash = "sha256-BXQcF9RrJ55Pq7Nl67TeFGkgkyuKkQ8hHKN4/L4ggWc="
   [mod."golang.org/x/text"]
-    version = "v0.16.0"
-    hash = "sha256-hMTO45upjEuA4sJzGplJT+La2n3oAfHccfYWZuHcH+8="
+    version = "v0.19.0"
+    hash = "sha256-C92pSYLLUQ2NKKcc60wpoSJ5UWAfnWkmd997C13fXdU="
   [mod."gopkg.in/check.v1"]
     version = "v1.0.0-20201130134442-10cb98267c6c"
     hash = "sha256-VlIpM2r/OD+kkyItn6vW35dyc0rtkJufA93rjFyzncs="
@@ -170,8 +161,8 @@ schema = 3
     version = "v3.0.0-20240304020402-f0dba7c97c2b"
     hash = "sha256-mNcc0Tw2uVVb9YzBUhZ5POHxBiUnCckQywHm/p9NI9s="
   [mod."modernc.org/libc"]
-    version = "v1.54.3"
-    hash = "sha256-5BmglY8A4MDH0JLsEvYmoi3kxO/ltdt3FO87+fLaqCo="
+    version = "v1.55.3"
+    hash = "sha256-MGEOCkVDhjZW0t68m5p45UjikILl59KoL/3wx65O1zs="
   [mod."modernc.org/mathutil"]
     version = "v1.6.0"
     hash = "sha256-lfuEiS1odd2TWrTylnaGihSJ9myqKs3FLdpvd7PqTnE="
@@ -179,8 +170,8 @@ schema = 3
     version = "v1.8.0"
     hash = "sha256-ucvPr73zg8LjvU+bcoIPKTgwgcon3U9VhKrLEMH81xg="
   [mod."modernc.org/sqlite"]
-    version = "v1.30.1"
-    hash = "sha256-yhP8Ym8vDBSzkyeZektfekTjUNXKWiv+6lJePd3rySw="
+    version = "v1.31.0"
+    hash = "sha256-JUYJxISSanQRPhRJsbfSMFVVUDddr3b6b72oGwC7Iro="
   [mod."modernc.org/strutil"]
     version = "v1.2.0"
     hash = "sha256-NTYIWMRZjHmR77LMvsFOMCitt7toKTfH+zChYAMzZ2Y="
