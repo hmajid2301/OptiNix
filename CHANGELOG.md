@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.4] - 08-01-2025
+### Fixed
+- Getting an error requiring a version when trying to fetch darwin options.
+
 ## [0.1.3] - 13-07-2024
 ### Fixed
 - Duplicate options with same name in the database, it will now replace the existing option.
@@ -24,7 +28,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Initial version released.
 
-[unreleased]: https://gitlab.com/hmajid2301/optinix/compare/v0.1.3...HEAD
+[unreleased]: https://gitlab.com/hmajid2301/optinix/compare/v0.1.4...HEAD
+[0.1.3]: https://gitlab.com/hmajid2301/optinix/-/compare/v0.1.4...v0.1.3
 [0.1.3]: https://gitlab.com/hmajid2301/optinix/-/compare/v0.1.3...v0.1.2
 [0.1.2]: https://gitlab.com/hmajid2301/optinix/-/compare/v0.1.2...v0.1.1
 [0.1.1]: https://gitlab.com/hmajid2301/optinix/-/compare/v0.1.1...v0.1.0
