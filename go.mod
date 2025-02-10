@@ -7,7 +7,7 @@ require (
 	github.com/charmbracelet/bubbletea v1.2.4
 	github.com/charmbracelet/glamour v0.7.0
 	github.com/charmbracelet/lipgloss v1.0.0
-	github.com/charmbracelet/x/exp/teatest v0.0.0-20250131172436-6251e772efa1
+	github.com/charmbracelet/x/exp/teatest v0.0.0-20250207233001-40534c389c2d
 	github.com/muesli/go-app-paths v0.2.2
 	github.com/spf13/cobra v1.8.1
 	github.com/stretchr/testify v1.9.0
