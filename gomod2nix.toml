@@ -23,8 +23,8 @@ schema = 3
     version = "v1.3.3"
     hash = "sha256-UNy50mWeDR6OinV7dIuQDkKEaBqfjMKWZDyJC/BlhPo="
   [mod."github.com/charmbracelet/glamour"]
-    version = "v0.7.0"
-    hash = "sha256-nNEQ6ONSknvXf3hXuQv6N4pWjbCVBATndzzT3jE07eM="
+    version = "v0.8.0"
+    hash = "sha256-Q7bon+4JPor13i0fkPwXsesKI+hvGP8k39gi53v2XeQ="
   [mod."github.com/charmbracelet/lipgloss"]
     version = "v1.0.0"
     hash = "sha256-6ilMmaNrkVUt+RtuDu2lMAGFWe6Dx6921swURY+M1HE="
@@ -95,14 +95,11 @@ schema = 3
     version = "v0.3.0"
     hash = "sha256-Pou2ybE9SFSZG6YfZLVV1Eyfm+X4FuVpDPLxhpn47Cc="
   [mod."github.com/muesli/termenv"]
-    version = "v0.15.2"
-    hash = "sha256-Eum/SpyytcNIchANPkG4bYGBgcezLgej7j/+6IhqoMU="
+    version = "v0.15.3-0.20240618155329-98d742f6907a"
+    hash = "sha256-AEYbAEZqbEFj8G756TGs4/APsD4UEvUnhvcKJNYgywg="
   [mod."github.com/ncruces/go-strftime"]
     version = "v0.1.9"
     hash = "sha256-T0iw+UEckzueWHT88PkTnZZixyKCEa+DTLzIiiohuWY="
-  [mod."github.com/olekukonko/tablewriter"]
-    version = "v0.0.5"
-    hash = "sha256-/5i70IkH/qSW5KjGzv8aQNKh9tHoz98tqtL0K2DMFn4="
   [mod."github.com/pmezard/go-difflib"]
     version = "v1.0.1-0.20181226105442-5d4384ee4fb2"
     hash = "sha256-XA4Oj1gdmdV/F/+8kMI+DBxKPthZ768hbKsO3d9Gx90="
@@ -148,6 +145,9 @@ schema = 3
   [mod."golang.org/x/sys"]
     version = "v0.30.0"
     hash = "sha256-BuhWtwDkciVioc03rxty6G2vcZVnPX85lI7tgQOFVP8="
+  [mod."golang.org/x/term"]
+    version = "v0.22.0"
+    hash = "sha256-tRx/y4ZIZzGAlDJ/8JW3AycC9bRXlNuRqO4V48sAEEc="
   [mod."golang.org/x/text"]
     version = "v0.19.0"
     hash = "sha256-C92pSYLLUQ2NKKcc60wpoSJ5UWAfnWkmd997C13fXdU="
