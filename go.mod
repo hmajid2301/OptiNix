@@ -10,7 +10,7 @@ require (
 	github.com/charmbracelet/x/exp/teatest v0.0.0-20250207233001-40534c389c2d
 	github.com/muesli/go-app-paths v0.2.2
 	github.com/spf13/cobra v1.9.1
-	github.com/stretchr/testify v1.9.0
+	github.com/stretchr/testify v1.10.0
 	modernc.org/sqlite v1.35.0
 )
 
