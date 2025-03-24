@@ -34,6 +34,8 @@ github.com/charmbracelet/x/exp/teatest v0.0.0-20250303111204-ce812b082f54 h1:VjF
 github.com/charmbracelet/x/exp/teatest v0.0.0-20250303111204-ce812b082f54/go.mod h1:ag+SpTUkiN/UuUGYPX3Ci4fR1oF3XX97PpGhiXK7i6U=
 github.com/charmbracelet/x/exp/teatest v0.0.0-20250313150240-c09addb0e197 h1:srqptb2B5Lc27HKz10TPNaJfQj390A4PzGKyhfVRtjQ=
 github.com/charmbracelet/x/exp/teatest v0.0.0-20250313150240-c09addb0e197/go.mod h1:ag+SpTUkiN/UuUGYPX3Ci4fR1oF3XX97PpGhiXK7i6U=
+github.com/charmbracelet/x/exp/teatest v0.0.0-20250317102001-c803e5cafd0b h1:stRYpFhKYr6u2DrdyXHabpXQdRbNs8REQ4RB/Kc22t0=
+github.com/charmbracelet/x/exp/teatest v0.0.0-20250317102001-c803e5cafd0b/go.mod h1:ag+SpTUkiN/UuUGYPX3Ci4fR1oF3XX97PpGhiXK7i6U=
 github.com/charmbracelet/x/term v0.2.1 h1:AQeHeLZ1OqSXhrAWpYUtZyX1T3zVxfpZuEQMIQaGIAQ=
 github.com/charmbracelet/x/term v0.2.1/go.mod h1:oQ4enTYFV7QN4m0i9mzHrViD7TQKvNEEkHUMCmsxdUg=
 github.com/cpuguy83/go-md2man/v2 v2.0.6/go.mod h1:oOW0eioCTA6cOiMLiUPZOpcVxMig6NIQQ7OS05n1F4g=
