@@ -4,18 +4,19 @@
       inherit (builtins) fetchTree fromJSON readFile;
       inherit ((fromJSON (readFile ./flake.lock)).nodes) nixpkgs gomod2nix;
     in
-      import (fetchTree nixpkgs.locked) {
-        overlays = [
-          (import "${fetchTree gomod2nix.locked}/overlay.nix")
-        ];
-      }
+    import (fetchTree nixpkgs.locked) {
+      overlays = [
+        (import "${fetchTree gomod2nix.locked}/overlay.nix")
+      ];
+    }
   ),
   mkGoEnv ? pkgs.mkGoEnv,
   gomod2nix ? pkgs.gomod2nix,
   pre-commit-hooks,
   ...
-}: let
-  goEnv = mkGoEnv {pwd = ./.;};
+}:
+let
+  goEnv = mkGoEnv { pwd = ./.; };
   pre-commit-check = pre-commit-hooks.lib.${pkgs.system}.run {
     src = ./.;
     hooks = {
@@ -24,24 +25,25 @@
     };
   };
 in
-  pkgs.mkShell {
-    inherit (pre-commit-check) shellHook;
-    hardeningDisable = ["all"];
-    packages = with pkgs; [
-      goEnv
-      gomod2nix
+pkgs.mkShell {
+  inherit (pre-commit-check) shellHook;
+  hardeningDisable = [ "all" ];
+  packages = with pkgs; [
+    go_1_24
+    goEnv
+    gomod2nix
 
-      docker
+    docker
 
-      golangci-lint
-      gotools
-      go-junit-report
-      gocover-cobertura
-      go-task
-      goreleaser
+    golangci-lint
+    gotools
+    go-junit-report
+    gocover-cobertura
+    go-task
+    goreleaser
 
-      sqlc
+    sqlc
 
-      vhs
-    ];
-  }
+    vhs
+  ];
+}

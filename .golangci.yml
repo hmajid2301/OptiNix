@@ -1,53 +1,59 @@
-run:
-  timeout: 5m
-
+version: "2"
 linters:
   enable:
     - bodyclose
     - dogsled
     - dupl
-    - errcheck
-    - exportloopref
     - funlen
     - gochecknoinits
     - goconst
     - gocritic
     - gocyclo
-    - gofmt
-    - goimports
-    - mnd
     - goprintffuncname
     - gosec
-    - gosimple
-    - govet
-    - ineffassign
     - lll
     - misspell
+    - mnd
     - nakedret
     - noctx
     - nolintlint
     - revive
     - staticcheck
-    - stylecheck
-    - typecheck
     - unconvert
     - unparam
-    - unused
     - whitespace
-
-linters-settings:
-  goimports:
-    local-prefixes: gitlab.com/majiy00/go/clis/optinix
-
-issues:
-  exclude-dirs:
-    - direnv
-
-  exclude-rules:
-    - path: _test.go
-      linters:
-        - gocyclo
-        - errcheck
-        - dupl
-        - gosec
-        - funlen
+  exclusions:
+    generated: lax
+    presets:
+      - comments
+      - common-false-positives
+      - legacy
+      - std-error-handling
+    rules:
+      - linters:
+          - dupl
+          - errcheck
+          - funlen
+          - gocyclo
+          - gosec
+        path: _test.go
+    paths:
+      - direnv
+      - third_party$
+      - builtin$
+      - examples$
+formatters:
+  enable:
+    - gofmt
+    - goimports
+  settings:
+    goimports:
+      local-prefixes:
+        - gitlab.com/majiy00/go/clis/optinix
+  exclusions:
+    generated: lax
+    paths:
+      - direnv
+      - third_party$
+      - builtin$
+      - examples$
