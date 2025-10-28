@@ -9,33 +9,45 @@ tasks:
   lint:
     desc: Runs the linter.
     cmds:
-      - golangci-lint run {{.CLI_ARGS}}
+      - golangci-lint run --fix ./...
 
   docker:build:
-    desc: Builds a Docker image using Nix.
+    desc: Build the Docker image
+    env:
+      LOCAL_IMAGE: banterbus
+      FLAKE_TARGET: container
     cmds:
-      - nix build .#container
-
-  docker:load:
-    desc: Loads the Docker image from tar (in results).
-    cmds:
+      - nix build .#${FLAKE_TARGET}
       - docker load < result
 
   docker:publish:
     desc: Publishes the Docker image
-    deps:
-      - docker:load
     cmds:
-      - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
-      - docker image tag optinix:0.1 $CI_REGISTRY_IMAGE:$CI_COMMIT_TAG
-      - docker image tag optinix:0.1 $CI_REGISTRY_IMAGE:latest
-      - docker push $CI_REGISTRY_IMAGE:$CI_COMMIT_TAG $CI_REGISTRY_IMAGE:latest
-      - docker push $CI_REGISTRY_IMAGE:latest
+      - task: docker:build
+      - |
+        if [ "${IMMUTABLE}" = "true" ]; then
+          echo "Checking if image ${IMAGE} already exists..."
+          if docker manifest inspect ${IMAGE} > /dev/null 2>&1; then
+            echo "Image ${IMAGE} already exists and IMMUTABLE=true, skipping push"
+            exit 0
+          fi
+        fi
+        docker login -u $CI_REGISTRY_USER -p $CI_JOB_TOKEN $CI_REGISTRY
+        docker image tag ${LOCAL_IMAGE}:latest ${IMAGE}
+        docker push ${IMAGE}
 
   format:
     desc: Runs the formatter.
     cmds:
-      - goimports -local gitlab.com/hmajid2301/optinix -w .
+      - golangci-lint run --fix ./...
+      - sqlfluff format db/ --dialect sqlite --disable-progress-bar
+
+  generate:
+    desc: Generates code from SQL schema.
+    cmds:
+      - sqlc generate
+      - gomod2nix
+      - task: format
 
   tests:unit:
     desc: Runs all the unit tests.

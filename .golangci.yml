@@ -1,7 +1,9 @@
 version: "2"
+
 linters:
   enable:
     - bodyclose
+    - copyloopvar
     - dogsled
     - dupl
     - funlen
@@ -18,10 +20,28 @@ linters:
     - noctx
     - nolintlint
     - revive
+    - sloglint
     - staticcheck
+    - testifylint
     - unconvert
     - unparam
     - whitespace
+  settings:
+    gosec:
+      excludes:
+        - G404
+    govet:
+      disable:
+        - fieldalignment
+    sloglint:
+      no-mixed-args: false
+      attr-only: true
+      context: all
+      static-msg: true
+      no-raw-keys: false
+      key-naming-case: snake
+      args-on-sep-lines: true
+
   exclusions:
     generated: lax
     presets:
@@ -36,24 +56,30 @@ linters:
           - funlen
           - gocyclo
           - gosec
+          - mnd
         path: _test.go
     paths:
+      - .go
       - direnv
+      - internal/options/store/db
       - third_party$
       - builtin$
       - examples$
+
 formatters:
   enable:
-    - gofmt
+    - gofumpt
     - goimports
   settings:
     goimports:
       local-prefixes:
-        - gitlab.com/majiy00/go/clis/optinix
+        - gitlab.com/hmajid2301/optinix
   exclusions:
     generated: lax
     paths:
+      - .go
       - direnv
+      - internal/options/store/db
       - third_party$
       - builtin$
       - examples$

@@ -13,6 +13,7 @@
   mkGoEnv ? pkgs.mkGoEnv,
   gomod2nix ? pkgs.gomod2nix,
   pre-commit-hooks,
+  devShellPackages ? [ ],
   ...
 }:
 let
@@ -28,22 +29,12 @@ in
 pkgs.mkShell {
   inherit (pre-commit-check) shellHook;
   hardeningDisable = [ "all" ];
-  packages = with pkgs; [
-    go_1_24
-    goEnv
-    gomod2nix
-
-    docker
-
-    golangci-lint
-    gotools
-    go-junit-report
-    gocover-cobertura
-    go-task
-    goreleaser
-
-    sqlc
-
-    vhs
-  ];
+  packages =
+    with pkgs;
+    [
+      goEnv
+      gomod2nix
+      docker
+    ]
+    ++ devShellPackages;
 }
