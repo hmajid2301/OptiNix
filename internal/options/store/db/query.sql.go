@@ -89,6 +89,42 @@ func (q *Queries) AddSourceOption(ctx context.Context, arg AddSourceOptionParams
 	return i, err
 }
 
+const deleteAllOptions = `-- name: DeleteAllOptions :exec
+DELETE FROM source_options
+`
+
+func (q *Queries) DeleteAllOptions(ctx context.Context) error {
+	_, err := q.db.ExecContext(ctx, deleteAllOptions)
+	return err
+}
+
+const deleteAllOptionsFTS = `-- name: DeleteAllOptionsFTS :exec
+DELETE FROM options_fts
+`
+
+func (q *Queries) DeleteAllOptionsFTS(ctx context.Context) error {
+	_, err := q.db.ExecContext(ctx, deleteAllOptionsFTS)
+	return err
+}
+
+const deleteAllOptionsTable = `-- name: DeleteAllOptionsTable :exec
+DELETE FROM options
+`
+
+func (q *Queries) DeleteAllOptionsTable(ctx context.Context) error {
+	_, err := q.db.ExecContext(ctx, deleteAllOptionsTable)
+	return err
+}
+
+const deleteAllSources = `-- name: DeleteAllSources :exec
+DELETE FROM sources
+`
+
+func (q *Queries) DeleteAllSources(ctx context.Context) error {
+	_, err := q.db.ExecContext(ctx, deleteAllSources)
+	return err
+}
+
 const findOptions = `-- name: FindOptions :many
 SELECT
     o.id,
@@ -114,14 +150,7 @@ WHERE
     )
 GROUP BY
     o.id
-LIMIT
-    ?
 `
-
-type FindOptionsParams struct {
-	OptionName string
-	Limit      int64
-}
 
 type FindOptionsRow struct {
 	ID           int64
@@ -134,8 +163,8 @@ type FindOptionsRow struct {
 	SourceList   interface{}
 }
 
-func (q *Queries) FindOptions(ctx context.Context, arg FindOptionsParams) ([]FindOptionsRow, error) {
-	rows, err := q.db.QueryContext(ctx, findOptions, arg.OptionName, arg.Limit)
+func (q *Queries) FindOptions(ctx context.Context, optionName string) ([]FindOptionsRow, error) {
+	rows, err := q.db.QueryContext(ctx, findOptions, optionName)
 	if err != nil {
 		return nil, err
 	}

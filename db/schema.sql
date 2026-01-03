@@ -45,7 +45,7 @@ FOR EACH ROW
 BEGIN
     UPDATE options_fts SET
         option_name = new.option_name, description = new.description
-    WHERE option_id = old.option_id;
+    WHERE option_id = old.id;
 END;
 
 CREATE TRIGGER IF NOT EXISTS delete_options_fts
@@ -53,7 +53,7 @@ AFTER DELETE ON options
 FOR EACH ROW
 BEGIN
     DELETE FROM options_fts
-    WHERE option_id = old.option_id;
+    WHERE option_id = old.id;
 END;
 
 -- CREATE INDEX IF NOT EXISTS options_name_idx ON options (option_name);

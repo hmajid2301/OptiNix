@@ -2,6 +2,7 @@ package options_test
 
 import (
 	"context"
+	"log/slog"
 	"os"
 	"testing"
 
@@ -28,11 +29,11 @@ type NixCmdExecutor struct{}
 
 func (n NixCmdExecutor) Execute(_ context.Context, expression string) (string, error) {
 	switch expression {
-	case "./nix/nixos-options.nix":
+	case `(builtins.getFlake (toString ./nix)).packages.${builtins.currentSystem}.nixos-options`:
 		return "../../testdata/nixos-options.json", nil
-	case "./nix/hm-options.nix":
+	case `(builtins.getFlake (toString ./nix)).packages.${builtins.currentSystem}.home-manager-options`:
 		return "../../testdata/hm-options.json", nil
-	case "./nix/darwin-options.nix":
+	case `(builtins.getFlake (toString ./nix)).packages.${builtins.currentSystem}.darwin-options`:
 		return "../../testdata/darwin-options.json", nil
 	}
 
@@ -49,8 +50,9 @@ func setupSubTest(t *testing.T) (options.Searcher, func()) {
 	dbStore, err := store.NewStore(db)
 	assert.NoError(t, err)
 
-	fetcher := fetch.NewFetcher(NixCmdExecutor{}, NixReader{}, Updater{})
-	opt := options.NewSearcher(dbStore, fetcher, Updater{})
+	logger := slog.New(slog.NewTextHandler(os.Stderr, nil))
+	fetcher := fetch.NewFetcher(NixCmdExecutor{}, NixReader{}, Updater{}, logger)
+	opt := options.NewSearcher(dbStore, fetcher, Updater{}, logger)
 
 	return opt, func() {
 		db.Close()
@@ -62,11 +64,8 @@ func TestIntegrationSaveOptions(t *testing.T) {
 		t.Skip("skipping integration test")
 	}
 
-	sources := entities.Sources{
-		NixOS:       "./nix/nixos-options.nix",
-		HomeManager: "./nix/hm-options.nix",
-		Darwin:      "./nix/darwin-options.nix",
-	}
+	// Sources are now empty as the flake expressions are built internally
+	sources := entities.Sources{}
 
 	t.Run("Should save options", func(t *testing.T) {
 		opt, teardown := setupSubTest(t)
@@ -86,11 +85,8 @@ func TestIntegrationGetOptions(t *testing.T) {
 		t.Skip("skipping integration test")
 	}
 
-	sources := entities.Sources{
-		NixOS:       "./nix/nixos-options.nix",
-		HomeManager: "./nix/hm-options.nix",
-		Darwin:      "./nix/darwin-options.nix",
-	}
+	// Sources are now empty as the flake expressions are built internally
+	sources := entities.Sources{}
 
 	t.Run("Should get option with `vdirsyncer` in option name", func(t *testing.T) {
 		opt, teardown := setupSubTest(t)
@@ -100,7 +96,7 @@ func TestIntegrationGetOptions(t *testing.T) {
 		err := opt.Save(ctx, sources)
 		assert.NoError(t, err)
 
-		nixOpts, err := opt.Find(ctx, "vdirsyncer enable", 10)
+		nixOpts, err := opt.Find(ctx, "vdirsyncer enable")
 		assert.NoError(t, err)
 
 		expectedResults := 1

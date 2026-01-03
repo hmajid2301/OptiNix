@@ -100,12 +100,9 @@ func (s Store) GetAllOptions(ctx context.Context) ([]entities.Option, error) {
 	return options, nil
 }
 
-func (s Store) FindOptions(ctx context.Context, name string, limit int64) ([]entities.Option, error) {
+func (s Store) FindOptions(ctx context.Context, name string) ([]entities.Option, error) {
 	options := []entities.Option{}
-	opts, err := s.queries.FindOptions(ctx, sqlc.FindOptionsParams{
-		OptionName: fmt.Sprintf("\"%s\"", name),
-		Limit:      limit,
-	})
+	opts, err := s.queries.FindOptions(ctx, fmt.Sprintf("\"%s\"", name))
 	if err != nil {
 		return options, err
 	}
@@ -136,6 +133,45 @@ func (s Store) CountOptions(ctx context.Context) (int64, error) {
 	}
 
 	return result, nil
+}
+
+func (s Store) ClearAllOptions(ctx context.Context) error {
+	tx, err := s.db.Begin()
+	if err != nil {
+		return err
+	}
+
+	defer func() {
+		if err != nil {
+			_ = tx.Rollback()
+		}
+	}()
+
+	err = s.queries.WithTx(tx).DeleteAllOptionsFTS(ctx)
+	if err != nil {
+		return err
+	}
+
+	err = s.queries.WithTx(tx).DeleteAllOptions(ctx)
+	if err != nil {
+		return err
+	}
+
+	err = s.queries.WithTx(tx).DeleteAllSources(ctx)
+	if err != nil {
+		return err
+	}
+
+	err = s.queries.WithTx(tx).DeleteAllOptionsTable(ctx)
+	if err != nil {
+		return err
+	}
+
+	if err := tx.Commit(); err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func GetDB(dbFolder string) (*sql.DB, error) {

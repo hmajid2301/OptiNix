@@ -2,75 +2,55 @@ package tui
 
 import (
 	"fmt"
-	"strings"
+
+	"github.com/charmbracelet/bubbles/list"
+	"github.com/charmbracelet/lipgloss"
 )
+
+var boxStyle = lipgloss.NewStyle().
+	Border(lipgloss.RoundedBorder()).
+	BorderForeground(lipgloss.Color("62")).
+	Padding(1, 2).
+	MarginTop(1)
 
 func (m Model) View() string {
 	if len(m.list.Items()) == 0 {
-		return m.spinner.View()
+		loadingMsg := "Loading options..."
+		spinnerView := fmt.Sprintf("\n\n   %s %s\n\n", m.spinner.View(), loadingMsg)
+		return spinnerView
 	}
 
-	if m.showGlammy {
-		selectedItem := m.list.SelectedItem().(Item)
-		markdown := renderMarkdown(selectedItem)
-		markdownString, _ := m.glammy.Render(markdown)
-		return markdownString
-	}
-
-	// TODO: work out how to show custom help menu
-	return m.list.View()
-}
-
-func renderMarkdown(item Item) string {
-	template := `
-# %s
-
-## Description
-
-%s
-
-## Type
-
-%s
-
-## Default
-
-%s
-
-## Example
-
-%s
-
-## Sources
-
-From: %s
-
-Declared in
-`
-	markdown := fmt.Sprintf(
-		template,
-		item.OptionName,
-		item.Desc,
-		item.Example,
-		item.OptionType,
-		item.DefaultValue,
-		item.OptionFrom,
-	)
-
-	// INFO: Convert a source from this path:
-	// /nix/store/sdfiiqwrf78i47gzld1favdx9m5ms1cj5pb1dx0brbrbigy8ij-source/nixos/modules/programs/wayland/hyprland.nix
-	// to this URL:
-	// https://github.com/nixos/nixpkgs/blob/master/nixos/modules/programs/wayland/hyprland.nix
-	for _, source := range item.Sources {
-		url := source
-		index := strings.Index(source, "nixos/modules")
-		if index != -1 {
-			part := source[index:]
-			url = "https://github.com/nixos/nixpkgs/blob/master/" + part
+	if m.view.showDetail {
+		if !m.view.detailReady {
+			return "Loading detail view..."
 		}
 
-		sourceMarkdown := fmt.Sprintf(" - %s\n", url)
-		markdown += sourceMarkdown
+		statusStyle := lipgloss.NewStyle().
+			Foreground(lipgloss.Color("42")).
+			Bold(true).
+			MarginTop(1)
+
+		view := m.view.detailViewport.View()
+
+		if m.view.statusMessage != "" {
+			view += "\n" + statusStyle.Render(m.view.statusMessage)
+		}
+
+		scrollInfo := ""
+		if m.view.detailViewport.TotalLineCount() > m.view.detailViewport.Height {
+			scrollInfo = fmt.Sprintf("\n↑/↓ to scroll (%d%%)", int(m.view.detailViewport.ScrollPercent()*100))
+		}
+
+		return boxStyle.Render(view + scrollInfo)
 	}
-	return markdown
+
+	listView := m.list.View()
+	filterQuery := ""
+	if m.list.FilterState() == list.Filtering || m.list.FilterState() == list.FilterApplied {
+		filterQuery = m.list.FilterValue()
+	}
+	currentIndex := m.list.Index()
+	statusBar := renderStatusBar(m.totalOptions, len(m.list.VisibleItems()), currentIndex, m.display.width, m.sourceFilter, filterQuery)
+
+	return lipgloss.JoinVertical(lipgloss.Left, listView, statusBar)
 }

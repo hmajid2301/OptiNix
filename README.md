@@ -128,16 +128,30 @@ Use "optinix [command] --help" for more information about a comman
 If you are running Nix and have flakes enabled in your configuration, you can run the tool like the command below. Without needing to "install" OptiNix.
 
 ```bash
-nix run 'gitlab:hmajid2301/optinix' get hyprland
+nix run 'gitlab:hmajid2301/optinix' get niri
 ```
 
 ### Key Maps
 
-- `j`: Down one item in list
-- `k`: Up one item in list
-- `t`: Toggle modal, to view more information about the option
+#### Navigation
+- `j` or `↓`: Down one item in list
+- `k` or `↑`: Up one item in list
 - `g`: Top of list
 - `G`: End of list
+
+#### Views
+- `t`: Toggle detail view to see more information about the option
+- `o`: Open option source in browser (when in detail view)
+
+#### Filtering
+- `n`: Filter by NixOS options only
+- `h`: Filter by Home Manager options only
+- `d`: Filter by Darwin options only
+- `a`: Show all options (remove filter)
+
+#### Other
+- `q` or `Esc`: Quit (or close detail view if open)
+- `/`: Search (start typing to filter results)
 
 ### Without TUI
 
@@ -179,7 +193,7 @@ Sources: [/nix/store/rhg90jpryc286xn9xjy6qjiaap6pjgdc-source/nixos/modules/virtu
 You can integrate this tool with FZF as well, like so:
 
 ```bash
-optinix get --no-tui | rg "Name: " | cut -d' ' -f2 | fzf --preview="optinix get --no-tui '{}'"
+optinix get --no-tui | grep "^Option [0-9]" | cut -d' ' -f3 | fzf --preview="optinix get --no-tui '{}'"
 ```
 
 ### Update

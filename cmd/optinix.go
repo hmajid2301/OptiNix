@@ -3,9 +3,8 @@ package cmd
 import (
 	"context"
 	"database/sql"
-	"embed"
+	"log/slog"
 
-	// used to connect to sqlite
 	_ "modernc.org/sqlite"
 
 	"gitlab.com/hmajid2301/optinix/internal/options/entities"
@@ -13,7 +12,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func NewRootCmd(ctx context.Context, db *sql.DB, nixExpressions embed.FS) (*cobra.Command, error) {
+func NewRootCmd(ctx context.Context, db *sql.DB, logger *slog.Logger) (*cobra.Command, error) {
 	rootCmd := &cobra.Command{
 		Version: "v0.1.4",
 		Use:     "optinix",
@@ -21,30 +20,11 @@ func NewRootCmd(ctx context.Context, db *sql.DB, nixExpressions embed.FS) (*cobr
 		Long:    `OptiNix is tool you can use on the command line to search options for NixOS, home-manager and Darwin.`,
 	}
 
-	no, err := nixExpressions.ReadFile("nix/nixos-options.nix")
-	if err != nil {
-		return nil, err
-	}
+	baseSourcesTemplate := entities.Sources{}
 
-	ho, err := nixExpressions.ReadFile("nix/hm-options.nix")
-	if err != nil {
-		return nil, err
-	}
-
-	do, err := nixExpressions.ReadFile("nix/darwin-options.nix")
-	if err != nil {
-		return nil, err
-	}
-
-	sources := entities.Sources{
-		NixOS:       string(no),
-		HomeManager: string(ho),
-		Darwin:      string(do),
-	}
-
-	updateCmd := getUpdateCmd(ctx, db, sources)
+	updateCmd := getUpdateCmd(ctx, db, baseSourcesTemplate, logger)
 	rootCmd.AddCommand(updateCmd)
-	getCmd := getGetCmd(ctx, db, sources)
+	getCmd := getGetCmd(ctx, db, baseSourcesTemplate, logger)
 	rootCmd.AddCommand(getCmd)
 
 	return rootCmd, nil

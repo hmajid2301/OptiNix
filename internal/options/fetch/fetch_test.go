@@ -3,6 +3,7 @@ package fetch_test
 import (
 	"context"
 	"errors"
+	"log/slog"
 	"os"
 	"testing"
 
@@ -43,8 +44,9 @@ func TestFetch(t *testing.T) {
 	mockExecutor := new(MockCmdExecutor)
 	mockReader := new(MockReader)
 	mockMessenger := new(MockMessenger)
+	logger := slog.New(slog.NewTextHandler(os.Stderr, nil))
 
-	fetcher := fetch.NewFetcher(mockExecutor, mockReader, mockMessenger)
+	fetcher := fetch.NewFetcher(mockExecutor, mockReader, mockMessenger, logger)
 	defaultOptionsData, err := os.ReadFile("../../../testdata/nixos-options.json")
 	assert.NoError(t, err)
 
@@ -57,25 +59,36 @@ func TestFetch(t *testing.T) {
 
 	ctx := context.Background()
 	t.Run("Should successfully fetch options", func(t *testing.T) {
-		mockExecCall := mockExecutor.On("Execute", ctx, nixFile).Return("../../../nix/nixos-options.nix", nil)
-		mockReaderCall := mockReader.On("Read", "../../../nix/nixos-options.nix").Return(defaultOptionsData, nil)
+		nixosExpr := `(builtins.getFlake (toString ./nix)).packages.${builtins.currentSystem}.nixos-options`
+		hmExpr := `(builtins.getFlake (toString ./nix)).packages.${builtins.currentSystem}.home-manager-options`
+		darwinExpr := `(builtins.getFlake (toString ./nix)).packages.${builtins.currentSystem}.darwin-options`
+
+		mockExecCall1 := mockExecutor.On("Execute", ctx, nixosExpr).Return("../../../nix/nixos-options.nix", nil).Once()
+		mockExecCall2 := mockExecutor.On("Execute", ctx, hmExpr).Return("../../../nix/nixos-options.nix", nil).Once()
+		mockExecCall3 := mockExecutor.On("Execute", ctx, darwinExpr).Return("../../../nix/nixos-options.nix", nil).Once()
+		mockReaderCall := mockReader.On("Read", "../../../nix/nixos-options.nix").Return(defaultOptionsData, nil).Times(3)
 		mockMessengerCall := mockMessenger.On("Send", mock.Anything).Return()
 
 		options, err := fetcher.Fetch(ctx, defaultSources)
 		assert.NoError(t, err)
+		// All three sources use the same test data, so we get 291 unique options total
 		assert.Len(t, options, 291)
 
 		mockExecutor.AssertExpectations(t)
 		mockReader.AssertExpectations(t)
 		mockMessenger.AssertExpectations(t)
 
-		mockExecCall.Unset()
+		mockExecCall1.Unset()
+		mockExecCall2.Unset()
+		mockExecCall3.Unset()
 		mockReaderCall.Unset()
 		mockMessengerCall.Unset()
 	})
 
 	t.Run("Should fail to read file", func(t *testing.T) {
-		mockExecCall := mockExecutor.On("Execute", ctx, nixFile).Return("../../../nix/nixos-options.nix", nil)
+		nixosExpr := `(builtins.getFlake (toString ./nix)).packages.${builtins.currentSystem}.nixos-options`
+
+		mockExecCall := mockExecutor.On("Execute", ctx, nixosExpr).Return("../../../nix/nixos-options.nix", nil)
 		mockReaderCall := mockReader.On("Read", "../../../nix/nixos-options.nix").Return(
 			[]byte{}, errors.New("failed to read file"),
 		)
@@ -94,33 +107,12 @@ func TestFetch(t *testing.T) {
 	})
 
 	t.Run("Should fail to execute cmd", func(t *testing.T) {
-		mockExecCall := mockExecutor.On("Execute", ctx, nixFile).Return("", errors.New("failed to execute cmd"))
+		nixosExpr := `(builtins.getFlake (toString ./nix)).packages.${builtins.currentSystem}.nixos-options`
+
+		mockExecCall := mockExecutor.On("Execute", ctx, nixosExpr).Return("", errors.New("failed to execute cmd"))
 		mockMessengerCall := mockMessenger.On("Send", mock.Anything).Return()
 
 		_, err := fetcher.Fetch(ctx, defaultSources)
-		assert.ErrorContains(t, err, "failed to execute cmd")
-
-		mockExecutor.AssertExpectations(t)
-		mockReader.AssertExpectations(t)
-		mockMessenger.AssertExpectations(t)
-
-		mockExecCall.Unset()
-		mockMessengerCall.Unset()
-	})
-
-	t.Run("Should fail to execute home-manager cmd", func(t *testing.T) {
-		mockExecCall := mockExecutor.On("Execute", ctx, nixFile).Return("", errors.New("failed to execute cmd"))
-		mockMessengerCall := mockMessenger.On("Send", mock.Anything).Return().Once()
-		mockMessenger.On("Send",
-			`failed to get home-manager options, try to run:\n`+
-				`nix-channel --add https://github.com/nix-community/home-manager/archive/master.tar.gz home-manager\n`+
-				`nix-channel --update\n\n`).Return().Once()
-
-		hmSource := entities.Sources{
-			HomeManager: nixFile,
-		}
-
-		_, err := fetcher.Fetch(ctx, hmSource)
 		assert.ErrorContains(t, err, "failed to execute cmd")
 
 		mockExecutor.AssertExpectations(t)

@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"log/slog"
 	"strings"
 
 	"github.com/charmbracelet/bubbles/list"
@@ -22,27 +23,23 @@ import (
 
 type GetArgsAndFlags struct {
 	OptionName string
-	Limit      int64
 	NoTUI      bool
 }
 
-// TODO: refactor args
-func getGetCmd(ctx context.Context, db *sql.DB, sources entities.Sources) *cobra.Command {
+func getGetCmd(ctx context.Context, db *sql.DB, baseSourcesTemplate entities.Sources, logger *slog.Logger) *cobra.Command {
 	var noTUI bool
-	var limit int64
 
 	getCmd := &cobra.Command{
 		Use:     "get",
 		Short:   "Finds options",
 		Long:    `This command will find options based on the name. If no name is provided it will return all options.`,
-		Example: "optinix get hyprland",
+		Example: "optinix get niri",
 		PreRun: func(cmd *cobra.Command, _ []string) {
 			noTUI, _ = cmd.Flags().GetBool("no-tui")
-			limit, _ = cmd.Flags().GetInt64("limit")
 		},
-		RunE: func(_ *cobra.Command, args []string) error {
+		RunE: func(cmd *cobra.Command, args []string) error {
+			sources := baseSourcesTemplate
 			flags := GetArgsAndFlags{
-				Limit: limit,
 				NoTUI: noTUI,
 			}
 
@@ -54,26 +51,24 @@ func getGetCmd(ctx context.Context, db *sql.DB, sources entities.Sources) *cobra
 				return errors.New("option name is required when using the TUI, pass --no-tui to disable the TUI")
 			}
 
-			outputOptions(ctx, flags, db, sources)
+			outputOptions(ctx, flags, db, sources, logger)
 			return nil
 		},
 	}
 
 	getCmd.Flags().BoolVar(&noTUI, "no-tui", false, "If set will not show the TUI and just print the options to stdout")
-	//nolint: mnd
-	getCmd.Flags().Int64Var(&limit, "limit", 10, "Limit the number of results returned")
 	return getCmd
 }
 
-func outputOptions(ctx context.Context, flags GetArgsAndFlags, db *sql.DB, sources entities.Sources) {
+func outputOptions(ctx context.Context, flags GetArgsAndFlags, db *sql.DB, sources entities.Sources, logger *slog.Logger) {
 	if flags.NoTUI {
-		options, err := findOptions(ctx, db, flags, sources)
+		options, err := findOptions(ctx, db, flags, sources, logger)
 		if err != nil {
 			fmt.Printf("Failed to get options %s\n", err)
 		}
 		plaintext.Output(options)
 	} else {
-		getOptionsFunc := getOptions(ctx, db, flags, sources)
+		getOptionsFunc := getOptions(ctx, db, flags, sources, logger)
 		myTui, err := tui.NewTUI(getOptionsFunc)
 		if err != nil {
 			fmt.Println(err)
@@ -86,9 +81,9 @@ func outputOptions(ctx context.Context, flags GetArgsAndFlags, db *sql.DB, sourc
 	}
 }
 
-func getOptions(ctx context.Context, db *sql.DB, flags GetArgsAndFlags, sources entities.Sources) tea.Cmd {
+func getOptions(ctx context.Context, db *sql.DB, flags GetArgsAndFlags, sources entities.Sources, logger *slog.Logger) tea.Cmd {
 	return func() tea.Msg {
-		options, err := findOptions(ctx, db, flags, sources)
+		options, err := findOptions(ctx, db, flags, sources, logger)
 		if err != nil {
 			tea.Printf("Failed to get options %s\n", err)
 		}
@@ -118,6 +113,7 @@ func findOptions(ctx context.Context,
 	db *sql.DB,
 	flags GetArgsAndFlags,
 	sources entities.Sources,
+	logger *slog.Logger,
 ) (opts []entities.Option, err error) {
 	myStore, err := store.NewStore(db)
 	if err != nil {
@@ -127,11 +123,10 @@ func findOptions(ctx context.Context,
 	nixExecutor := nix.NewCmdExecutor()
 	nixReader := nix.NewReader()
 	messenger := nix.NewMessenger()
-	fetcher := fetch.NewFetcher(nixExecutor, nixReader, messenger)
+	fetcher := fetch.NewFetcher(nixExecutor, nixReader, messenger, logger)
 
-	option := options.NewSearcher(myStore, fetcher, messenger)
+	option := options.NewSearcher(myStore, fetcher, messenger, logger)
 
-	// INFO: If the database is empty likely first time cli has been run so fetch all options.
 	optionCount, err := myStore.CountOptions(ctx)
 	if err != nil {
 		return nil, err
@@ -144,11 +139,10 @@ func findOptions(ctx context.Context,
 		}
 	}
 
-	// INFO: If not option name passed then get all options.
 	if flags.OptionName == "" {
 		opts, err = option.GetAll(ctx)
 	} else {
-		opts, err = option.Find(ctx, flags.OptionName, flags.Limit)
+		opts, err = option.Find(ctx, flags.OptionName)
 	}
 
 	if err != nil {

@@ -5,20 +5,33 @@ Set Width 1920
 Set Height 1080
 
 Sleep 1s
-Type "./bin/optinix get hyprland"
+Type "./bin/optinix get niri"
 Enter
-Sleep 1s
+Sleep 2s
 
 Down
 Sleep 1s
 Down
 Sleep 1s
-Space
+Type "t"
+Sleep 2s
+Type "q"
 Sleep 1s
-Enter
+
+Type "n"
+Sleep 2s
+Type "h"
+Sleep 2s
+Type "d"
+Sleep 2s
+Type "a"
+Sleep 2s
+
 Down
+Sleep 1s
+Down
+Sleep 1s
+Type "t"
+Sleep 2s
+
 Sleep 3s
-Down
-Sleep 1s
-
-Sleep 5s

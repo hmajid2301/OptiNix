@@ -22,9 +22,7 @@ WHERE
         WHERE options_fts.option_name MATCH ?
     )
 GROUP BY
-    o.id
-LIMIT
-    ?;
+    o.id;
 
 -- name: GetAllOptions :many
 SELECT
@@ -64,3 +62,15 @@ INSERT INTO source_options (source_id, option_id) VALUES (?, ?) RETURNING *;
 
 -- name: GetOptionCount :one
 SELECT COUNT(*) FROM options;
+
+-- name: DeleteAllOptions :exec
+DELETE FROM source_options;
+
+-- name: DeleteAllSources :exec
+DELETE FROM sources;
+
+-- name: DeleteAllOptionsTable :exec
+DELETE FROM options;
+
+-- name: DeleteAllOptionsFTS :exec
+DELETE FROM options_fts;

@@ -3,11 +3,13 @@ package main
 import (
 	"context"
 	"database/sql"
-	"embed"
+	_ "embed"
 	"fmt"
 	"log"
+	"log/slog"
 	"os"
 	"os/signal"
+	"path/filepath"
 
 	"gitlab.com/hmajid2301/optinix/cmd"
 	"gitlab.com/hmajid2301/optinix/internal/options/config"
@@ -17,13 +19,26 @@ import (
 //go:embed db/schema.sql
 var ddl string
 
-//go:embed nix
-var embeddedFiles embed.FS
-
 func main() {
 	var exitCode int
 	ctx := gracefulShutdown()
 	defer func() { os.Exit(exitCode) }()
+
+	conf, err := config.LoadConfig()
+	if err != nil {
+		fmt.Println("Error loading config")
+		fmt.Print(err)
+		exitCode = 1
+		return
+	}
+
+	logger, err := initLogger(conf.DBFolder)
+	if err != nil {
+		fmt.Println("Error initializing logger")
+		fmt.Print(err)
+		exitCode = 1
+		return
+	}
 
 	db, err := getDB(ctx, ddl)
 	if err != nil {
@@ -33,7 +48,7 @@ func main() {
 		return
 	}
 
-	rootCmd, err := cmd.NewRootCmd(ctx, db, embeddedFiles)
+	rootCmd, err := cmd.NewRootCmd(ctx, db, logger)
 	if err != nil {
 		fmt.Println("Error creating root command")
 		fmt.Print(err)
@@ -55,9 +70,21 @@ func main() {
 	}
 }
 
+func initLogger(logDir string) (*slog.Logger, error) {
+	if err := os.MkdirAll(logDir, 0755); err != nil {
+		return nil, err
+	}
+
+	logFile := filepath.Join(logDir, "optinix.log")
+	file, err := os.OpenFile(logFile, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0644)
+	if err != nil {
+		return nil, err
+	}
+
+	return slog.New(slog.NewTextHandler(file, nil)), nil
+}
+
 func getDB(ctx context.Context, ddl string) (*sql.DB, error) {
-	// INFO: This is a hack to allow to build completions in a Nix build, where we won't easily have access to the DB.
-	// We don't need the DB for completions, so we can just set it to nil. Until I come up with a better way to do this.
 	args := os.Args
 	if len(args) > 0 && args[1] == "completion" {
 		return nil, nil
@@ -76,6 +103,7 @@ func getDB(ctx context.Context, ddl string) (*sql.DB, error) {
 	if _, err := db.ExecContext(ctx, ddl); err != nil {
 		return nil, fmt.Errorf("failed to create database schema: %w", err)
 	}
+
 	return db, nil
 }
 

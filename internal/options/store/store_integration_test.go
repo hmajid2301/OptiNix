@@ -158,7 +158,7 @@ func TestIntegrationFindOptions(t *testing.T) {
 		err = myStore.AddOptions(ctx, optionsToAdd)
 		assert.NoError(t, err)
 
-		options, err := myStore.FindOptions(ctx, "option", 10)
+		options, err := myStore.FindOptions(ctx, "option")
 		assert.NoError(t, err)
 		assert.Len(t, options, 2, "Two entries with the name `option` should've been found")
 	})
@@ -200,7 +200,7 @@ func TestIntegrationFindOptions(t *testing.T) {
 		err = myStore.AddOptions(ctx, optionsToAdd)
 		assert.NoError(t, err)
 
-		options, err := myStore.FindOptions(ctx, "option.enable", 1)
+		options, err := myStore.FindOptions(ctx, "option.enable")
 		assert.NoError(t, err)
 		assert.Len(t, options, 1, "One entry should've been found")
 	})

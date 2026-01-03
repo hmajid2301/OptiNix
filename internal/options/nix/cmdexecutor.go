@@ -15,14 +15,20 @@ func NewCmdExecutor() CmdExecutor {
 	return CmdExecutor{}
 }
 
+func (c CmdExecutor) ExecuteCommand(ctx context.Context, name string, args ...string) *exec.Cmd {
+	cmd := exec.CommandContext(ctx, name, args...)
+	cmd.Env = os.Environ()
+	return cmd
+}
+
 func (CmdExecutor) Execute(ctx context.Context, expression string) (string, error) {
-	cmd := exec.CommandContext(ctx, "nix-build", "-E", expression)
+	cmd := exec.CommandContext(ctx, "nix-build", "--no-out-link", "-E", expression)
+	cmd.Env = os.Environ()
 	cmd.Env = append(cmd.Env,
 		"NIXPKGS_ALLOW_UNFREE=1",
 		"NIXPKGS_ALLOW_BROKEN=1",
 		"NIXPKGS_ALLOW_INSECURE=1",
 		"NIXPKGS_ALLOW_UNSUPPORTED_SYSTEM=1",
-		"--no-out-link",
 	)
 
 	if nixPath, ok := os.LookupEnv("NIX_PATH"); ok {

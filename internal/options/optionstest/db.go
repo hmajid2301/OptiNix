@@ -10,7 +10,6 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
-	// used to connect to sqlite
 	_ "modernc.org/sqlite"
 )
 

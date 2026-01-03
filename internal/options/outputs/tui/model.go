@@ -4,14 +4,11 @@ import (
 	"github.com/charmbracelet/bubbles/help"
 	"github.com/charmbracelet/bubbles/list"
 	"github.com/charmbracelet/bubbles/spinner"
+	"github.com/charmbracelet/bubbles/viewport"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/glamour"
 	"github.com/charmbracelet/lipgloss"
 )
-
-type DoneMsg struct {
-	List []list.Item
-}
 
 type Item struct {
 	OptionName   string
@@ -25,17 +22,41 @@ type Item struct {
 
 func (i Item) Title() string       { return i.OptionName }
 func (i Item) Description() string { return i.Desc }
-func (i Item) FilterValue() string { return i.OptionName }
+func (i Item) FilterValue() string {
+	return i.OptionName + " " + i.Desc + " " + i.OptionType + " " + i.OptionFrom
+}
+
+type SourceFilter struct {
+	NixOS       bool
+	HomeManager bool
+	Darwin      bool
+}
+
+type ViewState struct {
+	showDetail     bool
+	detailViewport viewport.Model
+	detailReady    bool
+	statusMessage  string
+}
+
+type DisplayConfig struct {
+	width  int
+	height int
+}
 
 type Model struct {
-	spinner    spinner.Model
-	keys       *keyMap
-	list       list.Model
-	help       help.Model
-	docStyle   lipgloss.Style
-	glammy     glamour.TermRenderer
-	getOptions tea.Cmd
-	showGlammy bool
+	spinner      spinner.Model
+	keys         *keyMap
+	list         list.Model
+	help         help.Model
+	docStyle     lipgloss.Style
+	glammy       glamour.TermRenderer
+	getOptions   tea.Cmd
+	totalOptions int
+	sourceFilter SourceFilter
+	allItems     []list.Item
+	view         ViewState
+	display      DisplayConfig
 }
 
 func NewTUI(getOptions tea.Cmd) (Model, error) {
@@ -51,21 +72,31 @@ func NewTUI(getOptions tea.Cmd) (Model, error) {
 	}
 
 	optsList := []list.Item{}
-	l := list.New(optsList, list.NewDefaultDelegate(), 0, 0)
-	// l.SetShowHelp(false)
+	delegate := itemDelegate{}
+	l := list.New(optsList, delegate, 0, 0)
+	l.Title = "NixOS Options"
+	l.SetShowStatusBar(false)
+	l.SetFilteringEnabled(true)
 	key := newKeyMap()
 	help := styledHelp(help.New())
 
 	s := spinner.New()
 	s.Spinner = spinner.Dot
 	s.Style = lipgloss.NewStyle().Foreground(lipgloss.Color("205"))
-	return Model{help: help,
+	return Model{
+		help:       help,
 		docStyle:   docStyle,
 		list:       l,
 		glammy:     *glammy,
 		keys:       key,
 		getOptions: getOptions,
 		spinner:    s,
+		sourceFilter: SourceFilter{
+			NixOS:       true,
+			HomeManager: true,
+			Darwin:      true,
+		},
+		allItems: []list.Item{},
 	}, nil
 }
 

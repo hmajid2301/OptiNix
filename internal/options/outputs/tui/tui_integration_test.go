@@ -119,6 +119,15 @@ func TestIntegrationTUI(t *testing.T) {
 		assert.NoError(t, err)
 		tm := teatest.NewTestModel(t, model, teatest.WithInitialTermSize(300, 100))
 
+		teatest.WaitFor(
+			t, tm.Output(),
+			func(bts []byte) bool {
+				return bytes.Contains(bts, []byte("accounts.calendar.accounts.<name>.vdirsyncer.enable"))
+			},
+			teatest.WithCheckInterval(time.Millisecond*100),
+			teatest.WithDuration(time.Second*3),
+		)
+
 		tm.Send(tea.KeyMsg{
 			Type:  tea.KeyRunes,
 			Runes: []rune("t"),
@@ -127,7 +136,7 @@ func TestIntegrationTUI(t *testing.T) {
 		teatest.WaitFor(
 			t, tm.Output(),
 			func(bts []byte) bool {
-				return bytes.Contains(bts, []byte("## Description"))
+				return bytes.Contains(bts, []byte("Description"))
 			},
 			teatest.WithCheckInterval(time.Millisecond*100),
 			teatest.WithDuration(time.Second*3),

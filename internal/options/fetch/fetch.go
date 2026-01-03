@@ -2,7 +2,9 @@ package fetch
 
 import (
 	"context"
-	"path/filepath"
+	"fmt"
+	"log/slog"
+	"strings"
 
 	"gitlab.com/hmajid2301/optinix/internal/options/entities"
 )
@@ -19,81 +21,56 @@ type Fetcher struct {
 	nixCmdExecutor Exectutor
 	reader         Reader
 	messenger      entities.Messager
+	logger         *slog.Logger
 }
 
-func NewFetcher(executor Exectutor, reader Reader, messager entities.Messager) Fetcher {
-	return Fetcher{nixCmdExecutor: executor, reader: reader, messenger: messager}
+func NewFetcher(executor Exectutor, reader Reader, messager entities.Messager, logger *slog.Logger) Fetcher {
+	return Fetcher{nixCmdExecutor: executor, reader: reader, messenger: messager, logger: logger}
 }
 
 func (f Fetcher) Fetch(ctx context.Context, sources entities.Sources) ([]entities.Option, error) {
 	var options []entities.Option
-	for _, source := range []string{sources.NixOS, sources.HomeManager, sources.Darwin} {
-		var path string
-		var err error
-		var optionFrom string
 
-		if source == "" {
-			continue
+	// Build options from internal flake
+	type optionSource struct {
+		name        string
+		packageName string
+		optionFrom  string
+	}
+
+	optionSources := []optionSource{
+		{"NixOS", "nixos-options", "NixOS"},
+		{"Home Manager", "home-manager-options", "Home Manager"},
+		{"Darwin", "darwin-options", "Darwin"},
+	}
+
+	totalSources := len(optionSources)
+	for idx, src := range optionSources {
+		f.messenger.Send(fmt.Sprintf("Fetching %s options... (%d/%d)", src.name, idx+1, totalSources))
+
+		nixExpr := fmt.Sprintf(`(builtins.getFlake (toString ./nix)).packages.%s.%s`,
+			"${builtins.currentSystem}", src.packageName)
+
+		path, err := f.nixCmdExecutor.Execute(ctx, nixExpr)
+		if err != nil {
+			f.messenger.Send(fmt.Sprintf("failed to get %s options from internal flake", src.name))
+			return nil, err
 		}
 
-		switch source {
-		case sources.NixOS:
-			optionFrom = "NixOS"
-			f.messenger.Send("Trying to fetch NixOS options")
-			path, err = f.getNixosDocPath(ctx, source)
-		case sources.HomeManager:
-			optionFrom = "Home Manager"
-			f.messenger.Send("Trying to fetch Home Manager options")
-			path, err = f.getHMDocPath(ctx, source)
-			if err != nil {
-				f.messenger.Send(`failed to get home-manager options, try to run:\n` +
-					`nix-channel --add https://github.com/nix-community/home-manager/archive/master.tar.gz home-manager\n` +
-					`nix-channel --update\n\n`)
-			}
-		case sources.Darwin:
-			optionFrom = "Darwin"
-			f.messenger.Send("Trying to fetch Darwin options")
-			path, err = f.getDarwinDocPath(ctx, source)
-		}
+		f.logger.Debug("Got path", "path", path)
 
+		contents, err := f.reader.Read(strings.TrimSpace(path))
 		if err != nil {
 			return nil, err
 		}
 
-		f.messenger.Send("Successfully fetched options")
-		contents, err := f.reader.Read(path)
-		if err != nil {
-			return nil, err
-		}
-
-		f.messenger.Send("Trying to parse options")
-		opts, err := ParseOptions(contents, optionFrom)
+		f.messenger.Send(fmt.Sprintf("Parsing %s options... (%d/%d)", src.name, idx+1, totalSources))
+		opts, err := ParseOptions(contents, src.optionFrom)
 		if err != nil {
 			return nil, err
 		}
 		options = append(options, opts...)
-		f.messenger.Send("Successfully parsed options")
 	}
 
 	return options, nil
-}
-
-func (f Fetcher) getHMDocPath(ctx context.Context, expression string) (string, error) {
-	output, err := f.nixCmdExecutor.Execute(ctx, expression)
-	if err != nil {
-		return "", err
-	}
-
-	path := filepath.Join(output, "share/doc/home-manager/options.json")
-	return path, nil
-}
-
-func (f Fetcher) getNixosDocPath(ctx context.Context, expression string) (string, error) {
-	output, err := f.nixCmdExecutor.Execute(ctx, expression)
-	return output, err
-}
-
-func (f Fetcher) getDarwinDocPath(ctx context.Context, expression string) (string, error) {
-	output, err := f.nixCmdExecutor.Execute(ctx, expression)
-	return output, err
 }
