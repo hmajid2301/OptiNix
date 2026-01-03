@@ -77,3 +77,6 @@ result
 __debug_bin*
 
 bin/optinix
+
+# CI cache directories
+.go/

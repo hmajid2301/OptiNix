@@ -8,7 +8,7 @@ default:
   interruptible: true
 
 variables:
-  IMAGE_TAG: v0.1.0
+  IMAGE_TAG: v0.1.1
   OPTINIX_CI_IMAGE: $CI_REGISTRY_IMAGE/ci:$IMAGE_TAG
   GOPATH: $CI_PROJECT_DIR/.go
 
@@ -21,9 +21,11 @@ stages:
 
 .docker:
   variables:
-    DOCKER_HOST: tcp://docker:2375
+    DOCKER_HOST: tcp://docker:2376
+    DOCKER_TLS_CERTDIR: /certs
+    DOCKER_TLS_VERIFY: 1
+    DOCKER_CERT_PATH: /certs/client
     DOCKER_DRIVER: overlay2
-    DOCKER_TLS_CERTDIR: ""
     IMMUTABLE: "true"
   services:
     - docker:dind
@@ -64,7 +66,7 @@ publish:docker:ci:
     LOCAL_IMAGE: optinix-dev
     IMMUTABLE: true
   rules:
-    - if: $CI_COMMIT_MESSAGE =~ /UPDATE_IMAGE_TAG/
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event" && $CI_COMMIT_MESSAGE =~ /UPDATE_IMAGE_TAG/
       when: on_success
   extends:
     - .docker
@@ -133,5 +135,24 @@ release:
     - if: $CI_COMMIT_TAG
   variables:
     GIT_DEPTH: 0
+    GITLAB_TOKEN: $CI_JOB_TOKEN
   script:
     - task release
+
+publish:docker:
+  stage: release
+  variables:
+    FLAKE_TARGET: container
+    LOCAL_IMAGE: optinix
+  rules:
+    - if: $CI_COMMIT_TAG
+  extends:
+    - .docker
+  script:
+    - nix build .#${FLAKE_TARGET}
+    - docker load < result
+    - docker login -u $CI_REGISTRY_USER -p $CI_JOB_TOKEN $CI_REGISTRY
+    - docker image tag ${LOCAL_IMAGE}:latest $CI_REGISTRY_IMAGE:$CI_COMMIT_TAG
+    - docker push $CI_REGISTRY_IMAGE:$CI_COMMIT_TAG
+    - docker image tag ${LOCAL_IMAGE}:latest $CI_REGISTRY_IMAGE:latest
+    - docker push $CI_REGISTRY_IMAGE:latest

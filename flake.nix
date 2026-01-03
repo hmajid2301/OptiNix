@@ -39,6 +39,7 @@
 
           sqlc
           sqlfluff
+          goreleaser
         ];
 
         devShellPackages =
@@ -46,7 +47,6 @@
           myPackages
           ++ [
             go-junit-report
-            goreleaser
             vhs
             gum
           ];
@@ -60,7 +60,7 @@
           inherit pre-commit-hooks;
           inherit devShellPackages;
         };
-        packages.container = pkgs.callPackage ./containers/service.nix {
+        packages.container = pkgs.callPackage ./containers/cli.nix {
           package = packages.default;
         };
         packages.container-ci = pkgs.callPackage ./containers/ci.nix {

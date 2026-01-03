@@ -24,8 +24,7 @@ builds:
       - -s -w -X main.version={{.Version}} -X main.commit={{.Commit}} -X main.date={{ .CommitDate }}
 
 release:
-  draft: true
-  replace_existing_draft: true
+  draft: false
 
 archives:
   - meta: false
@@ -40,3 +39,7 @@ checksum:
 snapshot:
   name_template: "{{ incpatch .Version }}-next"
 
+gitlab_urls:
+  api: https://gitlab.com/api/v4/
+  download: https://gitlab.com
+  use_job_token: true

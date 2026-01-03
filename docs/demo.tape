@@ -5,7 +5,7 @@ Set Width 1920
 Set Height 1080
 
 Sleep 1s
-Type "./bin/optinix get niri"
+Type "optinix get niri"
 Enter
 Sleep 2s
 
