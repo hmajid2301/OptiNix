@@ -14,7 +14,7 @@ import (
 
 func NewRootCmd(ctx context.Context, db *sql.DB, logger *slog.Logger) (*cobra.Command, error) {
 	rootCmd := &cobra.Command{
-		Version: "v0.1.4",
+		Version: "v0.2.0",
 		Use:     "optinix",
 		Short:   "optinix - a CLI tool to search nix options",
 		Long:    `OptiNix is tool you can use on the command line to search options for NixOS, home-manager and Darwin.`,
